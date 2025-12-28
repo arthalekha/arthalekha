@@ -6,3 +6,52 @@
 @source '../**/*.js';
 
 @plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "forest-light";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Base colors - light cream/off-white with slight green tint */
+  --color-base-100: oklch(97% 0.01 145);
+  --color-base-200: oklch(94% 0.02 145);
+  --color-base-300: oklch(90% 0.03 145);
+  --color-base-content: oklch(25% 0.05 145);
+
+  /* Primary - deep forest green */
+  --color-primary: oklch(45% 0.15 145);
+  --color-primary-content: oklch(98% 0.01 145);
+
+  /* Secondary - moss/sage green */
+  --color-secondary: oklch(55% 0.1 130);
+  --color-secondary-content: oklch(98% 0.01 130);
+
+  /* Accent - golden/amber (like sunlight through trees) */
+  --color-accent: oklch(70% 0.15 85);
+  --color-accent-content: oklch(25% 0.05 85);
+
+  /* Neutral - bark brown */
+  --color-neutral: oklch(35% 0.05 60);
+  --color-neutral-content: oklch(98% 0.01 60);
+
+  /* Semantic colors */
+  --color-info: oklch(65% 0.15 220);
+  --color-info-content: oklch(98% 0.01 220);
+  --color-success: oklch(60% 0.18 145);
+  --color-success-content: oklch(98% 0.01 145);
+  --color-warning: oklch(75% 0.15 75);
+  --color-warning-content: oklch(25% 0.05 75);
+  --color-error: oklch(55% 0.2 25);
+  --color-error-content: oklch(98% 0.01 25);
+
+  /* Styling */
+  --radius-selector: 0.5rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}

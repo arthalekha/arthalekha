@@ -7,6 +7,12 @@
 .phpunit.result.cache
 /.fleet
 /.idea
+/.gemini
+/.junie
+/.cursor
+/.ai
+.mcp.json
+boost.json
 /.nova
 /.phpunit.cache
 /.vscode

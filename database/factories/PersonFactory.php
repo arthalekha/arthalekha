@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,14 +18,7 @@ class PersonFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'notes' => fake()->optional()->sentence(),
+            'nick_name' => fake()->optional()->name(),
         ];
-    }
-
-    public function forUser(User $user): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'user_id' => $user->id,
-        ]);
     }
 }

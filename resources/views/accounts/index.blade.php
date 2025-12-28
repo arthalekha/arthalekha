@@ -99,6 +99,9 @@
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">
+                                            <a href="{{ route('accounts.transactions', $account) }}" class="btn btn-ghost btn-sm">
+                                                Transactions
+                                            </a>
                                             <a href="{{ route('accounts.show', $account) }}" class="btn btn-ghost btn-sm">
                                                 View
                                             </a>

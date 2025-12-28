@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
@@ -16,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', HomeController::class)->name('home');
 
     Route::resource('accounts', AccountController::class);
+    Route::get('accounts/{account}/transactions', AccountTransactionController::class)->name('accounts.transactions');
     Route::resource('expenses', ExpenseController::class);
     Route::resource('incomes', IncomeController::class);
     Route::resource('transfers', TransferController::class);

@@ -21,6 +21,46 @@
         </div>
     @endif
 
+    <div class="card bg-base-100 shadow-xl mb-4">
+        <div class="card-body py-4">
+            <form action="{{ route('accounts.index') }}" method="GET" class="flex flex-wrap gap-4 items-end">
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text">Search Name</span>
+                    </label>
+                    <input type="text" name="filter[name]" value="{{ request('filter.name') }}"
+                           class="input input-bordered input-sm w-48" placeholder="Search by name...">
+                </div>
+
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text">Account Type</span>
+                    </label>
+                    <select name="filter[account_type]" class="select select-bordered select-sm w-48">
+                        <option value="">All Types</option>
+                        @foreach ($accountTypes as $type)
+                            <option value="{{ $type->value }}" @selected(request('filter.account_type') === $type->value)>
+                                {{ ucfirst(str_replace('_', ' ', $type->value)) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Filter
+                    </button>
+                    @if(request()->hasAny(['filter']))
+                        <a href="{{ route('accounts.index') }}" class="btn btn-ghost btn-sm">Clear</a>
+                    @endif
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
             @if ($accounts->isEmpty())

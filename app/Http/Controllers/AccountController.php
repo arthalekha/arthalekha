@@ -21,8 +21,9 @@ class AccountController extends Controller
     public function index(): View
     {
         $accounts = $this->accountService->getAccountsForUser(Auth::user());
+        $accountTypes = AccountType::cases();
 
-        return view('accounts.index', compact('accounts'));
+        return view('accounts.index', compact('accounts', 'accountTypes'));
     }
 
     /**

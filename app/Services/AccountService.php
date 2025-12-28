@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class AccountService
 {
@@ -13,10 +15,15 @@ class AccountService
      */
     public function getAccountsForUser(User $user, int $perPage = 10): LengthAwarePaginator
     {
-        return Account::query()
+        return QueryBuilder::for(Account::class)
             ->where('user_id', $user->id)
-            ->latest()
-            ->paginate($perPage);
+            ->allowedFilters([
+                AllowedFilter::exact('account_type'),
+                AllowedFilter::partial('name'),
+            ])
+            ->defaultSort('-created_at')
+            ->paginate($perPage)
+            ->appends(request()->query());
     }
 
     /**

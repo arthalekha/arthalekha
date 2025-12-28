@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TransferController;
@@ -12,9 +13,7 @@ Route::middleware(['auth'])->group(function () {
         return view('welcome');
     });
 
-    Route::get('/home', function () {
-        return view('home');
-    })->name('home');
+    Route::get('/home', HomeController::class)->name('home');
 
     Route::resource('accounts', AccountController::class);
     Route::resource('expenses', ExpenseController::class);

@@ -8,8 +8,10 @@ use App\Models\Account;
 use App\Models\Income;
 use App\Models\Person;
 use App\Services\IncomeService;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class IncomeController extends Controller
@@ -19,11 +21,29 @@ class IncomeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $incomes = $this->incomeService->getIncomesForUser(Auth::user());
+        $filters = [
+            'from_date' => $request->input('filter.from_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
+            'to_date' => $request->input('filter.to_date', Carbon::now()->endOfMonth()->format('Y-m-d')),
+            'search' => $request->input('filter.search'),
+            'account_id' => $request->input('filter.account_id'),
+            'person_id' => $request->input('filter.person_id'),
+        ];
 
-        return view('incomes.index', compact('incomes'));
+        // Merge default filters into request for Spatie Query Builder
+        $request->mergeIfMissing([
+            'filter' => [
+                'from_date' => $filters['from_date'],
+                'to_date' => $filters['to_date'],
+            ],
+        ]);
+
+        $incomes = $this->incomeService->getIncomesForUser(Auth::user());
+        $accounts = Account::where('user_id', Auth::id())->get();
+        $people = Person::all();
+
+        return view('incomes.index', compact('incomes', 'accounts', 'people', 'filters'));
     }
 
     /**

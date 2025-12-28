@@ -4,20 +4,32 @@ namespace App\Services;
 
 use App\Models\Income;
 use App\Models\User;
+use App\QueryFilters\FromDateFilter;
+use App\QueryFilters\ToDateFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class IncomeService
 {
     /**
-     * Get paginated incomes for a user.
+     * Get paginated incomes for a user with filters.
      */
     public function getIncomesForUser(User $user, int $perPage = 10): LengthAwarePaginator
     {
-        return Income::query()
+        return QueryBuilder::for(Income::class)
             ->where('user_id', $user->id)
             ->with(['account', 'person'])
+            ->allowedFilters([
+                AllowedFilter::custom('from_date', new FromDateFilter),
+                AllowedFilter::custom('to_date', new ToDateFilter),
+                AllowedFilter::partial('search', 'description'),
+                AllowedFilter::exact('account_id'),
+                AllowedFilter::exact('person_id'),
+            ])
             ->latest('transacted_at')
-            ->paginate($perPage);
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**

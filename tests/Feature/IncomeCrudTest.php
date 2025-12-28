@@ -206,3 +206,227 @@ test('user cannot delete another users income', function () {
 
     $this->assertDatabaseHas('incomes', ['id' => $otherIncome->id]);
 });
+
+// Filter tests using Spatie Query Builder
+
+test('index defaults to current month date range', function () {
+    $this->actingAs($this->user)
+        ->get(route('incomes.index'))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) {
+            return $filters['from_date'] === now()->startOfMonth()->format('Y-m-d')
+                && $filters['to_date'] === now()->endOfMonth()->format('Y-m-d');
+        });
+});
+
+test('can filter incomes by from_date', function () {
+    $oldIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonth()]);
+
+    $recentIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', [
+            'filter' => [
+                'from_date' => now()->subDays(7)->format('Y-m-d'),
+                'to_date' => now()->addDay()->format('Y-m-d'),
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee($recentIncome->description)
+        ->assertDontSee($oldIncome->description);
+});
+
+test('can filter incomes by to_date', function () {
+    $oldIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonth()]);
+
+    $recentIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', [
+            'filter' => [
+                'from_date' => now()->subMonths(2)->format('Y-m-d'),
+                'to_date' => now()->subWeeks(2)->format('Y-m-d'),
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee($oldIncome->description)
+        ->assertDontSee($recentIncome->description);
+});
+
+test('can filter incomes by date range', function () {
+    $beforeRange = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonths(2), 'description' => 'Before range']);
+
+    $inRange = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonth(), 'description' => 'In range']);
+
+    $afterRange = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now(), 'description' => 'After range']);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', [
+            'filter' => [
+                'from_date' => now()->subMonths(2)->addDay()->format('Y-m-d'),
+                'to_date' => now()->subDay()->format('Y-m-d'),
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee('In range')
+        ->assertDontSee('Before range')
+        ->assertDontSee('After range');
+});
+
+test('can filter incomes by search term', function () {
+    $matchingIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Salary payment', 'transacted_at' => now()]);
+
+    $nonMatchingIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Freelance work', 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', ['filter' => ['search' => 'Salary']]))
+        ->assertSuccessful()
+        ->assertSee('Salary payment')
+        ->assertDontSee('Freelance work');
+});
+
+test('can filter incomes by account', function () {
+    $secondAccount = Account::factory()->forUser($this->user)->create();
+
+    $firstAccountIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'First account income', 'transacted_at' => now()]);
+
+    $secondAccountIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($secondAccount)
+        ->create(['description' => 'Second account income', 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', ['filter' => ['account_id' => $this->account->id]]))
+        ->assertSuccessful()
+        ->assertSee('First account income')
+        ->assertDontSee('Second account income');
+});
+
+test('can filter incomes by person', function () {
+    $person = Person::factory()->create();
+    $anotherPerson = Person::factory()->create();
+
+    $incomeWithPerson = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Income with person', 'person_id' => $person->id, 'transacted_at' => now()]);
+
+    $incomeWithAnotherPerson = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Income with another', 'person_id' => $anotherPerson->id, 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', ['filter' => ['person_id' => $person->id]]))
+        ->assertSuccessful()
+        ->assertSee('Income with person')
+        ->assertDontSee('Income with another');
+});
+
+test('can combine multiple filters', function () {
+    $person = Person::factory()->create();
+
+    $matchingIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create([
+            'description' => 'Matching income',
+            'person_id' => $person->id,
+            'transacted_at' => now(),
+        ]);
+
+    $wrongAccount = Account::factory()->forUser($this->user)->create();
+    $wrongAccountIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($wrongAccount)
+        ->create([
+            'description' => 'Wrong account',
+            'person_id' => $person->id,
+            'transacted_at' => now(),
+        ]);
+
+    $wrongPersonIncome = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create([
+            'description' => 'Wrong person',
+            'person_id' => null,
+            'transacted_at' => now(),
+        ]);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', [
+            'filter' => [
+                'account_id' => $this->account->id,
+                'person_id' => $person->id,
+                'search' => 'Matching',
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee('Matching income')
+        ->assertDontSee('Wrong account')
+        ->assertDontSee('Wrong person');
+});
+
+test('filters are passed to the view', function () {
+    $person = Person::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', [
+            'filter' => [
+                'from_date' => '2024-01-01',
+                'to_date' => '2024-12-31',
+                'search' => 'test search',
+                'account_id' => $this->account->id,
+                'person_id' => $person->id,
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) use ($person) {
+            return $filters['from_date'] === '2024-01-01'
+                && $filters['to_date'] === '2024-12-31'
+                && $filters['search'] === 'test search'
+                && $filters['account_id'] == $this->account->id
+                && $filters['person_id'] == $person->id;
+        });
+});
+
+test('accounts and people are passed to index view for filter dropdowns', function () {
+    Person::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index'))
+        ->assertSuccessful()
+        ->assertViewHas('accounts')
+        ->assertViewHas('people');
+});

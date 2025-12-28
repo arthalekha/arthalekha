@@ -21,6 +21,91 @@
         </div>
     @endif
 
+    <div class="card bg-base-100 shadow-xl mb-6">
+        <div class="card-body">
+            <form method="GET" action="{{ route('incomes.index') }}">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">From Date</span>
+                        </label>
+                        <input
+                            type="date"
+                            name="filter[from_date]"
+                            value="{{ $filters['from_date'] }}"
+                            class="input input-bordered input-sm"
+                        >
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">To Date</span>
+                        </label>
+                        <input
+                            type="date"
+                            name="filter[to_date]"
+                            value="{{ $filters['to_date'] }}"
+                            class="input input-bordered input-sm"
+                        >
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Search</span>
+                        </label>
+                        <input
+                            type="text"
+                            name="filter[search]"
+                            value="{{ $filters['search'] }}"
+                            placeholder="Search description..."
+                            class="input input-bordered input-sm"
+                        >
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Account</span>
+                        </label>
+                        <select name="filter[account_id]" class="select select-bordered select-sm">
+                            <option value="">All Accounts</option>
+                            @foreach ($accounts as $account)
+                                <option value="{{ $account->id }}" {{ $filters['account_id'] == $account->id ? 'selected' : '' }}>
+                                    {{ $account->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Person</span>
+                        </label>
+                        <select name="filter[person_id]" class="select select-bordered select-sm">
+                            <option value="">All People</option>
+                            @foreach ($people as $person)
+                                <option value="{{ $person->id }}" {{ $filters['person_id'] == $person->id ? 'selected' : '' }}>
+                                    {{ $person->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                        </svg>
+                        Filter
+                    </button>
+                    <a href="{{ route('incomes.index') }}" class="btn btn-ghost btn-sm">
+                        Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
             @if ($incomes->isEmpty())

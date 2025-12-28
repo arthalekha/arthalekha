@@ -13,6 +13,11 @@
     <div class="navbar bg-base-100 shadow-sm">
         <div class="flex-1">
             <a href="{{ url('/') }}" class="btn btn-ghost text-xl">{{ config('app.name', 'Laravel') }}</a>
+            @auth
+                <ul class="menu menu-horizontal px-1">
+                    <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">Tags</a></li>
+                </ul>
+            @endauth
         </div>
         <div class="flex-none">
             @auth

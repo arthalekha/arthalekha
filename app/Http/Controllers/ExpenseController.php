@@ -1,0 +1,109 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreExpenseRequest;
+use App\Http\Requests\UpdateExpenseRequest;
+use App\Models\Account;
+use App\Models\Expense;
+use App\Models\Person;
+use App\Services\ExpenseService;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+
+class ExpenseController extends Controller
+{
+    public function __construct(public ExpenseService $expenseService) {}
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): View
+    {
+        $expenses = $this->expenseService->getExpensesForUser(Auth::user());
+
+        return view('expenses.index', compact('expenses'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): View
+    {
+        $accounts = Account::where('user_id', Auth::id())->get();
+        $people = Person::all();
+
+        return view('expenses.create', compact('accounts', 'people'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreExpenseRequest $request): RedirectResponse
+    {
+        $this->expenseService->createExpense(Auth::user(), $request->validated());
+
+        return redirect()->route('expenses.index')
+            ->with('success', 'Expense created successfully.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Expense $expense): View|RedirectResponse
+    {
+        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
+            abort(403);
+        }
+
+        $expense->load(['account', 'person']);
+
+        return view('expenses.show', compact('expense'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Expense $expense): View|RedirectResponse
+    {
+        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
+            abort(403);
+        }
+
+        $accounts = Account::where('user_id', Auth::id())->get();
+        $people = Person::all();
+
+        return view('expenses.edit', compact('expense', 'accounts', 'people'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateExpenseRequest $request, Expense $expense): RedirectResponse
+    {
+        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
+            abort(403);
+        }
+
+        $this->expenseService->updateExpense($expense, $request->validated());
+
+        return redirect()->route('expenses.index')
+            ->with('success', 'Expense updated successfully.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Expense $expense): RedirectResponse
+    {
+        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
+            abort(403);
+        }
+
+        $this->expenseService->deleteExpense($expense);
+
+        return redirect()->route('expenses.index')
+            ->with('success', 'Expense deleted successfully.');
+    }
+}

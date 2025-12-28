@@ -206,3 +206,227 @@ test('user cannot delete another users expense', function () {
 
     $this->assertDatabaseHas('expenses', ['id' => $otherExpense->id]);
 });
+
+// Filter tests using Spatie Query Builder
+
+test('expense index defaults to current month date range', function () {
+    $this->actingAs($this->user)
+        ->get(route('expenses.index'))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) {
+            return $filters['from_date'] === now()->startOfMonth()->format('Y-m-d')
+                && $filters['to_date'] === now()->endOfMonth()->format('Y-m-d');
+        });
+});
+
+test('can filter expenses by from_date', function () {
+    $oldExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonth()]);
+
+    $recentExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', [
+            'filter' => [
+                'from_date' => now()->subDays(7)->format('Y-m-d'),
+                'to_date' => now()->addDay()->format('Y-m-d'),
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee($recentExpense->description)
+        ->assertDontSee($oldExpense->description);
+});
+
+test('can filter expenses by to_date', function () {
+    $oldExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonth()]);
+
+    $recentExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', [
+            'filter' => [
+                'from_date' => now()->subMonths(2)->format('Y-m-d'),
+                'to_date' => now()->subWeeks(2)->format('Y-m-d'),
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee($oldExpense->description)
+        ->assertDontSee($recentExpense->description);
+});
+
+test('can filter expenses by date range', function () {
+    $beforeRange = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonths(2), 'description' => 'Before range']);
+
+    $inRange = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonth(), 'description' => 'In range']);
+
+    $afterRange = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now(), 'description' => 'After range']);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', [
+            'filter' => [
+                'from_date' => now()->subMonths(2)->addDay()->format('Y-m-d'),
+                'to_date' => now()->subDay()->format('Y-m-d'),
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee('In range')
+        ->assertDontSee('Before range')
+        ->assertDontSee('After range');
+});
+
+test('can filter expenses by search term', function () {
+    $matchingExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Grocery shopping', 'transacted_at' => now()]);
+
+    $nonMatchingExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Electricity bill', 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', ['filter' => ['search' => 'Grocery']]))
+        ->assertSuccessful()
+        ->assertSee('Grocery shopping')
+        ->assertDontSee('Electricity bill');
+});
+
+test('can filter expenses by account', function () {
+    $secondAccount = Account::factory()->forUser($this->user)->create();
+
+    $firstAccountExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'First account expense', 'transacted_at' => now()]);
+
+    $secondAccountExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($secondAccount)
+        ->create(['description' => 'Second account expense', 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', ['filter' => ['account_id' => $this->account->id]]))
+        ->assertSuccessful()
+        ->assertSee('First account expense')
+        ->assertDontSee('Second account expense');
+});
+
+test('can filter expenses by person', function () {
+    $person = Person::factory()->create();
+    $anotherPerson = Person::factory()->create();
+
+    $expenseWithPerson = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Expense with person', 'person_id' => $person->id, 'transacted_at' => now()]);
+
+    $expenseWithAnotherPerson = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Expense with another', 'person_id' => $anotherPerson->id, 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', ['filter' => ['person_id' => $person->id]]))
+        ->assertSuccessful()
+        ->assertSee('Expense with person')
+        ->assertDontSee('Expense with another');
+});
+
+test('can combine multiple expense filters', function () {
+    $person = Person::factory()->create();
+
+    $matchingExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create([
+            'description' => 'Matching expense',
+            'person_id' => $person->id,
+            'transacted_at' => now(),
+        ]);
+
+    $wrongAccount = Account::factory()->forUser($this->user)->create();
+    $wrongAccountExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($wrongAccount)
+        ->create([
+            'description' => 'Wrong account',
+            'person_id' => $person->id,
+            'transacted_at' => now(),
+        ]);
+
+    $wrongPersonExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create([
+            'description' => 'Wrong person',
+            'person_id' => null,
+            'transacted_at' => now(),
+        ]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', [
+            'filter' => [
+                'account_id' => $this->account->id,
+                'person_id' => $person->id,
+                'search' => 'Matching',
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertSee('Matching expense')
+        ->assertDontSee('Wrong account')
+        ->assertDontSee('Wrong person');
+});
+
+test('expense filters are passed to the view', function () {
+    $person = Person::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', [
+            'filter' => [
+                'from_date' => '2024-01-01',
+                'to_date' => '2024-12-31',
+                'search' => 'test search',
+                'account_id' => $this->account->id,
+                'person_id' => $person->id,
+            ],
+        ]))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) use ($person) {
+            return $filters['from_date'] === '2024-01-01'
+                && $filters['to_date'] === '2024-12-31'
+                && $filters['search'] === 'test search'
+                && $filters['account_id'] == $this->account->id
+                && $filters['person_id'] == $person->id;
+        });
+});
+
+test('accounts and people are passed to expense index view for filter dropdowns', function () {
+    Person::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index'))
+        ->assertSuccessful()
+        ->assertViewHas('accounts')
+        ->assertViewHas('people');
+});

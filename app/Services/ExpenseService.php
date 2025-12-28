@@ -4,20 +4,32 @@ namespace App\Services;
 
 use App\Models\Expense;
 use App\Models\User;
+use App\QueryFilters\FromDateFilter;
+use App\QueryFilters\ToDateFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class ExpenseService
 {
     /**
-     * Get paginated expenses for a user.
+     * Get paginated expenses for a user with filters.
      */
     public function getExpensesForUser(User $user, int $perPage = 10): LengthAwarePaginator
     {
-        return Expense::query()
+        return QueryBuilder::for(Expense::class)
             ->where('user_id', $user->id)
             ->with(['account', 'person'])
+            ->allowedFilters([
+                AllowedFilter::custom('from_date', new FromDateFilter),
+                AllowedFilter::custom('to_date', new ToDateFilter),
+                AllowedFilter::partial('search', 'description'),
+                AllowedFilter::exact('account_id'),
+                AllowedFilter::exact('person_id'),
+            ])
             ->latest('transacted_at')
-            ->paginate($perPage);
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**

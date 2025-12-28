@@ -8,8 +8,10 @@ use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Person;
 use App\Services\ExpenseService;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ExpenseController extends Controller
@@ -19,11 +21,29 @@ class ExpenseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $expenses = $this->expenseService->getExpensesForUser(Auth::user());
+        $filters = [
+            'from_date' => $request->input('filter.from_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
+            'to_date' => $request->input('filter.to_date', Carbon::now()->endOfMonth()->format('Y-m-d')),
+            'search' => $request->input('filter.search'),
+            'account_id' => $request->input('filter.account_id'),
+            'person_id' => $request->input('filter.person_id'),
+        ];
 
-        return view('expenses.index', compact('expenses'));
+        // Merge default filters into request for Spatie Query Builder
+        $request->mergeIfMissing([
+            'filter' => [
+                'from_date' => $filters['from_date'],
+                'to_date' => $filters['to_date'],
+            ],
+        ]);
+
+        $expenses = $this->expenseService->getExpensesForUser(Auth::user());
+        $accounts = Account::where('user_id', Auth::id())->get();
+        $people = Person::all();
+
+        return view('expenses.index', compact('expenses', 'accounts', 'people', 'filters'));
     }
 
     /**

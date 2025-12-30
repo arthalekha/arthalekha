@@ -61,6 +61,7 @@
                         </svg>
                     </div>
                     <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                        <li><a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.index') ? 'active' : '' }}">Manage Users</a></li>
                         <li><a href="{{ route('users.invite') }}" class="{{ request()->routeIs('users.invite*') ? 'active' : '' }}">Invite User</a></li>
                         <li>
                             <form method="POST" action="{{ route('logout') }}">

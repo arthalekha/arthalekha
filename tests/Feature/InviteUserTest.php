@@ -120,3 +120,40 @@ test('invited user can login with the generated password', function () {
     $response->assertRedirect(route('home', absolute: false));
     $this->assertAuthenticatedAs(User::where('email', 'newuser@example.com')->first());
 });
+
+test('user list page requires authentication', function () {
+    $response = $this->get(route('users.index'));
+
+    $response->assertRedirect(route('login'));
+});
+
+test('authenticated user can view user list page', function () {
+    $response = $this->actingAs($this->user)->get(route('users.index'));
+
+    $response->assertOk();
+    $response->assertViewIs('users.index');
+    $response->assertViewHas('users');
+});
+
+test('user list page shows all users', function () {
+    $users = User::factory()->count(3)->create();
+
+    $response = $this->actingAs($this->user)->get(route('users.index'));
+
+    $response->assertOk();
+    $response->assertSee($this->user->name);
+    foreach ($users as $user) {
+        $response->assertSee($user->name);
+        $response->assertSee($user->email);
+    }
+});
+
+test('user list page is paginated', function () {
+    User::factory()->count(15)->create();
+
+    $response = $this->actingAs($this->user)->get(route('users.index'));
+
+    $response->assertOk();
+    $users = $response->viewData('users');
+    expect($users)->toHaveCount(10);
+});

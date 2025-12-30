@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Account;
 use App\Models\Income;
 use App\Models\User;
 use App\QueryFilters\FromDateFilter;
 use App\QueryFilters\TagFilter;
 use App\QueryFilters\ToDateFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -41,14 +43,18 @@ class IncomeService
      */
     public function createIncome(User $user, array $data): Income
     {
-        $data['user_id'] = $user->id;
-        $tags = $data['tags'] ?? [];
-        unset($data['tags']);
+        return DB::transaction(function () use ($user, $data) {
+            $data['user_id'] = $user->id;
+            $tags = $data['tags'] ?? [];
+            unset($data['tags']);
 
-        $income = Income::create($data);
-        $income->tags()->sync($tags);
+            $income = Income::create($data);
+            $income->tags()->sync($tags);
 
-        return $income;
+            Account::where('id', $income->account_id)->increment('current_balance', $income->amount);
+
+            return $income;
+        });
     }
 
     /**
@@ -58,13 +64,31 @@ class IncomeService
      */
     public function updateIncome(Income $income, array $data): Income
     {
-        $tags = $data['tags'] ?? [];
-        unset($data['tags']);
+        return DB::transaction(function () use ($income, $data) {
+            $tags = $data['tags'] ?? [];
+            unset($data['tags']);
 
-        $income->update($data);
-        $income->tags()->sync($tags);
+            $oldAccountId = $income->account_id;
+            $oldAmount = $income->amount;
 
-        return $income->fresh();
+            $income->update($data);
+            $income->tags()->sync($tags);
+
+            $newAccountId = $income->account_id;
+            $newAmount = $income->amount;
+
+            if ($oldAccountId === $newAccountId) {
+                $difference = $newAmount - $oldAmount;
+                if ($difference != 0) {
+                    Account::where('id', $newAccountId)->increment('current_balance', $difference);
+                }
+            } else {
+                Account::where('id', $oldAccountId)->decrement('current_balance', $oldAmount);
+                Account::where('id', $newAccountId)->increment('current_balance', $newAmount);
+            }
+
+            return $income->fresh();
+        });
     }
 
     /**
@@ -72,7 +96,11 @@ class IncomeService
      */
     public function deleteIncome(Income $income): bool
     {
-        return $income->delete();
+        return DB::transaction(function () use ($income) {
+            Account::where('id', $income->account_id)->decrement('current_balance', $income->amount);
+
+            return $income->delete();
+        });
     }
 
     /**

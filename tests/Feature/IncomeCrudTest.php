@@ -559,3 +559,104 @@ test('tag filter is passed to income view', function () {
             return $filters['tag_id'] == $tag->id;
         });
 });
+
+// Account balance tests
+
+test('creating an income increments account balance', function () {
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $incomeAmount = 500.00;
+    $incomeData = [
+        'account_id' => $this->account->id,
+        'description' => 'Test Income',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $incomeAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('incomes.store'), $incomeData)
+        ->assertRedirect(route('incomes.index'));
+
+    $this->account->refresh();
+    expect($this->account->current_balance)->toBe(number_format($initialBalance + $incomeAmount, 2, '.', ''));
+});
+
+test('updating an income adjusts account balance for amount change', function () {
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $income = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['amount' => 200.00]);
+
+    $this->account->update(['current_balance' => $initialBalance + 200.00]);
+
+    $newAmount = 350.00;
+    $updatedData = [
+        'account_id' => $this->account->id,
+        'description' => 'Updated Income',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $newAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('incomes.update', $income), $updatedData)
+        ->assertRedirect(route('incomes.index'));
+
+    $this->account->refresh();
+    expect($this->account->current_balance)->toBe(number_format($initialBalance + $newAmount, 2, '.', ''));
+});
+
+test('updating an income to different account adjusts both account balances', function () {
+    $secondAccount = Account::factory()->forUser($this->user)->create(['current_balance' => 500.00]);
+
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $incomeAmount = 200.00;
+    $income = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['amount' => $incomeAmount]);
+
+    $this->account->update(['current_balance' => $initialBalance + $incomeAmount]);
+
+    $updatedData = [
+        'account_id' => $secondAccount->id,
+        'description' => 'Moved to different account',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $incomeAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('incomes.update', $income), $updatedData)
+        ->assertRedirect(route('incomes.index'));
+
+    $this->account->refresh();
+    $secondAccount->refresh();
+
+    expect($this->account->current_balance)->toBe(number_format($initialBalance, 2, '.', ''));
+    expect($secondAccount->current_balance)->toBe(number_format(500.00 + $incomeAmount, 2, '.', ''));
+});
+
+test('deleting an income decrements account balance', function () {
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $incomeAmount = 300.00;
+    $income = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['amount' => $incomeAmount]);
+
+    $this->account->update(['current_balance' => $initialBalance + $incomeAmount]);
+
+    $this->actingAs($this->user)
+        ->delete(route('incomes.destroy', $income))
+        ->assertRedirect(route('incomes.index'));
+
+    $this->account->refresh();
+    expect($this->account->current_balance)->toBe(number_format($initialBalance, 2, '.', ''));
+});

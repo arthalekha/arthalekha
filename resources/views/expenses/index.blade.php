@@ -5,12 +5,20 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold">Expenses</h1>
         <div class="flex gap-2">
-            <a href="{{ route('expenses.export', request()->query()) }}" class="btn btn-outline btn-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download CSV
-            </a>
+            <form action="{{ route('expenses.export') }}" method="POST" class="inline">
+                @csrf
+                @foreach(request()->query('filter', []) as $key => $value)
+                    @if($value)
+                        <input type="hidden" name="filter[{{ $key }}]" value="{{ $value }}">
+                    @endif
+                @endforeach
+                <button type="submit" class="btn btn-outline btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download CSV
+                </button>
+            </form>
             <a href="{{ route('expenses.create') }}" class="btn btn-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

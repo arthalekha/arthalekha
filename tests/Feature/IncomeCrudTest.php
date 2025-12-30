@@ -664,7 +664,7 @@ test('deleting an income decrements account balance', function () {
 // Export tests
 
 test('guest cannot export incomes', function () {
-    $this->get(route('incomes.export'))
+    $this->post(route('incomes.export'))
         ->assertRedirect(route('login'));
 });
 
@@ -674,7 +674,7 @@ test('authenticated user can export incomes to csv', function () {
     ]);
 
     $this->actingAs($this->user)
-        ->get(route('incomes.export'))
+        ->post(route('incomes.export'))
         ->assertSuccessful()
         ->assertDownload('incomes.csv');
 });
@@ -691,12 +691,12 @@ test('csv export includes filtered data', function () {
         ->create(['transacted_at' => now()->subMonths(2), 'description' => 'Out of range income']);
 
     $response = $this->actingAs($this->user)
-        ->get(route('incomes.export', [
+        ->post(route('incomes.export'), [
             'filter' => [
                 'from_date' => now()->subDays(7)->format('Y-m-d'),
                 'to_date' => now()->addDay()->format('Y-m-d'),
             ],
-        ]));
+        ]);
 
     $response->assertSuccessful()
         ->assertDownload('incomes.csv');
@@ -711,7 +711,7 @@ test('csv export only includes user own incomes', function () {
     $otherIncome = Income::factory()->create(['transacted_at' => now()]);
 
     $this->actingAs($this->user)
-        ->get(route('incomes.export'))
+        ->post(route('incomes.export'))
         ->assertSuccessful()
         ->assertDownload('incomes.csv');
 });

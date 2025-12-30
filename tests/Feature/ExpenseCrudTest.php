@@ -664,7 +664,7 @@ test('deleting an expense increments account balance', function () {
 // Export tests
 
 test('guest cannot export expenses', function () {
-    $this->get(route('expenses.export'))
+    $this->post(route('expenses.export'))
         ->assertRedirect(route('login'));
 });
 
@@ -674,7 +674,7 @@ test('authenticated user can export expenses to csv', function () {
     ]);
 
     $this->actingAs($this->user)
-        ->get(route('expenses.export'))
+        ->post(route('expenses.export'))
         ->assertSuccessful()
         ->assertDownload('expenses.csv');
 });
@@ -691,12 +691,12 @@ test('csv export includes filtered expense data', function () {
         ->create(['transacted_at' => now()->subMonths(2), 'description' => 'Out of range expense']);
 
     $response = $this->actingAs($this->user)
-        ->get(route('expenses.export', [
+        ->post(route('expenses.export'), [
             'filter' => [
                 'from_date' => now()->subDays(7)->format('Y-m-d'),
                 'to_date' => now()->addDay()->format('Y-m-d'),
             ],
-        ]));
+        ]);
 
     $response->assertSuccessful()
         ->assertDownload('expenses.csv');
@@ -711,7 +711,7 @@ test('csv export only includes user own expenses', function () {
     $otherExpense = Expense::factory()->create(['transacted_at' => now()]);
 
     $this->actingAs($this->user)
-        ->get(route('expenses.export'))
+        ->post(route('expenses.export'))
         ->assertSuccessful()
         ->assertDownload('expenses.csv');
 });

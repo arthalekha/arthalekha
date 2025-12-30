@@ -27,6 +27,16 @@
                     <li><a href="{{ route('expenses.index') }}" class="{{ request()->routeIs('expenses.*') ? 'active' : '' }}">Expenses</a></li>
                     <li><a href="{{ route('transfers.index') }}" class="{{ request()->routeIs('transfers.*') ? 'active' : '' }}">Transfers</a></li>
                     <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">Tags</a></li>
+                    <li>
+                        <details>
+                            <summary class="{{ request()->routeIs('recurring-*') ? 'active' : '' }}">Recurring</summary>
+                            <ul class="bg-base-100 rounded-t-none p-2 z-[1] w-48">
+                                <li><a href="{{ route('recurring-incomes.index') }}" class="{{ request()->routeIs('recurring-incomes.*') ? 'active' : '' }}">Incomes</a></li>
+                                <li><a href="{{ route('recurring-expenses.index') }}" class="{{ request()->routeIs('recurring-expenses.*') ? 'active' : '' }}">Expenses</a></li>
+                                <li><a href="{{ route('recurring-transfers.index') }}" class="{{ request()->routeIs('recurring-transfers.*') ? 'active' : '' }}">Transfers</a></li>
+                            </ul>
+                        </details>
+                    </li>
                 </ul>
             @endauth
         </div>

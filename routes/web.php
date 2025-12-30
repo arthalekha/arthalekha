@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringIncomeController;
+use App\Http\Controllers\RecurringTransferController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TransferController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('incomes', IncomeController::class);
     Route::resource('recurring-incomes', RecurringIncomeController::class);
     Route::resource('recurring-expenses', RecurringExpenseController::class);
+    Route::resource('recurring-transfers', RecurringTransferController::class);
     Route::resource('transfers', TransferController::class);
     Route::resource('tags', TagController::class);
 });

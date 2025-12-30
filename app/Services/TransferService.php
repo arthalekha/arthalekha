@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\Account;
 use App\Models\Transfer;
 use App\Models\User;
 use App\QueryFilters\FromDateFilter;
 use App\QueryFilters\TagFilter;
 use App\QueryFilters\ToDateFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -41,14 +43,19 @@ class TransferService
      */
     public function createTransfer(User $user, array $data): Transfer
     {
-        $data['user_id'] = $user->id;
-        $tags = $data['tags'] ?? [];
-        unset($data['tags']);
+        return DB::transaction(function () use ($user, $data) {
+            $data['user_id'] = $user->id;
+            $tags = $data['tags'] ?? [];
+            unset($data['tags']);
 
-        $transfer = Transfer::create($data);
-        $transfer->tags()->sync($tags);
+            $transfer = Transfer::create($data);
+            $transfer->tags()->sync($tags);
 
-        return $transfer;
+            Account::where('id', $transfer->debtor_id)->decrement('current_balance', $transfer->amount);
+            Account::where('id', $transfer->creditor_id)->increment('current_balance', $transfer->amount);
+
+            return $transfer;
+        });
     }
 
     /**
@@ -58,13 +65,31 @@ class TransferService
      */
     public function updateTransfer(Transfer $transfer, array $data): Transfer
     {
-        $tags = $data['tags'] ?? [];
-        unset($data['tags']);
+        return DB::transaction(function () use ($transfer, $data) {
+            $tags = $data['tags'] ?? [];
+            unset($data['tags']);
 
-        $transfer->update($data);
-        $transfer->tags()->sync($tags);
+            $oldDebtorId = $transfer->debtor_id;
+            $oldCreditorId = $transfer->creditor_id;
+            $oldAmount = $transfer->amount;
 
-        return $transfer->fresh();
+            $transfer->update($data);
+            $transfer->tags()->sync($tags);
+
+            $newDebtorId = $transfer->debtor_id;
+            $newCreditorId = $transfer->creditor_id;
+            $newAmount = $transfer->amount;
+
+            // Reverse the old transfer
+            Account::where('id', $oldDebtorId)->increment('current_balance', $oldAmount);
+            Account::where('id', $oldCreditorId)->decrement('current_balance', $oldAmount);
+
+            // Apply the new transfer
+            Account::where('id', $newDebtorId)->decrement('current_balance', $newAmount);
+            Account::where('id', $newCreditorId)->increment('current_balance', $newAmount);
+
+            return $transfer->fresh();
+        });
     }
 
     /**
@@ -72,7 +97,12 @@ class TransferService
      */
     public function deleteTransfer(Transfer $transfer): bool
     {
-        return $transfer->delete();
+        return DB::transaction(function () use ($transfer) {
+            Account::where('id', $transfer->debtor_id)->increment('current_balance', $transfer->amount);
+            Account::where('id', $transfer->creditor_id)->decrement('current_balance', $transfer->amount);
+
+            return $transfer->delete();
+        });
     }
 
     /**

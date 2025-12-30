@@ -425,3 +425,136 @@ test('tag filter is passed to transfer view', function () {
             return $filters['tag_id'] == $tag->id;
         });
 });
+
+// Account balance tests
+
+test('creating a transfer adjusts both account balances', function () {
+    $sourceInitialBalance = 1000.00;
+    $destinationInitialBalance = 500.00;
+    $this->sourceAccount->update(['current_balance' => $sourceInitialBalance]);
+    $this->destinationAccount->update(['current_balance' => $destinationInitialBalance]);
+
+    $transferAmount = 300.00;
+    $transferData = [
+        'debtor_id' => $this->sourceAccount->id,
+        'creditor_id' => $this->destinationAccount->id,
+        'description' => 'Test Transfer',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $transferAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('transfers.store'), $transferData)
+        ->assertRedirect(route('transfers.index'));
+
+    $this->sourceAccount->refresh();
+    $this->destinationAccount->refresh();
+
+    expect($this->sourceAccount->current_balance)->toBe(number_format($sourceInitialBalance - $transferAmount, 2, '.', ''));
+    expect($this->destinationAccount->current_balance)->toBe(number_format($destinationInitialBalance + $transferAmount, 2, '.', ''));
+});
+
+test('updating a transfer amount adjusts both account balances', function () {
+    $sourceInitialBalance = 1000.00;
+    $destinationInitialBalance = 500.00;
+    $this->sourceAccount->update(['current_balance' => $sourceInitialBalance]);
+    $this->destinationAccount->update(['current_balance' => $destinationInitialBalance]);
+
+    $oldAmount = 200.00;
+    $transfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['amount' => $oldAmount]);
+
+    $this->sourceAccount->update(['current_balance' => $sourceInitialBalance - $oldAmount]);
+    $this->destinationAccount->update(['current_balance' => $destinationInitialBalance + $oldAmount]);
+
+    $newAmount = 350.00;
+    $updatedData = [
+        'debtor_id' => $this->sourceAccount->id,
+        'creditor_id' => $this->destinationAccount->id,
+        'description' => 'Updated Transfer',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $newAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('transfers.update', $transfer), $updatedData)
+        ->assertRedirect(route('transfers.index'));
+
+    $this->sourceAccount->refresh();
+    $this->destinationAccount->refresh();
+
+    expect($this->sourceAccount->current_balance)->toBe(number_format($sourceInitialBalance - $newAmount, 2, '.', ''));
+    expect($this->destinationAccount->current_balance)->toBe(number_format($destinationInitialBalance + $newAmount, 2, '.', ''));
+});
+
+test('updating a transfer to different accounts adjusts all account balances', function () {
+    $thirdAccount = Account::factory()->forUser($this->user)->create(['current_balance' => 750.00]);
+
+    $sourceInitialBalance = 1000.00;
+    $destinationInitialBalance = 500.00;
+    $this->sourceAccount->update(['current_balance' => $sourceInitialBalance]);
+    $this->destinationAccount->update(['current_balance' => $destinationInitialBalance]);
+
+    $transferAmount = 200.00;
+    $transfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['amount' => $transferAmount]);
+
+    $this->sourceAccount->update(['current_balance' => $sourceInitialBalance - $transferAmount]);
+    $this->destinationAccount->update(['current_balance' => $destinationInitialBalance + $transferAmount]);
+
+    $updatedData = [
+        'debtor_id' => $this->destinationAccount->id,
+        'creditor_id' => $thirdAccount->id,
+        'description' => 'Changed accounts',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $transferAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('transfers.update', $transfer), $updatedData)
+        ->assertRedirect(route('transfers.index'));
+
+    $this->sourceAccount->refresh();
+    $this->destinationAccount->refresh();
+    $thirdAccount->refresh();
+
+    // Source account: was 800, old transfer reversed (+200) = 1000
+    expect($this->sourceAccount->current_balance)->toBe(number_format($sourceInitialBalance, 2, '.', ''));
+    // Destination account: was 700, old transfer reversed (-200) = 500, new transfer as debtor (-200) = 300
+    expect($this->destinationAccount->current_balance)->toBe(number_format($destinationInitialBalance - $transferAmount, 2, '.', ''));
+    // Third account: was 750, new transfer as creditor (+200) = 950
+    expect($thirdAccount->current_balance)->toBe(number_format(750.00 + $transferAmount, 2, '.', ''));
+});
+
+test('deleting a transfer reverses both account balances', function () {
+    $sourceInitialBalance = 1000.00;
+    $destinationInitialBalance = 500.00;
+    $this->sourceAccount->update(['current_balance' => $sourceInitialBalance]);
+    $this->destinationAccount->update(['current_balance' => $destinationInitialBalance]);
+
+    $transferAmount = 300.00;
+    $transfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['amount' => $transferAmount]);
+
+    $this->sourceAccount->update(['current_balance' => $sourceInitialBalance - $transferAmount]);
+    $this->destinationAccount->update(['current_balance' => $destinationInitialBalance + $transferAmount]);
+
+    $this->actingAs($this->user)
+        ->delete(route('transfers.destroy', $transfer))
+        ->assertRedirect(route('transfers.index'));
+
+    $this->sourceAccount->refresh();
+    $this->destinationAccount->refresh();
+
+    expect($this->sourceAccount->current_balance)->toBe(number_format($sourceInitialBalance, 2, '.', ''));
+    expect($this->destinationAccount->current_balance)->toBe(number_format($destinationInitialBalance, 2, '.', ''));
+});

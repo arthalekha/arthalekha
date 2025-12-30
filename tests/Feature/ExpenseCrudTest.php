@@ -559,3 +559,104 @@ test('tag filter is passed to expense view', function () {
             return $filters['tag_id'] == $tag->id;
         });
 });
+
+// Account balance tests
+
+test('creating an expense decrements account balance', function () {
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $expenseAmount = 300.00;
+    $expenseData = [
+        'account_id' => $this->account->id,
+        'description' => 'Test Expense',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $expenseAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('expenses.store'), $expenseData)
+        ->assertRedirect(route('expenses.index'));
+
+    $this->account->refresh();
+    expect($this->account->current_balance)->toBe(number_format($initialBalance - $expenseAmount, 2, '.', ''));
+});
+
+test('updating an expense adjusts account balance for amount change', function () {
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $expense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['amount' => 200.00]);
+
+    $this->account->update(['current_balance' => $initialBalance - 200.00]);
+
+    $newAmount = 350.00;
+    $updatedData = [
+        'account_id' => $this->account->id,
+        'description' => 'Updated Expense',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $newAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('expenses.update', $expense), $updatedData)
+        ->assertRedirect(route('expenses.index'));
+
+    $this->account->refresh();
+    expect($this->account->current_balance)->toBe(number_format($initialBalance - $newAmount, 2, '.', ''));
+});
+
+test('updating an expense to different account adjusts both account balances', function () {
+    $secondAccount = Account::factory()->forUser($this->user)->create(['current_balance' => 500.00]);
+
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $expenseAmount = 200.00;
+    $expense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['amount' => $expenseAmount]);
+
+    $this->account->update(['current_balance' => $initialBalance - $expenseAmount]);
+
+    $updatedData = [
+        'account_id' => $secondAccount->id,
+        'description' => 'Moved to different account',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => $expenseAmount,
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('expenses.update', $expense), $updatedData)
+        ->assertRedirect(route('expenses.index'));
+
+    $this->account->refresh();
+    $secondAccount->refresh();
+
+    expect($this->account->current_balance)->toBe(number_format($initialBalance, 2, '.', ''));
+    expect($secondAccount->current_balance)->toBe(number_format(500.00 - $expenseAmount, 2, '.', ''));
+});
+
+test('deleting an expense increments account balance', function () {
+    $initialBalance = 1000.00;
+    $this->account->update(['current_balance' => $initialBalance]);
+
+    $expenseAmount = 300.00;
+    $expense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['amount' => $expenseAmount]);
+
+    $this->account->update(['current_balance' => $initialBalance - $expenseAmount]);
+
+    $this->actingAs($this->user)
+        ->delete(route('expenses.destroy', $expense))
+        ->assertRedirect(route('expenses.index'));
+
+    $this->account->refresh();
+    expect($this->account->current_balance)->toBe(number_format($initialBalance, 2, '.', ''));
+});

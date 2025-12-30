@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\InviteUserController;
 use App\Http\Controllers\ProjectedDashboardController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringIncomeController;
@@ -30,4 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('recurring-transfers', RecurringTransferController::class);
     Route::resource('transfers', TransferController::class);
     Route::resource('tags', TagController::class);
+
+    Route::get('users/invite', [InviteUserController::class, 'create'])->name('users.invite');
+    Route::post('users/invite', [InviteUserController::class, 'store'])->name('users.invite.store');
 });

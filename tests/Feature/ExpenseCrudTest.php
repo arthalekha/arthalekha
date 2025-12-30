@@ -30,8 +30,12 @@ test('authenticated user can view expenses index', function () {
 });
 
 test('user can only see their own expenses', function () {
-    $ownExpense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create();
-    $otherExpense = Expense::factory()->create();
+    $ownExpense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create([
+        'transacted_at' => now(),
+    ]);
+    $otherExpense = Expense::factory()->create([
+        'transacted_at' => now(),
+    ]);
 
     $this->actingAs($this->user)
         ->get(route('expenses.index'))
@@ -511,4 +515,47 @@ test('expense tags can be removed on update', function () {
 
     $expense->refresh();
     expect($expense->tags)->toHaveCount(0);
+});
+
+test('can filter expenses by tag', function () {
+    $tag = Tag::factory()->create();
+    $anotherTag = Tag::factory()->create();
+
+    $expenseWithTag = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Expense with tag', 'transacted_at' => now()]);
+    $expenseWithTag->tags()->attach($tag);
+
+    $expenseWithAnotherTag = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Expense with another tag', 'transacted_at' => now()]);
+    $expenseWithAnotherTag->tags()->attach($anotherTag);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', ['filter' => ['tag_id' => $tag->id]]))
+        ->assertSuccessful()
+        ->assertSee('Expense with tag')
+        ->assertDontSee('Expense with another tag');
+});
+
+test('tags are passed to expense index view for filter dropdown', function () {
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index'))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('tag filter is passed to expense view', function () {
+    $tag = Tag::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.index', ['filter' => ['tag_id' => $tag->id]]))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) use ($tag) {
+            return $filters['tag_id'] == $tag->id;
+        });
 });

@@ -30,6 +30,7 @@ class ExpenseController extends Controller
             'search' => $request->input('filter.search'),
             'account_id' => $request->input('filter.account_id'),
             'person_id' => $request->input('filter.person_id'),
+            'tag_id' => $request->input('filter.tag_id'),
         ];
 
         // Merge default filters into request for Spatie Query Builder
@@ -43,8 +44,9 @@ class ExpenseController extends Controller
         $expenses = $this->expenseService->getExpensesForUser(Auth::user());
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
+        $tags = Tag::all();
 
-        return view('expenses.index', compact('expenses', 'accounts', 'people', 'filters'));
+        return view('expenses.index', compact('expenses', 'accounts', 'people', 'tags', 'filters'));
     }
 
     /**

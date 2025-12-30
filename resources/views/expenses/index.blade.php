@@ -24,7 +24,7 @@
     <div class="card bg-base-100 shadow-xl mb-6">
         <div class="card-body">
             <form method="GET" action="{{ route('expenses.index') }}">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">From Date</span>
@@ -85,6 +85,20 @@
                             @foreach ($people as $person)
                                 <option value="{{ $person->id }}" {{ $filters['person_id'] == $person->id ? 'selected' : '' }}>
                                     {{ $person->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Tag</span>
+                        </label>
+                        <select name="filter[tag_id]" class="select select-bordered select-sm">
+                            <option value="">All Tags</option>
+                            @foreach ($tags as $tag)
+                                <option value="{{ $tag->id }}" {{ $filters['tag_id'] == $tag->id ? 'selected' : '' }}>
+                                    {{ $tag->name }}
                                 </option>
                             @endforeach
                         </select>

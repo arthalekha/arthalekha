@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Income;
 use App\Models\User;
 use App\QueryFilters\FromDateFilter;
+use App\QueryFilters\TagFilter;
 use App\QueryFilters\ToDateFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -26,6 +27,7 @@ class IncomeService
                 AllowedFilter::partial('search', 'description'),
                 AllowedFilter::exact('account_id'),
                 AllowedFilter::exact('person_id'),
+                AllowedFilter::custom('tag_id', new TagFilter),
             ])
             ->latest('transacted_at')
             ->paginate($perPage)

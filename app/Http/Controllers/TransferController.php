@@ -8,8 +8,10 @@ use App\Models\Account;
 use App\Models\Tag;
 use App\Models\Transfer;
 use App\Services\TransferService;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TransferController extends Controller
@@ -19,11 +21,30 @@ class TransferController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $transfers = $this->transferService->getTransfersForUser(Auth::user());
+        $filters = [
+            'from_date' => $request->input('filter.from_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
+            'to_date' => $request->input('filter.to_date', Carbon::now()->endOfMonth()->format('Y-m-d')),
+            'search' => $request->input('filter.search'),
+            'debtor_id' => $request->input('filter.debtor_id'),
+            'creditor_id' => $request->input('filter.creditor_id'),
+            'tag_id' => $request->input('filter.tag_id'),
+        ];
 
-        return view('transfers.index', compact('transfers'));
+        // Merge default filters into request for Spatie Query Builder
+        $request->mergeIfMissing([
+            'filter' => [
+                'from_date' => $filters['from_date'],
+                'to_date' => $filters['to_date'],
+            ],
+        ]);
+
+        $transfers = $this->transferService->getTransfersForUser(Auth::user());
+        $accounts = Account::where('user_id', Auth::id())->get();
+        $tags = Tag::all();
+
+        return view('transfers.index', compact('transfers', 'accounts', 'tags', 'filters'));
     }
 
     /**

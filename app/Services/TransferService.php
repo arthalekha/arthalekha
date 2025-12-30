@@ -4,20 +4,34 @@ namespace App\Services;
 
 use App\Models\Transfer;
 use App\Models\User;
+use App\QueryFilters\FromDateFilter;
+use App\QueryFilters\TagFilter;
+use App\QueryFilters\ToDateFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TransferService
 {
     /**
-     * Get paginated transfers for a user.
+     * Get paginated transfers for a user with filters.
      */
     public function getTransfersForUser(User $user, int $perPage = 10): LengthAwarePaginator
     {
-        return Transfer::query()
+        return QueryBuilder::for(Transfer::class)
             ->where('user_id', $user->id)
             ->with(['creditor', 'debtor'])
+            ->allowedFilters([
+                AllowedFilter::custom('from_date', new FromDateFilter),
+                AllowedFilter::custom('to_date', new ToDateFilter),
+                AllowedFilter::partial('search', 'description'),
+                AllowedFilter::exact('debtor_id'),
+                AllowedFilter::exact('creditor_id'),
+                AllowedFilter::custom('tag_id', new TagFilter),
+            ])
             ->latest('transacted_at')
-            ->paginate($perPage);
+            ->paginate($perPage)
+            ->withQueryString();
     }
 
     /**

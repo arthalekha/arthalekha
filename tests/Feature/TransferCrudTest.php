@@ -39,8 +39,8 @@ test('user can only see their own transfers', function () {
         ->forUser($this->user)
         ->fromAccount($this->sourceAccount)
         ->toAccount($this->destinationAccount)
-        ->create();
-    $otherTransfer = Transfer::factory()->create();
+        ->create(['transacted_at' => now()]);
+    $otherTransfer = Transfer::factory()->create(['transacted_at' => now()]);
 
     $this->actingAs($this->user)
         ->get(route('transfers.index'))
@@ -324,4 +324,104 @@ test('transfer tags can be removed on update', function () {
 
     $transfer->refresh();
     expect($transfer->tags)->toHaveCount(0);
+});
+
+// Filter tests
+
+test('transfer index defaults to current month date range', function () {
+    $this->actingAs($this->user)
+        ->get(route('transfers.index'))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) {
+            return $filters['from_date'] === now()->startOfMonth()->format('Y-m-d')
+                && $filters['to_date'] === now()->endOfMonth()->format('Y-m-d');
+        });
+});
+
+test('can filter transfers by tag', function () {
+    $tag = Tag::factory()->create();
+    $anotherTag = Tag::factory()->create();
+
+    $transferWithTag = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['description' => 'Transfer with tag', 'transacted_at' => now()]);
+    $transferWithTag->tags()->attach($tag);
+
+    $transferWithAnotherTag = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['description' => 'Transfer with another tag', 'transacted_at' => now()]);
+    $transferWithAnotherTag->tags()->attach($anotherTag);
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.index', ['filter' => ['tag_id' => $tag->id]]))
+        ->assertSuccessful()
+        ->assertSee('Transfer with tag')
+        ->assertDontSee('Transfer with another tag');
+});
+
+test('can filter transfers by search term', function () {
+    $matchingTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['description' => 'Monthly savings transfer', 'transacted_at' => now()]);
+
+    $nonMatchingTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['description' => 'Emergency fund', 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.index', ['filter' => ['search' => 'savings']]))
+        ->assertSuccessful()
+        ->assertSee('Monthly savings transfer')
+        ->assertDontSee('Emergency fund');
+});
+
+test('can filter transfers by debtor account', function () {
+    $thirdAccount = Account::factory()->forUser($this->user)->create(['name' => 'Third Account']);
+
+    $fromSourceTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['description' => 'From source account', 'transacted_at' => now()]);
+
+    $fromThirdTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($thirdAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['description' => 'From third account', 'transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.index', ['filter' => ['debtor_id' => $this->sourceAccount->id]]))
+        ->assertSuccessful()
+        ->assertSee('From source account')
+        ->assertDontSee('From third account');
+});
+
+test('tags and accounts are passed to transfer index view for filter dropdowns', function () {
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.index'))
+        ->assertSuccessful()
+        ->assertViewHas('tags')
+        ->assertViewHas('accounts');
+});
+
+test('tag filter is passed to transfer view', function () {
+    $tag = Tag::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.index', ['filter' => ['tag_id' => $tag->id]]))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) use ($tag) {
+            return $filters['tag_id'] == $tag->id;
+        });
 });

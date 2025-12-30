@@ -30,6 +30,7 @@ class IncomeController extends Controller
             'search' => $request->input('filter.search'),
             'account_id' => $request->input('filter.account_id'),
             'person_id' => $request->input('filter.person_id'),
+            'tag_id' => $request->input('filter.tag_id'),
         ];
 
         // Merge default filters into request for Spatie Query Builder
@@ -43,8 +44,9 @@ class IncomeController extends Controller
         $incomes = $this->incomeService->getIncomesForUser(Auth::user());
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
+        $tags = Tag::all();
 
-        return view('incomes.index', compact('incomes', 'accounts', 'people', 'filters'));
+        return view('incomes.index', compact('incomes', 'accounts', 'people', 'tags', 'filters'));
     }
 
     /**

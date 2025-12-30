@@ -30,8 +30,12 @@ test('authenticated user can view incomes index', function () {
 });
 
 test('user can only see their own incomes', function () {
-    $ownIncome = Income::factory()->forUser($this->user)->forAccount($this->account)->create();
-    $otherIncome = Income::factory()->create();
+    $ownIncome = Income::factory()->forUser($this->user)->forAccount($this->account)->create([
+        'transacted_at' => now(),
+    ]);
+    $otherIncome = Income::factory()->create([
+        'transacted_at' => now(),
+    ]);
 
     $this->actingAs($this->user)
         ->get(route('incomes.index'))
@@ -511,4 +515,47 @@ test('income tags can be removed on update', function () {
 
     $income->refresh();
     expect($income->tags)->toHaveCount(0);
+});
+
+test('can filter incomes by tag', function () {
+    $tag = Tag::factory()->create();
+    $anotherTag = Tag::factory()->create();
+
+    $incomeWithTag = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Income with tag', 'transacted_at' => now()]);
+    $incomeWithTag->tags()->attach($tag);
+
+    $incomeWithAnotherTag = Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['description' => 'Income with another tag', 'transacted_at' => now()]);
+    $incomeWithAnotherTag->tags()->attach($anotherTag);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', ['filter' => ['tag_id' => $tag->id]]))
+        ->assertSuccessful()
+        ->assertSee('Income with tag')
+        ->assertDontSee('Income with another tag');
+});
+
+test('tags are passed to income index view for filter dropdown', function () {
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index'))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('tag filter is passed to income view', function () {
+    $tag = Tag::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.index', ['filter' => ['tag_id' => $tag->id]]))
+        ->assertSuccessful()
+        ->assertViewHas('filters', function ($filters) use ($tag) {
+            return $filters['tag_id'] == $tag->id;
+        });
 });

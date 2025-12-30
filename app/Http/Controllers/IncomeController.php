@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\IncomesExport;
 use App\Http\Requests\StoreIncomeRequest;
 use App\Http\Requests\UpdateIncomeRequest;
 use App\Models\Account;
@@ -14,6 +15,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class IncomeController extends Controller
 {
@@ -131,5 +134,22 @@ class IncomeController extends Controller
 
         return redirect()->route('incomes.index')
             ->with('success', 'Income deleted successfully.');
+    }
+
+    /**
+     * Export incomes to CSV.
+     */
+    public function export(Request $request): BinaryFileResponse
+    {
+        $request->mergeIfMissing([
+            'filter' => [
+                'from_date' => $request->input('filter.from_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
+                'to_date' => $request->input('filter.to_date', Carbon::now()->endOfMonth()->format('Y-m-d')),
+            ],
+        ]);
+
+        $query = $this->incomeService->getIncomesQueryForExport(Auth::user());
+
+        return (new IncomesExport($query))->download('incomes.csv', Excel::CSV);
     }
 }

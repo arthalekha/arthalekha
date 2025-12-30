@@ -26,11 +26,14 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('accounts', AccountController::class);
     Route::get('accounts/{account}/transactions', AccountTransactionController::class)->name('accounts.transactions');
     Route::resource('expenses', ExpenseController::class);
+    Route::get('expenses/export/csv', [ExpenseController::class, 'export'])->name('expenses.export');
     Route::resource('incomes', IncomeController::class);
+    Route::get('incomes/export/csv', [IncomeController::class, 'export'])->name('incomes.export');
     Route::resource('recurring-incomes', RecurringIncomeController::class);
     Route::resource('recurring-expenses', RecurringExpenseController::class);
     Route::resource('recurring-transfers', RecurringTransferController::class);
     Route::resource('transfers', TransferController::class);
+    Route::get('transfers/export/csv', [TransferController::class, 'export'])->name('transfers.export');
     Route::resource('tags', TagController::class);
 
     Route::get('users', [UserController::class, 'index'])->name('users.index');

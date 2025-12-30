@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransfersExport;
 use App\Http\Requests\StoreTransferRequest;
 use App\Http\Requests\UpdateTransferRequest;
 use App\Models\Account;
@@ -13,6 +14,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TransferController extends Controller
 {
@@ -127,5 +130,22 @@ class TransferController extends Controller
 
         return redirect()->route('transfers.index')
             ->with('success', 'Transfer deleted successfully.');
+    }
+
+    /**
+     * Export transfers to CSV.
+     */
+    public function export(Request $request): BinaryFileResponse
+    {
+        $request->mergeIfMissing([
+            'filter' => [
+                'from_date' => $request->input('filter.from_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
+                'to_date' => $request->input('filter.to_date', Carbon::now()->endOfMonth()->format('Y-m-d')),
+            ],
+        ]);
+
+        $query = $this->transferService->getTransfersQueryForExport(Auth::user());
+
+        return (new TransfersExport($query))->download('transfers.csv', Excel::CSV);
     }
 }

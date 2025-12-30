@@ -660,3 +660,58 @@ test('deleting an expense increments account balance', function () {
     $this->account->refresh();
     expect($this->account->current_balance)->toBe(number_format($initialBalance, 2, '.', ''));
 });
+
+// Export tests
+
+test('guest cannot export expenses', function () {
+    $this->get(route('expenses.export'))
+        ->assertRedirect(route('login'));
+});
+
+test('authenticated user can export expenses to csv', function () {
+    Expense::factory()->count(3)->forUser($this->user)->forAccount($this->account)->create([
+        'transacted_at' => now(),
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.export'))
+        ->assertSuccessful()
+        ->assertDownload('expenses.csv');
+});
+
+test('csv export includes filtered expense data', function () {
+    $inRangeExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now(), 'description' => 'In range expense']);
+
+    $outOfRangeExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()->subMonths(2), 'description' => 'Out of range expense']);
+
+    $response = $this->actingAs($this->user)
+        ->get(route('expenses.export', [
+            'filter' => [
+                'from_date' => now()->subDays(7)->format('Y-m-d'),
+                'to_date' => now()->addDay()->format('Y-m-d'),
+            ],
+        ]));
+
+    $response->assertSuccessful()
+        ->assertDownload('expenses.csv');
+});
+
+test('csv export only includes user own expenses', function () {
+    $ownExpense = Expense::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create(['transacted_at' => now()]);
+
+    $otherExpense = Expense::factory()->create(['transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.export'))
+        ->assertSuccessful()
+        ->assertDownload('expenses.csv');
+});

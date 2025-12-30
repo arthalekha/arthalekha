@@ -558,3 +558,63 @@ test('deleting a transfer reverses both account balances', function () {
     expect($this->sourceAccount->current_balance)->toBe(number_format($sourceInitialBalance, 2, '.', ''));
     expect($this->destinationAccount->current_balance)->toBe(number_format($destinationInitialBalance, 2, '.', ''));
 });
+
+// Export tests
+
+test('guest cannot export transfers', function () {
+    $this->get(route('transfers.export'))
+        ->assertRedirect(route('login'));
+});
+
+test('authenticated user can export transfers to csv', function () {
+    Transfer::factory()->count(3)
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.export'))
+        ->assertSuccessful()
+        ->assertDownload('transfers.csv');
+});
+
+test('csv export includes filtered transfer data', function () {
+    $inRangeTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['transacted_at' => now(), 'description' => 'In range transfer']);
+
+    $outOfRangeTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['transacted_at' => now()->subMonths(2), 'description' => 'Out of range transfer']);
+
+    $response = $this->actingAs($this->user)
+        ->get(route('transfers.export', [
+            'filter' => [
+                'from_date' => now()->subDays(7)->format('Y-m-d'),
+                'to_date' => now()->addDay()->format('Y-m-d'),
+            ],
+        ]));
+
+    $response->assertSuccessful()
+        ->assertDownload('transfers.csv');
+});
+
+test('csv export only includes user own transfers', function () {
+    $ownTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create(['transacted_at' => now()]);
+
+    $otherTransfer = Transfer::factory()->create(['transacted_at' => now()]);
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.export'))
+        ->assertSuccessful()
+        ->assertDownload('transfers.csv');
+});

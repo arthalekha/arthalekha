@@ -9,6 +9,7 @@ use App\QueryFilters\FromDateFilter;
 use App\QueryFilters\TagFilter;
 use App\QueryFilters\ToDateFilter;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -34,6 +35,26 @@ class TransferService
             ->latest('transacted_at')
             ->paginate($perPage)
             ->withQueryString();
+    }
+
+    /**
+     * Get transfers query for export with filters.
+     */
+    public function getTransfersQueryForExport(User $user): Builder
+    {
+        return QueryBuilder::for(Transfer::class)
+            ->where('user_id', $user->id)
+            ->with(['creditor', 'debtor', 'tags'])
+            ->allowedFilters([
+                AllowedFilter::custom('from_date', new FromDateFilter),
+                AllowedFilter::custom('to_date', new ToDateFilter),
+                AllowedFilter::partial('search', 'description'),
+                AllowedFilter::exact('debtor_id'),
+                AllowedFilter::exact('creditor_id'),
+                AllowedFilter::custom('tag_id', new TagFilter),
+            ])
+            ->latest('transacted_at')
+            ->getEloquentBuilder();
     }
 
     /**

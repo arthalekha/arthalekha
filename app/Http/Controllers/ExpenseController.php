@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExpensesExport;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Account;
@@ -14,6 +15,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExpenseController extends Controller
 {
@@ -131,5 +134,22 @@ class ExpenseController extends Controller
 
         return redirect()->route('expenses.index')
             ->with('success', 'Expense deleted successfully.');
+    }
+
+    /**
+     * Export expenses to CSV.
+     */
+    public function export(Request $request): BinaryFileResponse
+    {
+        $request->mergeIfMissing([
+            'filter' => [
+                'from_date' => $request->input('filter.from_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
+                'to_date' => $request->input('filter.to_date', Carbon::now()->endOfMonth()->format('Y-m-d')),
+            ],
+        ]);
+
+        $query = $this->expenseService->getExpensesQueryForExport(Auth::user());
+
+        return (new ExpensesExport($query))->download('expenses.csv', Excel::CSV);
     }
 }

@@ -37,8 +37,13 @@ class RecurringTransferService
     public function createRecurringTransfer(User $user, array $data): RecurringTransfer
     {
         $data['user_id'] = $user->id;
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
 
-        return RecurringTransfer::create($data);
+        $recurringTransfer = RecurringTransfer::create($data);
+        $recurringTransfer->tags()->sync($tags);
+
+        return $recurringTransfer;
     }
 
     /**
@@ -48,7 +53,11 @@ class RecurringTransferService
      */
     public function updateRecurringTransfer(RecurringTransfer $recurringTransfer, array $data): RecurringTransfer
     {
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
         $recurringTransfer->update($data);
+        $recurringTransfer->tags()->sync($tags);
 
         return $recurringTransfer->fresh();
     }

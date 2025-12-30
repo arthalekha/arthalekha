@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateRecurringExpenseRequest;
 use App\Models\Account;
 use App\Models\Person;
 use App\Models\RecurringExpense;
+use App\Models\Tag;
 use App\Services\RecurringExpenseService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -46,8 +47,9 @@ class RecurringExpenseController extends Controller
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
         $frequencies = Frequency::cases();
+        $tags = Tag::all();
 
-        return view('recurring-expenses.create', compact('accounts', 'people', 'frequencies'));
+        return view('recurring-expenses.create', compact('accounts', 'people', 'frequencies', 'tags'));
     }
 
     /**
@@ -87,8 +89,10 @@ class RecurringExpenseController extends Controller
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
         $frequencies = Frequency::cases();
+        $tags = Tag::all();
+        $recurringExpense->load('tags');
 
-        return view('recurring-expenses.edit', compact('recurringExpense', 'accounts', 'people', 'frequencies'));
+        return view('recurring-expenses.edit', compact('recurringExpense', 'accounts', 'people', 'frequencies', 'tags'));
     }
 
     /**

@@ -37,8 +37,13 @@ class RecurringIncomeService
     public function createRecurringIncome(User $user, array $data): RecurringIncome
     {
         $data['user_id'] = $user->id;
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
 
-        return RecurringIncome::create($data);
+        $recurringIncome = RecurringIncome::create($data);
+        $recurringIncome->tags()->sync($tags);
+
+        return $recurringIncome;
     }
 
     /**
@@ -48,7 +53,11 @@ class RecurringIncomeService
      */
     public function updateRecurringIncome(RecurringIncome $recurringIncome, array $data): RecurringIncome
     {
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
         $recurringIncome->update($data);
+        $recurringIncome->tags()->sync($tags);
 
         return $recurringIncome->fresh();
     }

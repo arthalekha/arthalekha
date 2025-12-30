@@ -6,6 +6,7 @@ use App\Enums\Frequency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class RecurringTransfer extends Model
 {
@@ -55,5 +56,10 @@ class RecurringTransfer extends Model
     public function debtor(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'debtor_id');
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 }

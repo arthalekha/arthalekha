@@ -37,8 +37,13 @@ class RecurringExpenseService
     public function createRecurringExpense(User $user, array $data): RecurringExpense
     {
         $data['user_id'] = $user->id;
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
 
-        return RecurringExpense::create($data);
+        $recurringExpense = RecurringExpense::create($data);
+        $recurringExpense->tags()->sync($tags);
+
+        return $recurringExpense;
     }
 
     /**
@@ -48,7 +53,11 @@ class RecurringExpenseService
      */
     public function updateRecurringExpense(RecurringExpense $recurringExpense, array $data): RecurringExpense
     {
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
         $recurringExpense->update($data);
+        $recurringExpense->tags()->sync($tags);
 
         return $recurringExpense->fresh();
     }

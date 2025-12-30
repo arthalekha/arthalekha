@@ -145,6 +145,8 @@
                     @enderror
                 </div>
 
+                <x-tag-selector :tags="$tags" :selected="$recurringTransfer->tags->pluck('id')->toArray()" />
+
                 <div class="flex justify-end gap-2 mt-6">
                     <a href="{{ route('recurring-transfers.index') }}" class="btn btn-ghost">Cancel</a>
                     <button type="submit" class="btn btn-primary">Update Recurring Transfer</button>

@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateRecurringIncomeRequest;
 use App\Models\Account;
 use App\Models\Person;
 use App\Models\RecurringIncome;
+use App\Models\Tag;
 use App\Services\RecurringIncomeService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -46,8 +47,9 @@ class RecurringIncomeController extends Controller
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
         $frequencies = Frequency::cases();
+        $tags = Tag::all();
 
-        return view('recurring-incomes.create', compact('accounts', 'people', 'frequencies'));
+        return view('recurring-incomes.create', compact('accounts', 'people', 'frequencies', 'tags'));
     }
 
     /**
@@ -87,8 +89,10 @@ class RecurringIncomeController extends Controller
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
         $frequencies = Frequency::cases();
+        $tags = Tag::all();
+        $recurringIncome->load('tags');
 
-        return view('recurring-incomes.edit', compact('recurringIncome', 'accounts', 'people', 'frequencies'));
+        return view('recurring-incomes.edit', compact('recurringIncome', 'accounts', 'people', 'frequencies', 'tags'));
     }
 
     /**

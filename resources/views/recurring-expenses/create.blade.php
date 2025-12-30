@@ -139,6 +139,8 @@
                     @enderror
                 </div>
 
+                <x-tag-selector :tags="$tags" />
+
                 <div class="flex justify-end gap-2 mt-6">
                     <a href="{{ route('recurring-expenses.index') }}" class="btn btn-ghost">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create Recurring Expense</button>

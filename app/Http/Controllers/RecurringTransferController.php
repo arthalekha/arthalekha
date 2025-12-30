@@ -7,6 +7,7 @@ use App\Http\Requests\StoreRecurringTransferRequest;
 use App\Http\Requests\UpdateRecurringTransferRequest;
 use App\Models\Account;
 use App\Models\RecurringTransfer;
+use App\Models\Tag;
 use App\Services\RecurringTransferService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -43,8 +44,9 @@ class RecurringTransferController extends Controller
     {
         $accounts = Account::where('user_id', Auth::id())->get();
         $frequencies = Frequency::cases();
+        $tags = Tag::all();
 
-        return view('recurring-transfers.create', compact('accounts', 'frequencies'));
+        return view('recurring-transfers.create', compact('accounts', 'frequencies', 'tags'));
     }
 
     /**
@@ -83,8 +85,10 @@ class RecurringTransferController extends Controller
 
         $accounts = Account::where('user_id', Auth::id())->get();
         $frequencies = Frequency::cases();
+        $tags = Tag::all();
+        $recurringTransfer->load('tags');
 
-        return view('recurring-transfers.edit', compact('recurringTransfer', 'accounts', 'frequencies'));
+        return view('recurring-transfers.edit', compact('recurringTransfer', 'accounts', 'frequencies', 'tags'));
     }
 
     /**

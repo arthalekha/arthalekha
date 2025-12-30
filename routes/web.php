@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\ProjectedDashboardController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringIncomeController;
 use App\Http\Controllers\RecurringTransferController;
@@ -18,6 +19,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/home', HomeController::class)->name('home');
+    Route::get('/projected-dashboard', ProjectedDashboardController::class)->name('projected-dashboard');
 
     Route::resource('accounts', AccountController::class);
     Route::get('accounts/{account}/transactions', AccountTransactionController::class)->name('accounts.transactions');

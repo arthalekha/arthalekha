@@ -27,6 +27,7 @@
                     <li><a href="{{ route('expenses.index') }}" class="{{ request()->routeIs('expenses.*') ? 'active' : '' }}">Expenses</a></li>
                     <li><a href="{{ route('transfers.index') }}" class="{{ request()->routeIs('transfers.*') ? 'active' : '' }}">Transfers</a></li>
                     <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">Tags</a></li>
+                    <li><a href="{{ route('projected-dashboard') }}" class="{{ request()->routeIs('projected-dashboard') ? 'active' : '' }}">Projections</a></li>
                     <li>
                         <details>
                             <summary class="{{ request()->routeIs('recurring-*') ? 'active' : '' }}">Recurring</summary>

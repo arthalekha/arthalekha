@@ -10,7 +10,7 @@
             <label class="cursor-pointer flex items-center gap-2 px-3 py-1 rounded-full border border-base-300 hover:bg-base-200 transition-colors has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
                 <input type="checkbox" name="tags[]" value="{{ $tag->id }}"
                        class="checkbox checkbox-sm checkbox-primary"
-                       {{ in_array($tag->id, old('tags', $selected)) ? 'checked' : '' }}>
+                       @checked(in_array($tag->id, old('tags', $selected)))>
                 <span class="text-sm" style="color: {{ $tag->color }}">{{ $tag->name }}</span>
             </label>
         @endforeach

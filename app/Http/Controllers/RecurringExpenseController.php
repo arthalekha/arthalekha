@@ -72,7 +72,7 @@ class RecurringExpenseController extends Controller
             abort(403);
         }
 
-        $recurringExpense->load(['account', 'person']);
+        $recurringExpense->load(['account', 'person', 'tags']);
 
         return view('recurring-expenses.show', compact('recurringExpense'));
     }

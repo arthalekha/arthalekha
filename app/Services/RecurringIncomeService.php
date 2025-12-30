@@ -17,7 +17,7 @@ class RecurringIncomeService
     {
         return QueryBuilder::for(RecurringIncome::class)
             ->where('user_id', $user->id)
-            ->with(['account', 'person'])
+            ->with(['account', 'person', 'tags'])
             ->allowedFilters([
                 AllowedFilter::partial('search', 'description'),
                 AllowedFilter::exact('account_id'),

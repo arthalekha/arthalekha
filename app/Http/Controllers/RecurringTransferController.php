@@ -69,7 +69,7 @@ class RecurringTransferController extends Controller
             abort(403);
         }
 
-        $recurringTransfer->load(['creditor', 'debtor']);
+        $recurringTransfer->load(['creditor', 'debtor', 'tags']);
 
         return view('recurring-transfers.show', compact('recurringTransfer'));
     }

@@ -72,7 +72,7 @@ class RecurringIncomeController extends Controller
             abort(403);
         }
 
-        $recurringIncome->load(['account', 'person']);
+        $recurringIncome->load(['account', 'person', 'tags']);
 
         return view('recurring-incomes.show', compact('recurringIncome'));
     }

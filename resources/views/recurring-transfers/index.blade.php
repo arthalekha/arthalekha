@@ -114,6 +114,7 @@
                                 <th>To</th>
                                 <th>Frequency</th>
                                 <th>Remaining</th>
+                                <th>Tags</th>
                                 <th class="text-right">Amount</th>
                                 <th class="text-right">Actions</th>
                             </tr>
@@ -136,6 +137,9 @@
                                     </td>
                                     <td class="text-sm">
                                         {{ $recurringTransfer->remaining_recurrences ?? 'Unlimited' }}
+                                    </td>
+                                    <td>
+                                        <x-tag-display :tags="$recurringTransfer->tags" />
                                     </td>
                                     <td class="text-right font-mono text-info">
                                         {{ number_format($recurringTransfer->amount, 2) }}

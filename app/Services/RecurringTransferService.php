@@ -17,7 +17,7 @@ class RecurringTransferService
     {
         return QueryBuilder::for(RecurringTransfer::class)
             ->where('user_id', $user->id)
-            ->with(['creditor', 'debtor'])
+            ->with(['creditor', 'debtor', 'tags'])
             ->allowedFilters([
                 AllowedFilter::partial('search', 'description'),
                 AllowedFilter::exact('creditor_id'),

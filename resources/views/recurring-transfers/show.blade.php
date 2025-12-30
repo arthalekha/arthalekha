@@ -70,6 +70,13 @@
                 </div>
 
                 <div>
+                    <label class="text-sm font-medium text-base-content/70">Tags</label>
+                    <div class="mt-1">
+                        <x-tag-display :tags="$recurringTransfer->tags" />
+                    </div>
+                </div>
+
+                <div>
                     <label class="text-sm font-medium text-base-content/70">Created</label>
                     <p class="mt-1">{{ $recurringTransfer->created_at->format('F d, Y \a\t h:i A') }}</p>
                 </div>

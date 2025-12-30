@@ -113,6 +113,7 @@
                                 <th>Account</th>
                                 <th>Frequency</th>
                                 <th>Remaining</th>
+                                <th>Tags</th>
                                 <th class="text-right">Amount</th>
                                 <th class="text-right">Actions</th>
                             </tr>
@@ -132,6 +133,9 @@
                                     </td>
                                     <td class="text-sm">
                                         {{ $recurringIncome->remaining_recurrences ?? 'Unlimited' }}
+                                    </td>
+                                    <td>
+                                        <x-tag-display :tags="$recurringIncome->tags" />
                                     </td>
                                     <td class="text-right font-mono text-success">
                                         +{{ number_format($recurringIncome->amount, 2) }}

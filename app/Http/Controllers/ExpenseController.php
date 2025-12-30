@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Person;
+use App\Models\Tag;
 use App\Services\ExpenseService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -53,8 +54,9 @@ class ExpenseController extends Controller
     {
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
+        $tags = Tag::all();
 
-        return view('expenses.create', compact('accounts', 'people'));
+        return view('expenses.create', compact('accounts', 'people', 'tags'));
     }
 
     /**
@@ -93,8 +95,10 @@ class ExpenseController extends Controller
 
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
+        $tags = Tag::all();
+        $expense->load('tags');
 
-        return view('expenses.edit', compact('expense', 'accounts', 'people'));
+        return view('expenses.edit', compact('expense', 'accounts', 'people', 'tags'));
     }
 
     /**

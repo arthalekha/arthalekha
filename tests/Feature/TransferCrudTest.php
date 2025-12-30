@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Account;
+use App\Models\Tag;
 use App\Models\Transfer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -227,4 +228,100 @@ test('user cannot delete another users transfer', function () {
         ->assertForbidden();
 
     $this->assertDatabaseHas('transfers', ['id' => $otherTransfer->id]);
+});
+
+// Tag tests
+
+test('transfer create form includes tags', function () {
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.create'))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('transfer edit form includes tags', function () {
+    $transfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create();
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.edit', $transfer))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('transfer can be created with tags', function () {
+    $tags = Tag::factory()->count(2)->create();
+
+    $transferData = [
+        'debtor_id' => $this->sourceAccount->id,
+        'creditor_id' => $this->destinationAccount->id,
+        'description' => 'Transfer with tags',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 300.00,
+        'tags' => $tags->pluck('id')->toArray(),
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('transfers.store'), $transferData)
+        ->assertRedirect(route('transfers.index'));
+
+    $transfer = Transfer::where('description', 'Transfer with tags')->first();
+    expect($transfer->tags)->toHaveCount(2);
+});
+
+test('transfer can be updated with tags', function () {
+    $transfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create();
+    $tags = Tag::factory()->count(3)->create();
+
+    $updatedData = [
+        'debtor_id' => $this->sourceAccount->id,
+        'creditor_id' => $this->destinationAccount->id,
+        'description' => 'Updated with tags',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 600.00,
+        'tags' => $tags->pluck('id')->toArray(),
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('transfers.update', $transfer), $updatedData)
+        ->assertRedirect(route('transfers.index'));
+
+    $transfer->refresh();
+    expect($transfer->tags)->toHaveCount(3);
+});
+
+test('transfer tags can be removed on update', function () {
+    $transfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($this->sourceAccount)
+        ->toAccount($this->destinationAccount)
+        ->create();
+    $tags = Tag::factory()->count(2)->create();
+    $transfer->tags()->attach($tags);
+
+    $updatedData = [
+        'debtor_id' => $this->sourceAccount->id,
+        'creditor_id' => $this->destinationAccount->id,
+        'description' => 'Tags removed',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 600.00,
+        'tags' => [],
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('transfers.update', $transfer), $updatedData)
+        ->assertRedirect(route('transfers.index'));
+
+    $transfer->refresh();
+    expect($transfer->tags)->toHaveCount(0);
 });

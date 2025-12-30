@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateIncomeRequest;
 use App\Models\Account;
 use App\Models\Income;
 use App\Models\Person;
+use App\Models\Tag;
 use App\Services\IncomeService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -53,8 +54,9 @@ class IncomeController extends Controller
     {
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
+        $tags = Tag::all();
 
-        return view('incomes.create', compact('accounts', 'people'));
+        return view('incomes.create', compact('accounts', 'people', 'tags'));
     }
 
     /**
@@ -93,8 +95,10 @@ class IncomeController extends Controller
 
         $accounts = Account::where('user_id', Auth::id())->get();
         $people = Person::all();
+        $tags = Tag::all();
+        $income->load('tags');
 
-        return view('incomes.edit', compact('income', 'accounts', 'people'));
+        return view('incomes.edit', compact('income', 'accounts', 'people', 'tags'));
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTransferRequest;
 use App\Http\Requests\UpdateTransferRequest;
 use App\Models\Account;
+use App\Models\Tag;
 use App\Models\Transfer;
 use App\Services\TransferService;
 use Illuminate\Contracts\View\View;
@@ -31,8 +32,9 @@ class TransferController extends Controller
     public function create(): View
     {
         $accounts = Account::where('user_id', Auth::id())->get();
+        $tags = Tag::all();
 
-        return view('transfers.create', compact('accounts'));
+        return view('transfers.create', compact('accounts', 'tags'));
     }
 
     /**
@@ -70,8 +72,10 @@ class TransferController extends Controller
         }
 
         $accounts = Account::where('user_id', Auth::id())->get();
+        $tags = Tag::all();
+        $transfer->load('tags');
 
-        return view('transfers.edit', compact('transfer', 'accounts'));
+        return view('transfers.edit', compact('transfer', 'accounts', 'tags'));
     }
 
     /**

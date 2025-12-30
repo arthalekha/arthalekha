@@ -40,8 +40,13 @@ class IncomeService
     public function createIncome(User $user, array $data): Income
     {
         $data['user_id'] = $user->id;
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
 
-        return Income::create($data);
+        $income = Income::create($data);
+        $income->tags()->sync($tags);
+
+        return $income;
     }
 
     /**
@@ -51,7 +56,11 @@ class IncomeService
      */
     public function updateIncome(Income $income, array $data): Income
     {
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
         $income->update($data);
+        $income->tags()->sync($tags);
 
         return $income->fresh();
     }

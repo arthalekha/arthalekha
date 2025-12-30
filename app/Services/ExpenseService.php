@@ -40,8 +40,13 @@ class ExpenseService
     public function createExpense(User $user, array $data): Expense
     {
         $data['user_id'] = $user->id;
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
 
-        return Expense::create($data);
+        $expense = Expense::create($data);
+        $expense->tags()->sync($tags);
+
+        return $expense;
     }
 
     /**
@@ -51,7 +56,11 @@ class ExpenseService
      */
     public function updateExpense(Expense $expense, array $data): Expense
     {
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
         $expense->update($data);
+        $expense->tags()->sync($tags);
 
         return $expense->fresh();
     }

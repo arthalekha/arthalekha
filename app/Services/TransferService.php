@@ -28,8 +28,13 @@ class TransferService
     public function createTransfer(User $user, array $data): Transfer
     {
         $data['user_id'] = $user->id;
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
 
-        return Transfer::create($data);
+        $transfer = Transfer::create($data);
+        $transfer->tags()->sync($tags);
+
+        return $transfer;
     }
 
     /**
@@ -39,7 +44,11 @@ class TransferService
      */
     public function updateTransfer(Transfer $transfer, array $data): Transfer
     {
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
         $transfer->update($data);
+        $transfer->tags()->sync($tags);
 
         return $transfer->fresh();
     }

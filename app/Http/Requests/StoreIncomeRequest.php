@@ -28,6 +28,8 @@ class StoreIncomeRequest extends FormRequest
             'description' => ['required', 'string', 'max:255'],
             'transacted_at' => ['required', 'date'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:999999999999'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['exists:tags,id'],
         ];
     }
 

@@ -3,6 +3,7 @@
 use App\Models\Account;
 use App\Models\Income;
 use App\Models\Person;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -429,4 +430,85 @@ test('accounts and people are passed to index view for filter dropdowns', functi
         ->assertSuccessful()
         ->assertViewHas('accounts')
         ->assertViewHas('people');
+});
+
+// Tag tests
+
+test('create form includes tags', function () {
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.create'))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('edit form includes tags', function () {
+    $income = Income::factory()->forUser($this->user)->forAccount($this->account)->create();
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.edit', $income))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('income can be created with tags', function () {
+    $tags = Tag::factory()->count(2)->create();
+
+    $incomeData = [
+        'account_id' => $this->account->id,
+        'description' => 'Income with tags',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 1000.00,
+        'tags' => $tags->pluck('id')->toArray(),
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('incomes.store'), $incomeData)
+        ->assertRedirect(route('incomes.index'));
+
+    $income = Income::where('description', 'Income with tags')->first();
+    expect($income->tags)->toHaveCount(2);
+});
+
+test('income can be updated with tags', function () {
+    $income = Income::factory()->forUser($this->user)->forAccount($this->account)->create();
+    $tags = Tag::factory()->count(3)->create();
+
+    $updatedData = [
+        'account_id' => $this->account->id,
+        'description' => 'Updated with tags',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 2000.00,
+        'tags' => $tags->pluck('id')->toArray(),
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('incomes.update', $income), $updatedData)
+        ->assertRedirect(route('incomes.index'));
+
+    $income->refresh();
+    expect($income->tags)->toHaveCount(3);
+});
+
+test('income tags can be removed on update', function () {
+    $income = Income::factory()->forUser($this->user)->forAccount($this->account)->create();
+    $tags = Tag::factory()->count(2)->create();
+    $income->tags()->attach($tags);
+
+    $updatedData = [
+        'account_id' => $this->account->id,
+        'description' => 'Tags removed',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 2000.00,
+        'tags' => [],
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('incomes.update', $income), $updatedData)
+        ->assertRedirect(route('incomes.index'));
+
+    $income->refresh();
+    expect($income->tags)->toHaveCount(0);
 });

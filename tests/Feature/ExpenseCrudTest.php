@@ -3,6 +3,7 @@
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Person;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -429,4 +430,85 @@ test('accounts and people are passed to expense index view for filter dropdowns'
         ->assertSuccessful()
         ->assertViewHas('accounts')
         ->assertViewHas('people');
+});
+
+// Tag tests
+
+test('expense create form includes tags', function () {
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.create'))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('expense edit form includes tags', function () {
+    $expense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create();
+    Tag::factory()->count(3)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.edit', $expense))
+        ->assertSuccessful()
+        ->assertViewHas('tags');
+});
+
+test('expense can be created with tags', function () {
+    $tags = Tag::factory()->count(2)->create();
+
+    $expenseData = [
+        'account_id' => $this->account->id,
+        'description' => 'Expense with tags',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 500.00,
+        'tags' => $tags->pluck('id')->toArray(),
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('expenses.store'), $expenseData)
+        ->assertRedirect(route('expenses.index'));
+
+    $expense = Expense::where('description', 'Expense with tags')->first();
+    expect($expense->tags)->toHaveCount(2);
+});
+
+test('expense can be updated with tags', function () {
+    $expense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create();
+    $tags = Tag::factory()->count(3)->create();
+
+    $updatedData = [
+        'account_id' => $this->account->id,
+        'description' => 'Updated with tags',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 800.00,
+        'tags' => $tags->pluck('id')->toArray(),
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('expenses.update', $expense), $updatedData)
+        ->assertRedirect(route('expenses.index'));
+
+    $expense->refresh();
+    expect($expense->tags)->toHaveCount(3);
+});
+
+test('expense tags can be removed on update', function () {
+    $expense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create();
+    $tags = Tag::factory()->count(2)->create();
+    $expense->tags()->attach($tags);
+
+    $updatedData = [
+        'account_id' => $this->account->id,
+        'description' => 'Tags removed',
+        'transacted_at' => now()->format('Y-m-d H:i:s'),
+        'amount' => 800.00,
+        'tags' => [],
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('expenses.update', $expense), $updatedData)
+        ->assertRedirect(route('expenses.index'));
+
+    $expense->refresh();
+    expect($expense->tags)->toHaveCount(0);
 });

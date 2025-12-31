@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Exports\IncomesExport;
 use App\Http\Requests\StoreIncomeRequest;
 use App\Http\Requests\UpdateIncomeRequest;
-use App\Models\Account;
 use App\Models\Income;
 use App\Models\Person;
 use App\Models\Tag;
+use App\Services\AccountService;
 use App\Services\IncomeService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -20,7 +20,10 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class IncomeController extends Controller
 {
-    public function __construct(public IncomeService $incomeService) {}
+    public function __construct(
+        public IncomeService $incomeService,
+        public AccountService $accountService,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -45,7 +48,7 @@ class IncomeController extends Controller
         ]);
 
         $incomes = $this->incomeService->getIncomesForUser(Auth::user());
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $tags = Tag::all();
 
@@ -57,7 +60,7 @@ class IncomeController extends Controller
      */
     public function create(): View
     {
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $tags = Tag::all();
 
@@ -98,7 +101,7 @@ class IncomeController extends Controller
             abort(403);
         }
 
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $tags = Tag::all();
         $income->load('tags');

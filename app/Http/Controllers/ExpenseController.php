@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Exports\ExpensesExport;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
-use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Person;
 use App\Models\Tag;
+use App\Services\AccountService;
 use App\Services\ExpenseService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -20,7 +20,10 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ExpenseController extends Controller
 {
-    public function __construct(public ExpenseService $expenseService) {}
+    public function __construct(
+        public ExpenseService $expenseService,
+        public AccountService $accountService,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -45,7 +48,7 @@ class ExpenseController extends Controller
         ]);
 
         $expenses = $this->expenseService->getExpensesForUser(Auth::user());
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $tags = Tag::all();
 
@@ -57,7 +60,7 @@ class ExpenseController extends Controller
      */
     public function create(): View
     {
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $tags = Tag::all();
 
@@ -98,7 +101,7 @@ class ExpenseController extends Controller
             abort(403);
         }
 
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $tags = Tag::all();
         $expense->load('tags');

@@ -5,11 +5,45 @@ namespace App\Services;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class AccountService
 {
+    private const CACHE_TTL = 3600; // 1 hour
+
+    /**
+     * Get all accounts for a user (cached).
+     *
+     * @return Collection<int, Account>
+     */
+    public function getAllForUser(int $userId): Collection
+    {
+        return Cache::remember(
+            $this->getCacheKey($userId),
+            self::CACHE_TTL,
+            fn () => Account::where('user_id', $userId)->get()
+        );
+    }
+
+    /**
+     * Clear the accounts cache for a user.
+     */
+    public function clearCache(int $userId): void
+    {
+        Cache::forget($this->getCacheKey($userId));
+    }
+
+    /**
+     * Get the cache key for a user's accounts.
+     */
+    private function getCacheKey(int $userId): string
+    {
+        return "user.{$userId}.accounts";
+    }
+
     /**
      * Get paginated accounts for a user.
      */
@@ -36,7 +70,11 @@ class AccountService
         $data['user_id'] = $user->id;
         $data['current_balance'] = $data['initial_balance'] ?? 0;
 
-        return Account::create($data);
+        $account = Account::create($data);
+
+        $this->clearCache($user->id);
+
+        return $account;
     }
 
     /**
@@ -48,6 +86,8 @@ class AccountService
     {
         $account->update($data);
 
+        $this->clearCache($account->user_id);
+
         return $account->fresh();
     }
 
@@ -56,7 +96,13 @@ class AccountService
      */
     public function deleteAccount(Account $account): bool
     {
-        return $account->delete();
+        $userId = $account->user_id;
+
+        $result = $account->delete();
+
+        $this->clearCache($userId);
+
+        return $result;
     }
 
     /**

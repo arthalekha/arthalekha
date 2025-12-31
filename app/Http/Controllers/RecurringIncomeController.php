@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Enums\Frequency;
 use App\Http\Requests\StoreRecurringIncomeRequest;
 use App\Http\Requests\UpdateRecurringIncomeRequest;
-use App\Models\Account;
 use App\Models\Person;
 use App\Models\RecurringIncome;
 use App\Models\Tag;
+use App\Services\AccountService;
 use App\Services\RecurringIncomeService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\Auth;
 
 class RecurringIncomeController extends Controller
 {
-    public function __construct(public RecurringIncomeService $recurringIncomeService) {}
+    public function __construct(
+        public RecurringIncomeService $recurringIncomeService,
+        public AccountService $accountService,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -32,7 +35,7 @@ class RecurringIncomeController extends Controller
         ];
 
         $recurringIncomes = $this->recurringIncomeService->getRecurringIncomesForUser(Auth::user());
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $frequencies = Frequency::cases();
 
@@ -44,7 +47,7 @@ class RecurringIncomeController extends Controller
      */
     public function create(): View
     {
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $frequencies = Frequency::cases();
         $tags = Tag::all();
@@ -86,7 +89,7 @@ class RecurringIncomeController extends Controller
             abort(403);
         }
 
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = Person::all();
         $frequencies = Frequency::cases();
         $tags = Tag::all();

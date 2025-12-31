@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Exports\TransfersExport;
 use App\Http\Requests\StoreTransferRequest;
 use App\Http\Requests\UpdateTransferRequest;
-use App\Models\Account;
 use App\Models\Tag;
 use App\Models\Transfer;
+use App\Services\AccountService;
 use App\Services\TransferService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -19,7 +19,10 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TransferController extends Controller
 {
-    public function __construct(public TransferService $transferService) {}
+    public function __construct(
+        public TransferService $transferService,
+        public AccountService $accountService,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -44,7 +47,7 @@ class TransferController extends Controller
         ]);
 
         $transfers = $this->transferService->getTransfersForUser(Auth::user());
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $tags = Tag::all();
 
         return view('transfers.index', compact('transfers', 'accounts', 'tags', 'filters'));
@@ -55,7 +58,7 @@ class TransferController extends Controller
      */
     public function create(): View
     {
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $tags = Tag::all();
 
         return view('transfers.create', compact('accounts', 'tags'));
@@ -95,7 +98,7 @@ class TransferController extends Controller
             abort(403);
         }
 
-        $accounts = Account::where('user_id', Auth::id())->get();
+        $accounts = $this->accountService->getAllForUser(Auth::id());
         $tags = Tag::all();
         $transfer->load('tags');
 

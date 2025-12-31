@@ -2,6 +2,7 @@
 
 use App\Jobs\TransactRecurringExpenseJob;
 use App\Jobs\TransactRecurringIncomeJob;
+use App\Jobs\TransactRecurringTransferJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -12,3 +13,4 @@ Artisan::command('inspire', function () {
 
 Schedule::job(new TransactRecurringIncomeJob)->daily();
 Schedule::job(new TransactRecurringExpenseJob)->daily();
+Schedule::job(new TransactRecurringTransferJob)->daily();

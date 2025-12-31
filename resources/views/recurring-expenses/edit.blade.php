@@ -113,7 +113,7 @@
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}"
                                 {{ old('account_id', $recurringExpense->account_id) == $account->id ? 'selected' : '' }}>
-                                {{ $account->name }} ({{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }})
+                                {{ $account->label }}
                             </option>
                         @endforeach
                     </select>

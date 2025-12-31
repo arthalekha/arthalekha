@@ -113,7 +113,7 @@
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}"
                                 {{ old('debtor_id', $recurringTransfer->debtor_id) == $account->id ? 'selected' : '' }}>
-                                {{ $account->name }} ({{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }})
+                                {{ $account->label }}
                             </option>
                         @endforeach
                     </select>
@@ -134,7 +134,7 @@
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}"
                                 {{ old('creditor_id', $recurringTransfer->creditor_id) == $account->id ? 'selected' : '' }}>
-                                {{ $account->name }} ({{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }})
+                                {{ $account->label }}
                             </option>
                         @endforeach
                     </select>

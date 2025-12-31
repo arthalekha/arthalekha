@@ -108,7 +108,7 @@
                         <option value="">Select source account</option>
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}" {{ old('debtor_id') == $account->id ? 'selected' : '' }}>
-                                {{ $account->name }} ({{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }})
+                                {{ $account->label }}
                             </option>
                         @endforeach
                     </select>
@@ -128,7 +128,7 @@
                         <option value="">Select destination account</option>
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}" {{ old('creditor_id') == $account->id ? 'selected' : '' }}>
-                                {{ $account->name }} ({{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }})
+                                {{ $account->label }}
                             </option>
                         @endforeach
                     </select>

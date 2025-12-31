@@ -77,16 +77,6 @@
                         <x-tag-display :tags="$recurringExpense->tags" />
                     </div>
                 </div>
-
-                <div>
-                    <label class="text-sm font-medium text-base-content/70">Created</label>
-                    <p class="mt-1">{{ $recurringExpense->created_at->format('F d, Y \a\t h:i A') }}</p>
-                </div>
-
-                <div>
-                    <label class="text-sm font-medium text-base-content/70">Last Updated</label>
-                    <p class="mt-1">{{ $recurringExpense->updated_at->format('F d, Y \a\t h:i A') }}</p>
-                </div>
             </div>
         </div>
     </div>

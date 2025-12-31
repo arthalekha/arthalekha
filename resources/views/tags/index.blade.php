@@ -36,7 +36,6 @@
                                 <th>Name</th>
                                 <th>Color</th>
                                 <th>Preview</th>
-                                <th>Created</th>
                                 <th class="text-right">Actions</th>
                             </tr>
                         </thead>
@@ -51,9 +50,6 @@
                                         <span class="badge text-white" style="background-color: {{ $tag->color }}">
                                             {{ $tag->name }}
                                         </span>
-                                    </td>
-                                    <td class="text-sm text-base-content/70">
-                                        {{ $tag->created_at->format('M d, Y') }}
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">

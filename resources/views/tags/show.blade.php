@@ -45,16 +45,6 @@
                         <code class="text-sm">{{ $tag->color }}</code>
                     </div>
                 </div>
-
-                <div>
-                    <label class="text-sm font-medium text-base-content/70">Created</label>
-                    <p class="mt-1">{{ $tag->created_at->format('F d, Y \a\t h:i A') }}</p>
-                </div>
-
-                <div>
-                    <label class="text-sm font-medium text-base-content/70">Last Updated</label>
-                    <p class="mt-1">{{ $tag->updated_at->format('F d, Y \a\t h:i A') }}</p>
-                </div>
             </div>
         </div>
     </div>

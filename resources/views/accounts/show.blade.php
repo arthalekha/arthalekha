@@ -65,16 +65,6 @@
                         <p class="mt-1">{{ $account->initial_date->format('F d, Y') }}</p>
                     </div>
                 @endif
-
-                <div>
-                    <label class="text-sm font-medium text-base-content/70">Created</label>
-                    <p class="mt-1">{{ $account->created_at->format('F d, Y \a\t h:i A') }}</p>
-                </div>
-
-                <div>
-                    <label class="text-sm font-medium text-base-content/70">Last Updated</label>
-                    <p class="mt-1">{{ $account->updated_at->format('F d, Y \a\t h:i A') }}</p>
-                </div>
             </div>
         </div>
     </div>

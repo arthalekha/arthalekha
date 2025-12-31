@@ -6,9 +6,9 @@ use App\Enums\Frequency;
 use App\Http\Requests\StoreRecurringTransferRequest;
 use App\Http\Requests\UpdateRecurringTransferRequest;
 use App\Models\RecurringTransfer;
-use App\Models\Tag;
 use App\Services\AccountService;
 use App\Services\RecurringTransferService;
+use App\Services\TagService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +19,7 @@ class RecurringTransferController extends Controller
     public function __construct(
         public RecurringTransferService $recurringTransferService,
         public AccountService $accountService,
+        public TagService $tagService,
     ) {}
 
     /**
@@ -47,7 +48,7 @@ class RecurringTransferController extends Controller
     {
         $accounts = $this->accountService->getAllForUser(Auth::id());
         $frequencies = Frequency::cases();
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
 
         return view('recurring-transfers.create', compact('accounts', 'frequencies', 'tags'));
     }
@@ -88,7 +89,7 @@ class RecurringTransferController extends Controller
 
         $accounts = $this->accountService->getAllForUser(Auth::id());
         $frequencies = Frequency::cases();
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
         $recurringTransfer->load('tags');
 
         return view('recurring-transfers.edit', compact('recurringTransfer', 'accounts', 'frequencies', 'tags'));

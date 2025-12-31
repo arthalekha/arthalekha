@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Enums\Frequency;
 use App\Http\Requests\StoreRecurringExpenseRequest;
 use App\Http\Requests\UpdateRecurringExpenseRequest;
-use App\Models\Person;
 use App\Models\RecurringExpense;
-use App\Models\Tag;
 use App\Services\AccountService;
+use App\Services\PersonService;
 use App\Services\RecurringExpenseService;
+use App\Services\TagService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +20,8 @@ class RecurringExpenseController extends Controller
     public function __construct(
         public RecurringExpenseService $recurringExpenseService,
         public AccountService $accountService,
+        public PersonService $personService,
+        public TagService $tagService,
     ) {}
 
     /**
@@ -36,7 +38,7 @@ class RecurringExpenseController extends Controller
 
         $recurringExpenses = $this->recurringExpenseService->getRecurringExpensesForUser(Auth::user());
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
+        $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
 
         return view('recurring-expenses.index', compact('recurringExpenses', 'accounts', 'people', 'frequencies', 'filters'));
@@ -48,9 +50,9 @@ class RecurringExpenseController extends Controller
     public function create(): View
     {
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
+        $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
 
         return view('recurring-expenses.create', compact('accounts', 'people', 'frequencies', 'tags'));
     }
@@ -90,9 +92,9 @@ class RecurringExpenseController extends Controller
         }
 
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
+        $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
         $recurringExpense->load('tags');
 
         return view('recurring-expenses.edit', compact('recurringExpense', 'accounts', 'people', 'frequencies', 'tags'));

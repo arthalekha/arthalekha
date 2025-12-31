@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Enums\Frequency;
 use App\Http\Requests\StoreRecurringIncomeRequest;
 use App\Http\Requests\UpdateRecurringIncomeRequest;
-use App\Models\Person;
 use App\Models\RecurringIncome;
-use App\Models\Tag;
 use App\Services\AccountService;
+use App\Services\PersonService;
 use App\Services\RecurringIncomeService;
+use App\Services\TagService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +20,8 @@ class RecurringIncomeController extends Controller
     public function __construct(
         public RecurringIncomeService $recurringIncomeService,
         public AccountService $accountService,
+        public PersonService $personService,
+        public TagService $tagService,
     ) {}
 
     /**
@@ -36,7 +38,7 @@ class RecurringIncomeController extends Controller
 
         $recurringIncomes = $this->recurringIncomeService->getRecurringIncomesForUser(Auth::user());
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
+        $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
 
         return view('recurring-incomes.index', compact('recurringIncomes', 'accounts', 'people', 'frequencies', 'filters'));
@@ -48,9 +50,9 @@ class RecurringIncomeController extends Controller
     public function create(): View
     {
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
+        $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
 
         return view('recurring-incomes.create', compact('accounts', 'people', 'frequencies', 'tags'));
     }
@@ -90,9 +92,9 @@ class RecurringIncomeController extends Controller
         }
 
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
+        $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
         $recurringIncome->load('tags');
 
         return view('recurring-incomes.edit', compact('recurringIncome', 'accounts', 'people', 'frequencies', 'tags'));

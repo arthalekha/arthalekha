@@ -50,7 +50,7 @@ class TransactRecurringTransferJob implements ShouldQueue
         }
 
         $recurringTransfer->next_transaction_at = $recurringTransfer->frequency->addToDate(
-            $recurringTransfer->next_transaction_at->toMutable()
+            $recurringTransfer->next_transaction_at
         );
         $recurringTransfer->save();
     }

@@ -50,7 +50,7 @@ class TransactRecurringExpenseJob implements ShouldQueue
         }
 
         $recurringExpense->next_transaction_at = $recurringExpense->frequency->addToDate(
-            $recurringExpense->next_transaction_at->toMutable()
+            $recurringExpense->next_transaction_at
         );
         $recurringExpense->save();
     }

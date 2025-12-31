@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 enum Frequency: string
 {
@@ -13,15 +13,15 @@ enum Frequency: string
     case Quarterly = 'quarterly';
     case Yearly = 'yearly';
 
-    public function addToDate(Carbon $date): Carbon
+    public function addToDate(CarbonInterface $date): CarbonInterface
     {
         return match ($this) {
-            self::Daily => $date->copy()->addDay(),
-            self::Weekly => $date->copy()->addWeek(),
-            self::Biweekly => $date->copy()->addWeeks(2),
-            self::Monthly => $date->copy()->addMonth(),
-            self::Quarterly => $date->copy()->addMonths(3),
-            self::Yearly => $date->copy()->addYear(),
+            self::Daily => $date->addDay(),
+            self::Weekly => $date->addWeek(),
+            self::Biweekly => $date->addWeeks(2),
+            self::Monthly => $date->addMonth(),
+            self::Quarterly => $date->addMonths(3),
+            self::Yearly => $date->addYear(),
         };
     }
 }

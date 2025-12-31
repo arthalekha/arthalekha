@@ -50,7 +50,7 @@ class TransactRecurringIncomeJob implements ShouldQueue
         }
 
         $recurringIncome->next_transaction_at = $recurringIncome->frequency->addToDate(
-            $recurringIncome->next_transaction_at->toMutable()
+            $recurringIncome->next_transaction_at
         );
         $recurringIncome->save();
     }

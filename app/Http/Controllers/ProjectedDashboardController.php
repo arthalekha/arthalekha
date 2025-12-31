@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RecurringExpense;
 use App\Models\RecurringIncome;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -104,12 +105,12 @@ class ProjectedDashboardController extends Controller
      * @param  array<string, array{income: float, expense: float}>  $projections
      */
     private function projectTransactions(
-        Carbon $nextTransactionAt,
+        CarbonInterface $nextTransactionAt,
         $frequency,
         ?int $remainingRecurrences,
         float $amount,
-        Carbon $startDate,
-        Carbon $endDate,
+        CarbonInterface $startDate,
+        CarbonInterface $endDate,
         array &$projections,
         string $type
     ): void {

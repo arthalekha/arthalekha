@@ -6,10 +6,10 @@ use App\Exports\ExpensesExport;
 use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
-use App\Models\Person;
-use App\Models\Tag;
 use App\Services\AccountService;
 use App\Services\ExpenseService;
+use App\Services\PersonService;
+use App\Services\TagService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +23,8 @@ class ExpenseController extends Controller
     public function __construct(
         public ExpenseService $expenseService,
         public AccountService $accountService,
+        public PersonService $personService,
+        public TagService $tagService,
     ) {}
 
     /**
@@ -49,8 +51,8 @@ class ExpenseController extends Controller
 
         $expenses = $this->expenseService->getExpensesForUser(Auth::user());
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
-        $tags = Tag::all();
+        $people = $this->personService->getAll();
+        $tags = $this->tagService->getAll();
 
         return view('expenses.index', compact('expenses', 'accounts', 'people', 'tags', 'filters'));
     }
@@ -61,8 +63,8 @@ class ExpenseController extends Controller
     public function create(): View
     {
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
-        $tags = Tag::all();
+        $people = $this->personService->getAll();
+        $tags = $this->tagService->getAll();
 
         return view('expenses.create', compact('accounts', 'people', 'tags'));
     }
@@ -102,8 +104,8 @@ class ExpenseController extends Controller
         }
 
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
-        $tags = Tag::all();
+        $people = $this->personService->getAll();
+        $tags = $this->tagService->getAll();
         $expense->load('tags');
 
         return view('expenses.edit', compact('expense', 'accounts', 'people', 'tags'));

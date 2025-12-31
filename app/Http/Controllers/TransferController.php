@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Exports\TransfersExport;
 use App\Http\Requests\StoreTransferRequest;
 use App\Http\Requests\UpdateTransferRequest;
-use App\Models\Tag;
 use App\Models\Transfer;
 use App\Services\AccountService;
+use App\Services\TagService;
 use App\Services\TransferService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
@@ -22,6 +22,7 @@ class TransferController extends Controller
     public function __construct(
         public TransferService $transferService,
         public AccountService $accountService,
+        public TagService $tagService,
     ) {}
 
     /**
@@ -48,7 +49,7 @@ class TransferController extends Controller
 
         $transfers = $this->transferService->getTransfersForUser(Auth::user());
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
 
         return view('transfers.index', compact('transfers', 'accounts', 'tags', 'filters'));
     }
@@ -59,7 +60,7 @@ class TransferController extends Controller
     public function create(): View
     {
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
 
         return view('transfers.create', compact('accounts', 'tags'));
     }
@@ -99,7 +100,7 @@ class TransferController extends Controller
         }
 
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $tags = Tag::all();
+        $tags = $this->tagService->getAll();
         $transfer->load('tags');
 
         return view('transfers.edit', compact('transfer', 'accounts', 'tags'));

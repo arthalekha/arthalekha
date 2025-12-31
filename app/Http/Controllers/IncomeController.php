@@ -6,10 +6,10 @@ use App\Exports\IncomesExport;
 use App\Http\Requests\StoreIncomeRequest;
 use App\Http\Requests\UpdateIncomeRequest;
 use App\Models\Income;
-use App\Models\Person;
-use App\Models\Tag;
 use App\Services\AccountService;
 use App\Services\IncomeService;
+use App\Services\PersonService;
+use App\Services\TagService;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +23,8 @@ class IncomeController extends Controller
     public function __construct(
         public IncomeService $incomeService,
         public AccountService $accountService,
+        public PersonService $personService,
+        public TagService $tagService,
     ) {}
 
     /**
@@ -49,8 +51,8 @@ class IncomeController extends Controller
 
         $incomes = $this->incomeService->getIncomesForUser(Auth::user());
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
-        $tags = Tag::all();
+        $people = $this->personService->getAll();
+        $tags = $this->tagService->getAll();
 
         return view('incomes.index', compact('incomes', 'accounts', 'people', 'tags', 'filters'));
     }
@@ -61,8 +63,8 @@ class IncomeController extends Controller
     public function create(): View
     {
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
-        $tags = Tag::all();
+        $people = $this->personService->getAll();
+        $tags = $this->tagService->getAll();
 
         return view('incomes.create', compact('accounts', 'people', 'tags'));
     }
@@ -102,8 +104,8 @@ class IncomeController extends Controller
         }
 
         $accounts = $this->accountService->getAllForUser(Auth::id());
-        $people = Person::all();
-        $tags = Tag::all();
+        $people = $this->personService->getAll();
+        $tags = $this->tagService->getAll();
         $income->load('tags');
 
         return view('incomes.edit', compact('income', 'accounts', 'people', 'tags'));

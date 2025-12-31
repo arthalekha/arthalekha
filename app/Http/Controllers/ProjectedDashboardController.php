@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\RecurringExpense;
 use App\Models\RecurringIncome;
 use Carbon\Carbon;
@@ -17,6 +18,10 @@ class ProjectedDashboardController extends Controller
         $userId = Auth::id();
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now()->addYear()->endOfMonth();
+
+        $currentBalance = Account::query()
+            ->where('user_id', $userId)
+            ->sum('current_balance');
 
         $recurringIncomes = RecurringIncome::query()
             ->where('user_id', $userId)
@@ -37,6 +42,8 @@ class ProjectedDashboardController extends Controller
         $incomeData = array_column($monthlyProjections, 'income');
         $expenseData = array_column($monthlyProjections, 'expense');
 
+        $balanceData = $this->calculateProjectedBalance($monthlyProjections, (float) $currentBalance);
+
         $totalProjectedIncome = array_sum($incomeData);
         $totalProjectedExpense = array_sum($expenseData);
         $projectedNetSavings = $totalProjectedIncome - $totalProjectedExpense;
@@ -45,6 +52,8 @@ class ProjectedDashboardController extends Controller
             'months' => $months,
             'incomeData' => $incomeData,
             'expenseData' => $expenseData,
+            'balanceData' => $balanceData,
+            'currentBalance' => $currentBalance,
             'totalProjectedIncome' => $totalProjectedIncome,
             'totalProjectedExpense' => $totalProjectedExpense,
             'projectedNetSavings' => $projectedNetSavings,
@@ -132,5 +141,22 @@ class ProjectedDashboardController extends Controller
             $transactionDate = $frequency->addToDate($transactionDate);
             $count++;
         }
+    }
+
+    /**
+     * @param  array<string, array{income: float, expense: float}>  $monthlyProjections
+     * @return array<float>
+     */
+    private function calculateProjectedBalance(array $monthlyProjections, float $startingBalance): array
+    {
+        $balanceData = [];
+        $runningBalance = $startingBalance;
+
+        foreach ($monthlyProjections as $data) {
+            $runningBalance += $data['income'] - $data['expense'];
+            $balanceData[] = $runningBalance;
+        }
+
+        return $balanceData;
     }
 }

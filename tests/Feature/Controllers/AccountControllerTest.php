@@ -48,7 +48,7 @@ test('authenticated user can view create account form', function () {
 test('authenticated user can create an account', function () {
     $accountData = [
         'name' => 'Test Account',
-        'account_type' => AccountType::Bank->value,
+        'account_type' => AccountType::Savings->value,
         'identifier' => '1234567890',
         'initial_balance' => 1000.50,
         'initial_date' => '2025-01-01',
@@ -62,7 +62,7 @@ test('authenticated user can create an account', function () {
     $this->assertDatabaseHas('accounts', [
         'name' => 'Test Account',
         'user_id' => $this->user->id,
-        'account_type' => AccountType::Bank->value,
+        'account_type' => AccountType::Savings->value,
     ]);
 });
 
@@ -87,7 +87,7 @@ test('creating an account requires a name', function () {
     $this->actingAs($this->user)
         ->post(route('accounts.store'), [
             'name' => '',
-            'account_type' => AccountType::Bank->value,
+            'account_type' => AccountType::Savings->value,
             'initial_balance' => 0,
         ])
         ->assertSessionHasErrors('name');
@@ -170,7 +170,7 @@ test('user cannot update another users account', function () {
     $this->actingAs($this->user)
         ->put(route('accounts.update', $account), [
             'name' => 'Hacked Account',
-            'account_type' => AccountType::Bank->value,
+            'account_type' => AccountType::Savings->value,
             'initial_balance' => 0,
         ])
         ->assertForbidden();

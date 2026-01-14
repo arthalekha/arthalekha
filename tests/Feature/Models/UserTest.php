@@ -28,7 +28,7 @@ test('can create accounts through relationship', function () {
     $account = $user->accounts()->create([
         'name' => 'Checking',
         'identifier' => '1234',
-        'account_type' => \App\Enums\AccountType::Bank,
+        'account_type' => \App\Enums\AccountType::Savings,
         'initial_balance' => 1000.00,
     ]);
 

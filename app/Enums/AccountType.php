@@ -5,7 +5,7 @@ namespace App\Enums;
 enum AccountType: string
 {
     case Cash = 'cash';
-    case Bank = 'bank';
+    case Savings = 'savings';
     case CreditCard = 'credit_card';
     case Wallet = 'wallet';
     case Investment = 'investment';
@@ -16,7 +16,7 @@ enum AccountType: string
     {
         return match ($this) {
             self::Cash => 'CA',
-            self::Bank => 'BK',
+            self::Savings => 'SB',
             self::CreditCard => 'CC',
             self::Wallet => 'WL',
             self::Investment => 'IN',

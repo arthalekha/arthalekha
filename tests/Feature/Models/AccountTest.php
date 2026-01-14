@@ -30,12 +30,12 @@ test('label accessor returns formatted string', function () {
     $account = Account::factory()->forUser($this->user)->create([
         'name' => 'Checking Account',
         'identifier' => '1234',
-        'account_type' => AccountType::Bank,
+        'account_type' => AccountType::Savings,
     ]);
 
     expect($account->label)->toContain('Checking Account');
     expect($account->label)->toContain('1234');
-    expect($account->label)->toContain('BK');
+    expect($account->label)->toContain('SB');
 });
 
 test('label accessor handles null identifier gracefully', function () {
@@ -62,11 +62,11 @@ test('label accessor includes AccountType shortCode', function () {
 
 test('account_type casts to AccountType enum', function () {
     $account = Account::factory()->forUser($this->user)->create([
-        'account_type' => AccountType::Bank,
+        'account_type' => AccountType::Savings,
     ]);
 
     expect($account->account_type)->toBeInstanceOf(AccountType::class);
-    expect($account->account_type)->toBe(AccountType::Bank);
+    expect($account->account_type)->toBe(AccountType::Savings);
 });
 
 test('current_balance casts to decimal with 2 places', function () {
@@ -177,7 +177,7 @@ test('ofType factory state works correctly', function () {
 test('account type enum maintains all values', function () {
     $types = [
         AccountType::Cash,
-        AccountType::Bank,
+        AccountType::Savings,
         AccountType::CreditCard,
         AccountType::Wallet,
         AccountType::Investment,

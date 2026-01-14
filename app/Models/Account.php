@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Data\AccountData\AccountData;
+use App\Data\AccountData\CreditCardAccountData;
+use App\Data\AccountData\SavingsAccountData;
 use App\Enums\AccountType;
 use App\Observers\AccountObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -49,5 +52,21 @@ class Account extends Model
     protected function label(): Attribute
     {
         return Attribute::get(fn () => "{$this->account_type->shortCode()} | {$this->name} {$this->identifier}");
+    }
+
+    public function getTypedData(): ?AccountData
+    {
+        $data = $this->data ?? [];
+
+        return match ($this->account_type) {
+            AccountType::Savings => SavingsAccountData::fromArray($data),
+            AccountType::CreditCard => CreditCardAccountData::fromArray($data),
+            default => null,
+        };
+    }
+
+    public function setTypedData(AccountData $accountData): void
+    {
+        $this->data = $accountData->toArray();
     }
 }

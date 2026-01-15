@@ -35,7 +35,7 @@ class BalanceService
         $firstTransactionDate = $this->getFirstTransactionDate($account);
 
         if (! $firstTransactionDate) {
-            return 0;
+            $firstTransactionDate = $account->initial_date;
         }
 
         $startMonth = Carbon::parse($firstTransactionDate)->startOfMonth();

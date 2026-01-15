@@ -4,6 +4,7 @@ use App\Enums\AccountType;
 use App\Enums\Frequency;
 use App\Models\Account;
 use App\Models\Balance;
+use App\Models\Income;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -428,11 +429,19 @@ test('show page displays monthly average balance for savings account when previo
         'recorded_until' => '2024-01-31',
     ]);
 
+    // Add current month income to test the calculation
+    Income::factory()->forUser($this->user)->forAccount($account)->create([
+        'amount' => 500.00,
+        'transacted_at' => '2024-02-10',
+    ]);
+
+    // Previous month: 1000, Current month projected: 1000 + 500 = 1500
+    // Average: (1000 + 1500) / 2 = 1250
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
         ->assertSee('Monthly Avg Balance')
-        ->assertSee('1,500.00')
+        ->assertSee('1,250.00')
         ->assertSee('Based on previous month');
 });
 
@@ -483,8 +492,16 @@ test('show page passes monthly average balance to view for savings account', fun
         'recorded_until' => '2024-01-31',
     ]);
 
+    // Add current month transactions
+    Income::factory()->forUser($this->user)->forAccount($account)->create([
+        'amount' => 1000.00,
+        'transacted_at' => '2024-02-10',
+    ]);
+
+    // Previous month: 1000, Current month projected: 1000 + 1000 = 2000
+    // Average: (1000 + 2000) / 2 = 1500
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
-        ->assertViewHas('monthlyAverageBalance', 2000.0);
+        ->assertViewHas('monthlyAverageBalance', 1500.0);
 });

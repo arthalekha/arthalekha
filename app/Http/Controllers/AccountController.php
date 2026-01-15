@@ -8,13 +8,18 @@ use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
 use App\Services\AccountService;
+use App\Services\BalanceService;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
-    public function __construct(public AccountService $accountService) {}
+    public function __construct(
+        public AccountService $accountService,
+        public BalanceService $balanceService,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -63,7 +68,11 @@ class AccountController extends Controller
             $account->load('previousMonthBalance');
 
             if ($account->previousMonthBalance) {
-                $monthlyAverageBalance = ((float) $account->current_balance + (float) $account->previousMonthBalance->balance) / 2;
+                $previousMonthBalance = (float) $account->previousMonthBalance->balance;
+                $currentMonthChange = $this->balanceService->calculateBalanceForMonth($account, Carbon::now());
+                $projectedCurrentMonthBalance = $previousMonthBalance + $currentMonthChange;
+
+                $monthlyAverageBalance = ($previousMonthBalance + $projectedCurrentMonthBalance) / 2;
             }
         }
 

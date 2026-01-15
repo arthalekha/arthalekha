@@ -22,7 +22,7 @@ class AccountFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'name' => fake()->words(2, true),
+            'name' => fake()->randomElement(['ICICI', 'AXIS', 'HDFC', 'CASH']),
             'identifier' => fake()->optional()->bankAccountNumber(),
             'account_type' => fake()->randomElement(AccountType::cases()),
             'current_balance' => $initialBalance + fake()->randomFloat(2, -10000, 50000),

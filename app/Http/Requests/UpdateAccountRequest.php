@@ -27,22 +27,22 @@ class UpdateAccountRequest extends FormRequest
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'identifier' => ['nullable', 'string', 'max:255'],
-            'account_type' => ['required', Rule::enum(AccountType::class)],
             'initial_date' => ['nullable', 'date'],
             'initial_balance' => ['required', 'numeric', 'min:-999999999999', 'max:999999999999'],
             'data' => ['nullable', 'array'],
         ];
 
-        $accountType = $this->input('account_type');
+        // Get account type from the route model, not from request input
+        $accountType = $this->route('account')?->account_type;
 
-        if ($accountType === AccountType::Savings->value) {
+        if ($accountType === AccountType::Savings) {
             $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
             $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
             $rules['data.average_balance_frequency'] = ['nullable', Rule::enum(Frequency::class)];
             $rules['data.average_balance_amount'] = ['nullable', 'numeric', 'min:0'];
         }
 
-        if ($accountType === AccountType::CreditCard->value) {
+        if ($accountType === AccountType::CreditCard) {
             $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
             $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
             $rules['data.bill_generated_on'] = ['nullable', 'integer', 'min:1', 'max:31'];
@@ -60,7 +60,6 @@ class UpdateAccountRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'account_type.enum' => 'The selected account type is invalid.',
             'data.rate_of_interest.max' => 'The rate of interest must not exceed 100%.',
             'data.bill_generated_on.max' => 'The bill generated day must be between 1 and 31.',
         ];

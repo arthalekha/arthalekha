@@ -143,11 +143,13 @@ test('user cannot edit another users account', function () {
 });
 
 test('authenticated user can update their own account', function () {
-    $account = Account::factory()->forUser($this->user)->create();
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create();
 
     $updatedData = [
         'name' => 'Updated Account',
-        'account_type' => AccountType::Wallet->value,
         'identifier' => 'NEW-ID',
         'initial_balance' => 2000.00,
     ];
@@ -160,7 +162,7 @@ test('authenticated user can update their own account', function () {
     $this->assertDatabaseHas('accounts', [
         'id' => $account->id,
         'name' => 'Updated Account',
-        'account_type' => AccountType::Wallet->value,
+        'account_type' => AccountType::Savings->value,
     ]);
 });
 
@@ -171,10 +173,27 @@ test('user cannot update another users account', function () {
     $this->actingAs($this->user)
         ->put(route('accounts.update', $account), [
             'name' => 'Hacked Account',
-            'account_type' => AccountType::Savings->value,
             'initial_balance' => 0,
         ])
         ->assertForbidden();
+});
+
+test('account type cannot be changed during update', function () {
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create();
+
+    $this->actingAs($this->user)
+        ->put(route('accounts.update', $account), [
+            'name' => 'Updated Account',
+            'account_type' => AccountType::CreditCard->value,
+            'initial_balance' => 1000.00,
+        ])
+        ->assertRedirect(route('accounts.index'));
+
+    $account->refresh();
+    expect($account->account_type)->toBe(AccountType::Savings);
 });
 
 test('authenticated user can delete their own account', function () {
@@ -263,7 +282,6 @@ test('authenticated user can update savings account with additional data', funct
 
     $updatedData = [
         'name' => 'Updated Savings',
-        'account_type' => AccountType::Savings->value,
         'initial_balance' => 15000.00,
         'data' => [
             'rate_of_interest' => 6.0,

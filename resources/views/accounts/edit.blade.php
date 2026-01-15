@@ -35,22 +35,14 @@
 
                 <div class="form-control mb-4">
                     <label class="label" for="account_type">
-                        <span class="label-text">Account Type <span class="text-error">*</span></span>
+                        <span class="label-text">Account Type</span>
                     </label>
-                    <select name="account_type" id="account_type"
-                            class="select select-bordered @error('account_type') select-error @enderror" required>
-                        <option value="">Select account type</option>
-                        @foreach ($accountTypes as $type)
-                            <option value="{{ $type->value }}" {{ old('account_type', $account->account_type->value) === $type->value ? 'selected' : '' }}>
-                                {{ ucfirst(str_replace('_', ' ', $type->value)) }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('account_type')
-                        <label class="label">
-                            <span class="label-text-alt text-error">{{ $message }}</span>
-                        </label>
-                    @enderror
+                    <input type="text" id="account_type"
+                           value="{{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }}"
+                           class="input input-bordered bg-base-200" disabled>
+                    <label class="label">
+                        <span class="label-text-alt text-base-content/70">Account type cannot be changed</span>
+                    </label>
                 </div>
 
                 <div class="form-control mb-4">
@@ -263,31 +255,18 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const accountTypeSelect = document.getElementById('account_type');
+        const accountType = '{{ $account->account_type->value }}';
         const savingsFields = document.getElementById('savings-fields');
         const creditCardFields = document.getElementById('credit-card-fields');
 
-        function toggleFields() {
-            const selectedType = accountTypeSelect.value;
-
-            savingsFields.classList.add('hidden');
-            creditCardFields.classList.add('hidden');
-
-            // Disable inputs in hidden sections to prevent submission
-            savingsFields.querySelectorAll('input, select').forEach(el => el.disabled = true);
-            creditCardFields.querySelectorAll('input, select').forEach(el => el.disabled = true);
-
-            if (selectedType === 'savings') {
-                savingsFields.classList.remove('hidden');
-                savingsFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
-            } else if (selectedType === 'credit_card') {
-                creditCardFields.classList.remove('hidden');
-                creditCardFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
-            }
+        // Show fields based on account type (type is fixed, cannot be changed)
+        if (accountType === 'savings') {
+            savingsFields.classList.remove('hidden');
+            savingsFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
+        } else if (accountType === 'credit_card') {
+            creditCardFields.classList.remove('hidden');
+            creditCardFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
         }
-
-        accountTypeSelect.addEventListener('change', toggleFields);
-        toggleFields(); // Initialize on page load
     });
 </script>
 @endpush

@@ -1,0 +1,170 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Account;
+use App\Models\Balance;
+use App\Models\Expense;
+use App\Models\Income;
+use App\Models\Transfer;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
+
+class BalanceService
+{
+    /**
+     * Calculate the balance for an account at the end of a specific month.
+     */
+    public function calculateBalanceForMonth(Account $account, CarbonInterface $month): float
+    {
+        $monthlyIncome = $this->getMonthlyIncome($account, $month);
+        $monthlyExpense = $this->getMonthlyExpense($account, $month);
+        $monthlyTransferIn = $this->getMonthlyTransferIn($account, $month);
+        $monthlyTransferOut = $this->getMonthlyTransferOut($account, $month);
+
+        return $monthlyIncome - $monthlyExpense + $monthlyTransferIn - $monthlyTransferOut;
+    }
+
+    /**
+     * Backfill balance records for an account from the first transaction to the previous month.
+     *
+     * @return int Number of balance records processed
+     */
+    public function backfillBalancesForAccount(Account $account): int
+    {
+        $firstTransactionDate = $this->getFirstTransactionDate($account);
+
+        if (! $firstTransactionDate) {
+            return 0;
+        }
+
+        $startMonth = Carbon::parse($firstTransactionDate)->startOfMonth();
+        $endMonth = Carbon::now()->subMonth()->endOfMonth();
+
+        if ($startMonth->greaterThan($endMonth)) {
+            return 0;
+        }
+
+        $processed = 0;
+        $runningBalance = (float) $account->initial_balance;
+        $currentMonth = $startMonth->copy();
+
+        while ($currentMonth->lte($endMonth)) {
+            $monthEnd = $currentMonth->copy()->endOfMonth();
+
+            $monthlyChange = $this->calculateBalanceForMonth($account, $currentMonth);
+            $runningBalance += $monthlyChange;
+
+            $this->saveBalance($account, $monthEnd, $runningBalance);
+            $processed++;
+
+            $currentMonth->addMonth();
+        }
+
+        return $processed;
+    }
+
+    /**
+     * Save or update a balance record for an account.
+     */
+    public function saveBalance(Account $account, CarbonInterface $date, float $balance): Balance
+    {
+        $existingBalance = Balance::where('account_id', $account->id)
+            ->whereDate('recorded_until', $date->toDateString())
+            ->first();
+
+        if ($existingBalance) {
+            $existingBalance->update(['balance' => $balance]);
+
+            return $existingBalance;
+        }
+
+        return Balance::create([
+            'account_id' => $account->id,
+            'balance' => $balance,
+            'recorded_until' => $date->toDateString(),
+        ]);
+    }
+
+    /**
+     * Get the first transaction date for an account.
+     */
+    public function getFirstTransactionDate(Account $account): ?CarbonInterface
+    {
+        $dates = collect();
+
+        $firstIncome = Income::where('account_id', $account->id)
+            ->orderBy('transacted_at')
+            ->first();
+        if ($firstIncome) {
+            $dates->push($firstIncome->transacted_at);
+        }
+
+        $firstExpense = Expense::where('account_id', $account->id)
+            ->orderBy('transacted_at')
+            ->first();
+        if ($firstExpense) {
+            $dates->push($firstExpense->transacted_at);
+        }
+
+        $firstTransferIn = Transfer::where('creditor_id', $account->id)
+            ->orderBy('transacted_at')
+            ->first();
+        if ($firstTransferIn) {
+            $dates->push($firstTransferIn->transacted_at);
+        }
+
+        $firstTransferOut = Transfer::where('debtor_id', $account->id)
+            ->orderBy('transacted_at')
+            ->first();
+        if ($firstTransferOut) {
+            $dates->push($firstTransferOut->transacted_at);
+        }
+
+        return $dates->min();
+    }
+
+    /**
+     * Get total income for an account in a specific month.
+     */
+    public function getMonthlyIncome(Account $account, CarbonInterface $month): float
+    {
+        return (float) Income::where('account_id', $account->id)
+            ->whereYear('transacted_at', $month->year)
+            ->whereMonth('transacted_at', $month->month)
+            ->sum('amount');
+    }
+
+    /**
+     * Get total expenses for an account in a specific month.
+     */
+    public function getMonthlyExpense(Account $account, CarbonInterface $month): float
+    {
+        return (float) Expense::where('account_id', $account->id)
+            ->whereYear('transacted_at', $month->year)
+            ->whereMonth('transacted_at', $month->month)
+            ->sum('amount');
+    }
+
+    /**
+     * Get total transfers into an account in a specific month.
+     */
+    public function getMonthlyTransferIn(Account $account, CarbonInterface $month): float
+    {
+        return (float) Transfer::where('creditor_id', $account->id)
+            ->whereYear('transacted_at', $month->year)
+            ->whereMonth('transacted_at', $month->month)
+            ->sum('amount');
+    }
+
+    /**
+     * Get total transfers out of an account in a specific month.
+     */
+    public function getMonthlyTransferOut(Account $account, CarbonInterface $month): float
+    {
+        return (float) Transfer::where('debtor_id', $account->id)
+            ->whereYear('transacted_at', $month->year)
+            ->whereMonth('transacted_at', $month->month)
+            ->sum('amount');
+    }
+}

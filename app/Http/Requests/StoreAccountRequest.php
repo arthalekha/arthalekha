@@ -33,23 +33,23 @@ class StoreAccountRequest extends FormRequest
             'data' => ['nullable', 'array'],
         ];
 
-        $accountType = $this->input('account_type');
+        $dataRules = match ($this->enum('account_type', AccountType::class)) {
+            AccountType::Savings => [
+                'data.rate_of_interest' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'data.interest_frequency' => ['nullable', Rule::enum(Frequency::class)],
+                'data.average_balance_frequency' => ['nullable', Rule::enum(Frequency::class)],
+                'data.average_balance_amount' => ['nullable', 'numeric', 'min:0'],
+            ],
+            AccountType::CreditCard => [
+                'data.rate_of_interest' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'data.interest_frequency' => ['nullable', Rule::enum(Frequency::class)],
+                'data.bill_generated_on' => ['nullable', 'integer', 'min:1', 'max:31'],
+                'data.repayment_of_bill_after_days' => ['nullable', 'integer', 'min:1', 'max:60'],
+            ],
+            default => [],
+        };
 
-        if ($accountType === AccountType::Savings->value) {
-            $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
-            $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
-            $rules['data.average_balance_frequency'] = ['nullable', Rule::enum(Frequency::class)];
-            $rules['data.average_balance_amount'] = ['nullable', 'numeric', 'min:0'];
-        }
-
-        if ($accountType === AccountType::CreditCard->value) {
-            $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
-            $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
-            $rules['data.bill_generated_on'] = ['nullable', 'integer', 'min:1', 'max:31'];
-            $rules['data.repayment_of_bill_after_days'] = ['nullable', 'integer', 'min:1', 'max:60'];
-        }
-
-        return $rules;
+        return [...$rules, ...$dataRules];
     }
 
     /**

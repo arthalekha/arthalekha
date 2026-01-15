@@ -3,7 +3,9 @@
 use App\Enums\AccountType;
 use App\Enums\Frequency;
 use App\Models\Account;
+use App\Models\Balance;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -411,4 +413,78 @@ test('show page displays credit card account data', function () {
         ->assertSee('24%')
         ->assertSee('Day 15 of each month')
         ->assertSee('20 days');
+});
+
+test('show page displays monthly average balance for savings account when previous month balance exists', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create(['current_balance' => 2000.00]);
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 1000.00,
+        'recorded_until' => '2024-01-31',
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Monthly Avg Balance')
+        ->assertSee('1,500.00')
+        ->assertSee('Based on previous month');
+});
+
+test('show page does not display monthly average balance for savings account when no previous month balance exists', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create(['current_balance' => 2000.00]);
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertDontSee('Monthly Avg Balance');
+});
+
+test('show page does not display monthly average balance for non-savings accounts', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::CreditCard)
+        ->create(['current_balance' => 2000.00]);
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 1000.00,
+        'recorded_until' => '2024-01-31',
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertDontSee('Monthly Avg Balance')
+        ->assertViewHas('monthlyAverageBalance', null);
+});
+
+test('show page passes monthly average balance to view for savings account', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create(['current_balance' => 3000.00]);
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 1000.00,
+        'recorded_until' => '2024-01-31',
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertViewHas('monthlyAverageBalance', 2000.0);
 });

@@ -49,6 +49,15 @@
                         {{ $diff >= 0 ? '+' : '' }}{{ number_format($diff, 2) }}
                     </div>
                 </div>
+                @if ($monthlyAverageBalance !== null)
+                    <div class="stat">
+                        <div class="stat-title">Monthly Avg Balance</div>
+                        <div class="stat-value text-lg {{ $monthlyAverageBalance >= 0 ? 'text-success' : 'text-error' }}">
+                            {{ number_format($monthlyAverageBalance, 2) }}
+                        </div>
+                        <div class="stat-desc">Based on previous month</div>
+                    </div>
+                @endif
             </div>
 
             <div class="space-y-4">

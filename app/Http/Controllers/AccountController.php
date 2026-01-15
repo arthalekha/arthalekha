@@ -58,7 +58,16 @@ class AccountController extends Controller
             abort(403);
         }
 
-        return view('accounts.show', compact('account'));
+        $monthlyAverageBalance = null;
+        if ($account->account_type === AccountType::Savings) {
+            $account->load('previousMonthBalance');
+
+            if ($account->previousMonthBalance) {
+                $monthlyAverageBalance = ((float) $account->current_balance + (float) $account->previousMonthBalance->balance) / 2;
+            }
+        }
+
+        return view('accounts.show', compact('account', 'monthlyAverageBalance'));
     }
 
     /**

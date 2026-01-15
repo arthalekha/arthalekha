@@ -32,24 +32,23 @@ class UpdateAccountRequest extends FormRequest
             'data' => ['nullable', 'array'],
         ];
 
-        // Get account type from the route model, not from request input
-        $accountType = $this->route('account')?->account_type;
+        $dataRules = match ($this->route('account')->account_type) {
+            AccountType::Savings => [
+                'data.rate_of_interest' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'data.interest_frequency' => ['nullable', Rule::enum(Frequency::class)],
+                'data.average_balance_frequency' => ['nullable', Rule::enum(Frequency::class)],
+                'data.average_balance_amount' => ['nullable', 'numeric', 'min:0'],
+            ],
+            AccountType::CreditCard => [
+                'data.rate_of_interest' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'data.interest_frequency' => ['nullable', Rule::enum(Frequency::class)],
+                'data.bill_generated_on' => ['nullable', 'integer', 'min:1', 'max:31'],
+                'data.repayment_of_bill_after_days' => ['nullable', 'integer', 'min:1', 'max:60'],
+            ],
+            default => [],
+        };
 
-        if ($accountType === AccountType::Savings) {
-            $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
-            $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
-            $rules['data.average_balance_frequency'] = ['nullable', Rule::enum(Frequency::class)];
-            $rules['data.average_balance_amount'] = ['nullable', 'numeric', 'min:0'];
-        }
-
-        if ($accountType === AccountType::CreditCard) {
-            $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
-            $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
-            $rules['data.bill_generated_on'] = ['nullable', 'integer', 'min:1', 'max:31'];
-            $rules['data.repayment_of_bill_after_days'] = ['nullable', 'integer', 'min:1', 'max:60'];
-        }
-
-        return $rules;
+        return [...$rules, ...$dataRules];
     }
 
     /**

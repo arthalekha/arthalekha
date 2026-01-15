@@ -328,3 +328,48 @@ test('edit form shows frequencies for account type selection', function () {
         ->assertSuccessful()
         ->assertViewHas('frequencies');
 });
+
+test('show page displays savings account data', function () {
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create([
+            'data' => [
+                'rate_of_interest' => 5.5,
+                'interest_frequency' => Frequency::Monthly->value,
+                'average_balance_frequency' => Frequency::Quarterly->value,
+                'average_balance_amount' => 10000.00,
+            ],
+        ]);
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Savings Account Details')
+        ->assertSee('5.5%')
+        ->assertSee('Monthly')
+        ->assertSee('Quarterly')
+        ->assertSee('10,000.00');
+});
+
+test('show page displays credit card account data', function () {
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::CreditCard)
+        ->create([
+            'data' => [
+                'rate_of_interest' => 24.0,
+                'interest_frequency' => Frequency::Monthly->value,
+                'bill_generated_on' => 15,
+                'repayment_of_bill_after_days' => 20,
+            ],
+        ]);
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Credit Card Details')
+        ->assertSee('24%')
+        ->assertSee('Day 15 of each month')
+        ->assertSee('20 days');
+});

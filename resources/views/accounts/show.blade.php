@@ -66,6 +66,72 @@
                     </div>
                 @endif
             </div>
+
+            @if ($account->account_type === \App\Enums\AccountType::Savings && $account->data)
+                <div class="divider">Savings Account Details</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @if (isset($account->data['rate_of_interest']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Rate of Interest</label>
+                            <p class="mt-1">{{ $account->data['rate_of_interest'] }}%</p>
+                        </div>
+                    @endif
+
+                    @if (isset($account->data['interest_frequency']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Interest Frequency</label>
+                            <p class="mt-1">{{ ucfirst($account->data['interest_frequency']) }}</p>
+                        </div>
+                    @endif
+
+                    @if (isset($account->data['average_balance_frequency']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Average Balance Frequency</label>
+                            <p class="mt-1">{{ ucfirst($account->data['average_balance_frequency']) }}</p>
+                        </div>
+                    @endif
+
+                    @if (isset($account->data['average_balance_amount']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Average Balance Amount</label>
+                            <p class="mt-1">{{ number_format($account->data['average_balance_amount'], 2) }}</p>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            @if ($account->account_type === \App\Enums\AccountType::CreditCard && $account->data)
+                <div class="divider">Credit Card Details</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @if (isset($account->data['rate_of_interest']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Rate of Interest</label>
+                            <p class="mt-1">{{ $account->data['rate_of_interest'] }}%</p>
+                        </div>
+                    @endif
+
+                    @if (isset($account->data['interest_frequency']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Interest Frequency</label>
+                            <p class="mt-1">{{ ucfirst($account->data['interest_frequency']) }}</p>
+                        </div>
+                    @endif
+
+                    @if (isset($account->data['bill_generated_on']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Bill Generated On</label>
+                            <p class="mt-1">Day {{ $account->data['bill_generated_on'] }} of each month</p>
+                        </div>
+                    @endif
+
+                    @if (isset($account->data['repayment_of_bill_after_days']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Repayment Due After</label>
+                            <p class="mt-1">{{ $account->data['repayment_of_bill_after_days'] }} days</p>
+                        </div>
+                    @endif
+                </div>
+            @endif
         </div>
     </div>
 </div>

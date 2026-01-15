@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountBalanceController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\ExpenseController;
@@ -25,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('accounts', AccountController::class);
     Route::get('accounts/{account}/transactions', AccountTransactionController::class)->name('accounts.transactions');
+    Route::get('accounts/{account}/balances', AccountBalanceController::class)->name('accounts.balances');
     Route::resource('expenses', ExpenseController::class);
     Route::post('expenses/export/csv', [ExpenseController::class, 'export'])->name('expenses.export');
     Route::resource('incomes', IncomeController::class);

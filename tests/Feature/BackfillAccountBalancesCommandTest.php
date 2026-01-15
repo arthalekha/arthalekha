@@ -184,7 +184,7 @@ test('command combines all transaction types correctly', function () {
     expect($balance->balance)->toBe('1500.00');
 });
 
-test('command skips existing balance records', function () {
+test('command updates existing balance records', function () {
     Carbon::setTestNow('2024-03-15');
 
     $account = Account::factory()->forUser($this->user)->create([
@@ -206,8 +206,8 @@ test('command skips existing balance records', function () {
 
     expect(Balance::count())->toBe(2);
 
-    $existingBalance = Balance::whereDate('recorded_until', '2024-01-31')->first();
-    expect($existingBalance->balance)->toBe('9999.00');
+    $updatedBalance = Balance::whereDate('recorded_until', '2024-01-31')->first();
+    expect($updatedBalance->balance)->toBe('1500.00');
 });
 
 test('command calculates running balance across multiple months', function () {

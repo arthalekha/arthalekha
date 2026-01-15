@@ -32,18 +32,18 @@ class BackfillAccountBalancesCommand extends Command
         $progressBar = $this->output->createProgressBar($accounts->count());
         $progressBar->start();
 
-        $totalCreated = 0;
+        $totalProcessed = 0;
 
         foreach ($accounts as $account) {
-            $created = $this->processAccount($account);
-            $totalCreated += $created;
+            $processed = $this->processAccount($account);
+            $totalProcessed += $processed;
             $progressBar->advance();
         }
 
         $progressBar->finish();
         $this->newLine();
 
-        $this->info("Backfill complete. Created {$totalCreated} balance records.");
+        $this->info("Backfill complete. Processed {$totalProcessed} balance records.");
 
         return self::SUCCESS;
     }
@@ -56,16 +56,16 @@ class BackfillAccountBalancesCommand extends Command
             return 0;
         }
 
-        $startMonth = $firstTransactionDate->copy()->startOfMonth();
+        $startMonth = Carbon::parse($firstTransactionDate)->startOfMonth();
         $endMonth = Carbon::now()->subMonth()->endOfMonth();
 
         if ($startMonth->greaterThan($endMonth)) {
             return 0;
         }
 
-        $created = 0;
+        $processed = 0;
         $runningBalance = (float) $account->initial_balance;
-        $currentMonth = $startMonth->copy()->toMutable();
+        $currentMonth = $startMonth->copy();
 
         while ($currentMonth->lte($endMonth)) {
             $monthEnd = $currentMonth->copy()->endOfMonth();
@@ -77,30 +77,30 @@ class BackfillAccountBalancesCommand extends Command
 
             $runningBalance = $runningBalance + $monthlyIncome - $monthlyExpense + $monthlyTransferIn - $monthlyTransferOut;
 
-            $existingBalance = Balance::where('account_id', $account->id)
+            $balance = Balance::where('account_id', $account->id)
                 ->whereDate('recorded_until', $monthEnd->toDateString())
-                ->exists();
+                ->first();
 
-            if (! $existingBalance) {
+            if ($balance) {
+                $balance->update(['balance' => $runningBalance]);
+            } else {
                 Balance::create([
                     'account_id' => $account->id,
                     'balance' => $runningBalance,
                     'recorded_until' => $monthEnd->toDateString(),
                 ]);
-                $created++;
             }
+            $processed++;
 
             $currentMonth->addMonth();
         }
 
-        return $created;
+        return $processed;
     }
 
     protected function getFirstTransactionDate(Account $account): ?CarbonInterface
     {
-        $dates = collect([
-            today(),
-        ]);
+        $dates = collect();
 
         $firstIncome = Income::where('account_id', $account->id)
             ->orderBy('transacted_at')

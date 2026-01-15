@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Enums\AccountType;
+use App\Enums\Frequency;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class UpdateAccountRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'identifier' => ['nullable', 'string', 'max:255'],
             'account_type' => ['required', Rule::enum(AccountType::class)],
@@ -31,6 +32,24 @@ class UpdateAccountRequest extends FormRequest
             'initial_balance' => ['required', 'numeric', 'min:-999999999999', 'max:999999999999'],
             'data' => ['nullable', 'array'],
         ];
+
+        $accountType = $this->input('account_type');
+
+        if ($accountType === AccountType::Savings->value) {
+            $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
+            $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
+            $rules['data.average_balance_frequency'] = ['nullable', Rule::enum(Frequency::class)];
+            $rules['data.average_balance_amount'] = ['nullable', 'numeric', 'min:0'];
+        }
+
+        if ($accountType === AccountType::CreditCard->value) {
+            $rules['data.rate_of_interest'] = ['nullable', 'numeric', 'min:0', 'max:100'];
+            $rules['data.interest_frequency'] = ['nullable', Rule::enum(Frequency::class)];
+            $rules['data.bill_generated_on'] = ['nullable', 'integer', 'min:1', 'max:31'];
+            $rules['data.repayment_of_bill_after_days'] = ['nullable', 'integer', 'min:1', 'max:60'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -42,6 +61,8 @@ class UpdateAccountRequest extends FormRequest
     {
         return [
             'account_type.enum' => 'The selected account type is invalid.',
+            'data.rate_of_interest.max' => 'The rate of interest must not exceed 100%.',
+            'data.bill_generated_on.max' => 'The bill generated day must be between 1 and 31.',
         ];
     }
 }

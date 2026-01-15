@@ -95,6 +95,153 @@
                     </div>
                 </div>
 
+                {{-- Savings Account Fields --}}
+                <div id="savings-fields" class="hidden">
+                    <div class="divider">Savings Account Details</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label class="label" for="data_rate_of_interest_savings">
+                                <span class="label-text">Rate of Interest (%)</span>
+                            </label>
+                            <input type="number" name="data[rate_of_interest]" id="data_rate_of_interest_savings"
+                                   value="{{ old('data.rate_of_interest') }}"
+                                   class="input input-bordered @error('data.rate_of_interest') input-error @enderror"
+                                   step="0.01" min="0" max="100" placeholder="e.g., 4.5">
+                            @error('data.rate_of_interest')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="data_interest_frequency_savings">
+                                <span class="label-text">Interest Frequency</span>
+                            </label>
+                            <select name="data[interest_frequency]" id="data_interest_frequency_savings"
+                                    class="select select-bordered @error('data.interest_frequency') select-error @enderror">
+                                <option value="">Select frequency</option>
+                                @foreach ($frequencies as $frequency)
+                                    <option value="{{ $frequency->value }}" {{ old('data.interest_frequency') === $frequency->value ? 'selected' : '' }}>
+                                        {{ ucfirst($frequency->value) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('data.interest_frequency')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="data_average_balance_frequency">
+                                <span class="label-text">Average Balance Frequency</span>
+                            </label>
+                            <select name="data[average_balance_frequency]" id="data_average_balance_frequency"
+                                    class="select select-bordered @error('data.average_balance_frequency') select-error @enderror">
+                                <option value="">Select frequency</option>
+                                @foreach ($frequencies as $frequency)
+                                    <option value="{{ $frequency->value }}" {{ old('data.average_balance_frequency') === $frequency->value ? 'selected' : '' }}>
+                                        {{ ucfirst($frequency->value) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('data.average_balance_frequency')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="data_average_balance_amount">
+                                <span class="label-text">Average Balance Amount</span>
+                            </label>
+                            <input type="number" name="data[average_balance_amount]" id="data_average_balance_amount"
+                                   value="{{ old('data.average_balance_amount') }}"
+                                   class="input input-bordered @error('data.average_balance_amount') input-error @enderror"
+                                   step="0.01" min="0" placeholder="e.g., 10000.00">
+                            @error('data.average_balance_amount')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Credit Card Fields --}}
+                <div id="credit-card-fields" class="hidden">
+                    <div class="divider">Credit Card Details</div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="form-control">
+                            <label class="label" for="data_rate_of_interest_cc">
+                                <span class="label-text">Rate of Interest (%)</span>
+                            </label>
+                            <input type="number" name="data[rate_of_interest]" id="data_rate_of_interest_cc"
+                                   value="{{ old('data.rate_of_interest') }}"
+                                   class="input input-bordered @error('data.rate_of_interest') input-error @enderror"
+                                   step="0.01" min="0" max="100" placeholder="e.g., 24.0">
+                            @error('data.rate_of_interest')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="data_interest_frequency_cc">
+                                <span class="label-text">Interest Frequency</span>
+                            </label>
+                            <select name="data[interest_frequency]" id="data_interest_frequency_cc"
+                                    class="select select-bordered @error('data.interest_frequency') select-error @enderror">
+                                <option value="">Select frequency</option>
+                                @foreach ($frequencies as $frequency)
+                                    <option value="{{ $frequency->value }}" {{ old('data.interest_frequency') === $frequency->value ? 'selected' : '' }}>
+                                        {{ ucfirst($frequency->value) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('data.interest_frequency')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="data_bill_generated_on">
+                                <span class="label-text">Bill Generated On (Day of Month)</span>
+                            </label>
+                            <input type="number" name="data[bill_generated_on]" id="data_bill_generated_on"
+                                   value="{{ old('data.bill_generated_on') }}"
+                                   class="input input-bordered @error('data.bill_generated_on') input-error @enderror"
+                                   min="1" max="31" placeholder="e.g., 15">
+                            @error('data.bill_generated_on')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+
+                        <div class="form-control">
+                            <label class="label" for="data_repayment_of_bill_after_days">
+                                <span class="label-text">Repayment Due After (Days)</span>
+                            </label>
+                            <input type="number" name="data[repayment_of_bill_after_days]" id="data_repayment_of_bill_after_days"
+                                   value="{{ old('data.repayment_of_bill_after_days') }}"
+                                   class="input input-bordered @error('data.repayment_of_bill_after_days') input-error @enderror"
+                                   min="1" max="60" placeholder="e.g., 20">
+                            @error('data.repayment_of_bill_after_days')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex justify-end gap-2 mt-6">
                     <a href="{{ route('accounts.index') }}" class="btn btn-ghost">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create Account</button>
@@ -104,4 +251,36 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const accountTypeSelect = document.getElementById('account_type');
+        const savingsFields = document.getElementById('savings-fields');
+        const creditCardFields = document.getElementById('credit-card-fields');
+
+        function toggleFields() {
+            const selectedType = accountTypeSelect.value;
+
+            savingsFields.classList.add('hidden');
+            creditCardFields.classList.add('hidden');
+
+            // Disable inputs in hidden sections to prevent submission
+            savingsFields.querySelectorAll('input, select').forEach(el => el.disabled = true);
+            creditCardFields.querySelectorAll('input, select').forEach(el => el.disabled = true);
+
+            if (selectedType === 'savings') {
+                savingsFields.classList.remove('hidden');
+                savingsFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
+            } else if (selectedType === 'credit_card') {
+                creditCardFields.classList.remove('hidden');
+                creditCardFields.querySelectorAll('input, select').forEach(el => el.disabled = false);
+            }
+        }
+
+        accountTypeSelect.addEventListener('change', toggleFields);
+        toggleFields(); // Initialize on page load
+    });
+</script>
+@endpush
 

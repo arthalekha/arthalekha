@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AccountType;
+use App\Enums\Frequency;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
@@ -32,8 +33,9 @@ class AccountController extends Controller
     public function create(): View
     {
         $accountTypes = AccountType::cases();
+        $frequencies = Frequency::cases();
 
-        return view('accounts.create', compact('accountTypes'));
+        return view('accounts.create', compact('accountTypes', 'frequencies'));
     }
 
     /**
@@ -69,8 +71,9 @@ class AccountController extends Controller
         }
 
         $accountTypes = AccountType::cases();
+        $frequencies = Frequency::cases();
 
-        return view('accounts.edit', compact('account', 'accountTypes'));
+        return view('accounts.edit', compact('account', 'accountTypes', 'frequencies'));
     }
 
     /**

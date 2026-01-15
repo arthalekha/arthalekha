@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\AccountType;
+use App\Enums\Frequency;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -196,4 +197,134 @@ test('user cannot delete another users account', function () {
         ->assertForbidden();
 
     $this->assertDatabaseHas('accounts', ['id' => $account->id]);
+});
+
+test('authenticated user can create a savings account with additional data', function () {
+    $accountData = [
+        'name' => 'Savings Account',
+        'account_type' => AccountType::Savings->value,
+        'identifier' => '1234567890',
+        'initial_balance' => 10000.00,
+        'data' => [
+            'rate_of_interest' => 5.5,
+            'interest_frequency' => Frequency::Monthly->value,
+            'average_balance_frequency' => Frequency::Quarterly->value,
+            'average_balance_amount' => 5000.00,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+
+    $account = Account::where('name', 'Savings Account')->first();
+    expect($account->data)->toEqual([
+        'rate_of_interest' => 5.5,
+        'interest_frequency' => Frequency::Monthly->value,
+        'average_balance_frequency' => Frequency::Quarterly->value,
+        'average_balance_amount' => 5000.00,
+    ]);
+});
+
+test('authenticated user can create a credit card account with additional data', function () {
+    $accountData = [
+        'name' => 'Credit Card',
+        'account_type' => AccountType::CreditCard->value,
+        'identifier' => '4111111111111111',
+        'initial_balance' => 0,
+        'data' => [
+            'rate_of_interest' => 24.0,
+            'interest_frequency' => Frequency::Monthly->value,
+            'bill_generated_on' => 15,
+            'repayment_of_bill_after_days' => 20,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+
+    $account = Account::where('name', 'Credit Card')->first();
+    expect($account->data)->toEqual([
+        'rate_of_interest' => 24.0,
+        'interest_frequency' => Frequency::Monthly->value,
+        'bill_generated_on' => 15,
+        'repayment_of_bill_after_days' => 20,
+    ]);
+});
+
+test('authenticated user can update savings account with additional data', function () {
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create();
+
+    $updatedData = [
+        'name' => 'Updated Savings',
+        'account_type' => AccountType::Savings->value,
+        'initial_balance' => 15000.00,
+        'data' => [
+            'rate_of_interest' => 6.0,
+            'interest_frequency' => Frequency::Quarterly->value,
+            'average_balance_frequency' => Frequency::Monthly->value,
+            'average_balance_amount' => 10000.00,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('accounts.update', $account), $updatedData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+
+    $account->refresh();
+    expect($account->data)->toEqual([
+        'rate_of_interest' => 6.0,
+        'interest_frequency' => Frequency::Quarterly->value,
+        'average_balance_frequency' => Frequency::Monthly->value,
+        'average_balance_amount' => 10000.00,
+    ]);
+});
+
+test('savings account validation rejects invalid rate of interest', function () {
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), [
+            'name' => 'Test Savings',
+            'account_type' => AccountType::Savings->value,
+            'initial_balance' => 1000,
+            'data' => [
+                'rate_of_interest' => 150,
+            ],
+        ])
+        ->assertSessionHasErrors('data.rate_of_interest');
+});
+
+test('credit card validation rejects invalid bill generated on day', function () {
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), [
+            'name' => 'Test CC',
+            'account_type' => AccountType::CreditCard->value,
+            'initial_balance' => 0,
+            'data' => [
+                'bill_generated_on' => 32,
+            ],
+        ])
+        ->assertSessionHasErrors('data.bill_generated_on');
+});
+
+test('create form shows frequencies for account type selection', function () {
+    $this->actingAs($this->user)
+        ->get(route('accounts.create'))
+        ->assertSuccessful()
+        ->assertViewHas('frequencies');
+});
+
+test('edit form shows frequencies for account type selection', function () {
+    $account = Account::factory()->forUser($this->user)->create();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.edit', $account))
+        ->assertSuccessful()
+        ->assertViewHas('frequencies');
 });

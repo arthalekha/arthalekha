@@ -12,6 +12,33 @@ use Carbon\CarbonInterface;
 
 class BalanceService
 {
+    public function createInitialBalanceEntries(Account $account): void
+    {
+        $initialDate = $account->initial_date->toMutable();
+
+        $now = Carbon::now();
+
+        $data = [];
+
+        while ($initialDate->lt(Carbon::today()->startOfMonth())) {
+            $initialDate->endOfMonth();
+
+            $data[] = [
+                'account_id' => $account->id,
+                'recorded_until' => $initialDate->toDateString(),
+                'balance' => $account->initial_balance,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+
+            $initialDate->addDay();
+        }
+
+        if (! empty($data)) {
+            Balance::query()->insert($data);
+        }
+    }
+
     /**
      * Calculate the balance for an account at the end of a specific month.
      */

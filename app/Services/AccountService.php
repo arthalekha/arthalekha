@@ -74,6 +74,8 @@ class AccountService
 
         $account = Account::create($data);
 
+        app(BalanceService::class)->createInitialBalanceEntries($account);
+
         $this->clearCache($user->id);
 
         return $account;

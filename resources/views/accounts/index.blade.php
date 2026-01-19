@@ -95,7 +95,7 @@
                                         {{ number_format($account->current_balance, 2) }}
                                     </td>
                                     <td class="text-sm text-base-content/70">
-                                        {{ $account->initial_date?->format('M d, Y') ?? '-' }}
+                                        {{ $account->initial_date->format('M d, Y') }}
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">

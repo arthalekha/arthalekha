@@ -94,12 +94,11 @@ test('initial_date casts to Carbon date', function () {
     expect($account->initial_date->format('Y-m-d'))->toBe('2024-01-15');
 });
 
-test('initial_date can be null', function () {
-    $account = Account::factory()->forUser($this->user)->create([
-        'initial_date' => null,
-    ]);
+test('initial_date is required', function () {
+    $account = Account::factory()->forUser($this->user)->create();
 
-    expect($account->initial_date)->toBeNull();
+    expect($account->initial_date)->not->toBeNull();
+    expect($account->initial_date)->toBeInstanceOf(\Carbon\CarbonInterface::class);
 });
 
 test('data casts to array', function () {

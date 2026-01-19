@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('identifier')->nullable();
             $table->string('account_type');
             $table->decimal('current_balance', 65, 2)->default(0);
-            $table->date('initial_date')->nullable();
+            $table->date('initial_date');
             $table->decimal('initial_balance', 65, 2)->default(0);
             $table->json('data')->nullable();
             $table->timestamps();

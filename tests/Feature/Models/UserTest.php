@@ -30,6 +30,7 @@ test('can create accounts through relationship', function () {
         'identifier' => '1234',
         'account_type' => \App\Enums\AccountType::Savings,
         'initial_balance' => 1000.00,
+        'initial_date' => now(),
     ]);
 
     expect($account->user_id)->toBe($user->id);

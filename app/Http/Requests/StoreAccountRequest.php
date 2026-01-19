@@ -28,7 +28,7 @@ class StoreAccountRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'identifier' => ['nullable', 'string', 'max:255'],
             'account_type' => ['required', Rule::enum(AccountType::class)],
-            'initial_date' => ['nullable', 'date'],
+            'initial_date' => ['required', 'date'],
             'initial_balance' => ['required', 'numeric', 'min:-999999999999', 'max:999999999999'],
             'data' => ['nullable', 'array'],
         ];

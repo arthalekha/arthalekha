@@ -72,6 +72,7 @@ test('creating an account sets current_balance to initial_balance', function () 
         'name' => 'Test Account',
         'account_type' => AccountType::Cash->value,
         'initial_balance' => 500.00,
+        'initial_date' => '2025-01-01',
     ];
 
     $this->actingAs($this->user)
@@ -90,6 +91,7 @@ test('creating an account requires a name', function () {
             'name' => '',
             'account_type' => AccountType::Savings->value,
             'initial_balance' => 0,
+            'initial_date' => '2025-01-01',
         ])
         ->assertSessionHasErrors('name');
 });
@@ -100,8 +102,19 @@ test('creating an account requires a valid account type', function () {
             'name' => 'Test Account',
             'account_type' => 'invalid_type',
             'initial_balance' => 0,
+            'initial_date' => '2025-01-01',
         ])
         ->assertSessionHasErrors('account_type');
+});
+
+test('creating an account requires initial_date', function () {
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), [
+            'name' => 'Test Account',
+            'account_type' => AccountType::Savings->value,
+            'initial_balance' => 0,
+        ])
+        ->assertSessionHasErrors('initial_date');
 });
 
 test('authenticated user can view their own account', function () {
@@ -152,6 +165,7 @@ test('authenticated user can update their own account', function () {
         'name' => 'Updated Account',
         'identifier' => 'NEW-ID',
         'initial_balance' => 2000.00,
+        'initial_date' => '2025-02-01',
     ];
 
     $this->actingAs($this->user)
@@ -174,6 +188,7 @@ test('user cannot update another users account', function () {
         ->put(route('accounts.update', $account), [
             'name' => 'Hacked Account',
             'initial_balance' => 0,
+            'initial_date' => '2025-01-01',
         ])
         ->assertForbidden();
 });
@@ -189,6 +204,7 @@ test('account type cannot be changed during update', function () {
             'name' => 'Updated Account',
             'account_type' => AccountType::CreditCard->value,
             'initial_balance' => 1000.00,
+            'initial_date' => '2025-01-01',
         ])
         ->assertRedirect(route('accounts.index'));
 
@@ -224,6 +240,7 @@ test('authenticated user can create a savings account with additional data', fun
         'account_type' => AccountType::Savings->value,
         'identifier' => '1234567890',
         'initial_balance' => 10000.00,
+        'initial_date' => '2025-01-01',
         'data' => [
             'rate_of_interest' => 5.5,
             'interest_frequency' => Frequency::Monthly->value,
@@ -252,6 +269,7 @@ test('authenticated user can create a credit card account with additional data',
         'account_type' => AccountType::CreditCard->value,
         'identifier' => '4111111111111111',
         'initial_balance' => 0,
+        'initial_date' => '2025-01-01',
         'data' => [
             'rate_of_interest' => 24.0,
             'interest_frequency' => Frequency::Monthly->value,
@@ -283,6 +301,7 @@ test('authenticated user can update savings account with additional data', funct
     $updatedData = [
         'name' => 'Updated Savings',
         'initial_balance' => 15000.00,
+        'initial_date' => '2025-02-01',
         'data' => [
             'rate_of_interest' => 6.0,
             'interest_frequency' => Frequency::Quarterly->value,
@@ -311,6 +330,7 @@ test('savings account validation rejects invalid rate of interest', function () 
             'name' => 'Test Savings',
             'account_type' => AccountType::Savings->value,
             'initial_balance' => 1000,
+            'initial_date' => '2025-01-01',
             'data' => [
                 'rate_of_interest' => 150,
             ],
@@ -324,6 +344,7 @@ test('credit card validation rejects invalid bill generated on day', function ()
             'name' => 'Test CC',
             'account_type' => AccountType::CreditCard->value,
             'initial_balance' => 0,
+            'initial_date' => '2025-01-01',
             'data' => [
                 'bill_generated_on' => 32,
             ],

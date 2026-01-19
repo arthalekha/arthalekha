@@ -59,12 +59,10 @@
                     </div>
                 @endif
 
-                @if ($account->initial_date)
-                    <div>
-                        <label class="text-sm font-medium text-base-content/70">Initial Date</label>
-                        <p class="mt-1">{{ $account->initial_date->format('F d, Y') }}</p>
-                    </div>
-                @endif
+                <div>
+                    <label class="text-sm font-medium text-base-content/70">Initial Date</label>
+                    <p class="mt-1">{{ $account->initial_date->format('F d, Y') }}</p>
+                </div>
             </div>
 
             @if ($account->account_type === \App\Enums\AccountType::Savings && $account->data)

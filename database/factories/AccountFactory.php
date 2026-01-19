@@ -26,7 +26,7 @@ class AccountFactory extends Factory
             'identifier' => fake()->optional()->bankAccountNumber(),
             'account_type' => fake()->randomElement(AccountType::cases()),
             'current_balance' => $initialBalance + fake()->randomFloat(2, -10000, 50000),
-            'initial_date' => fake()->optional()->date(),
+            'initial_date' => fake()->date(),
             'initial_balance' => $initialBalance,
             'data' => null,
         ];

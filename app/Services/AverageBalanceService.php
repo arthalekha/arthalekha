@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Frequency;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Income;
@@ -23,8 +24,8 @@ class AverageBalanceService
 
     public function calculate(Account $account): float|int|null
     {
-        $startDate = Date::today()->startOfMonth();
-
+        $frequency = $this->getFrequency($account);
+        $startDate = $frequency->startOfPeriod(Date::today());
         $endDate = Date::today();
 
         $this->incomes = Income::query()
@@ -75,5 +76,16 @@ class AverageBalanceService
         }
 
         return $this->data->average();
+    }
+
+    private function getFrequency(Account $account): Frequency
+    {
+        $frequencyValue = $account->data['average_balance_frequency'] ?? null;
+
+        if ($frequencyValue === null) {
+            return Frequency::Monthly;
+        }
+
+        return Frequency::tryFrom($frequencyValue) ?? Frequency::Monthly;
     }
 }

@@ -24,4 +24,18 @@ enum Frequency: string
             self::Yearly => $date->addYear(),
         };
     }
+
+    public function startOfPeriod(?CarbonInterface $date = null): CarbonInterface
+    {
+        $date = $date ?? now();
+
+        return match ($this) {
+            self::Daily => $date->copy()->startOfDay(),
+            self::Weekly => $date->copy()->startOfWeek(),
+            self::Biweekly => $date->copy()->startOfWeek()->subWeek(),
+            self::Monthly => $date->copy()->startOfMonth(),
+            self::Quarterly => $date->copy()->startOfQuarter(),
+            self::Yearly => $date->copy()->startOfYear(),
+        };
+    }
 }

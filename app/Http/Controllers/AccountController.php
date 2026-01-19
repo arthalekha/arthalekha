@@ -8,13 +8,19 @@ use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
 use App\Services\AccountService;
+use App\Services\AverageBalanceService;
+use App\Services\BalanceService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
 class AccountController extends Controller
 {
-    public function __construct(public AccountService $accountService) {}
+    public function __construct(
+        public AccountService $accountService,
+        public BalanceService $balanceService,
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -58,7 +64,12 @@ class AccountController extends Controller
             abort(403);
         }
 
-        return view('accounts.show', compact('account'));
+        $monthlyAverageBalance = null;
+        if ($account->account_type === AccountType::Savings) {
+            $monthlyAverageBalance = App::make(AverageBalanceService::class)->calculate($account);
+        }
+
+        return view('accounts.show', compact('account', 'monthlyAverageBalance'));
     }
 
     /**

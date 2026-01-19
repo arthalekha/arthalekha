@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\RecordMonthlyBalancesJob;
 use App\Jobs\TransactRecurringExpenseJob;
 use App\Jobs\TransactRecurringIncomeJob;
 use App\Jobs\TransactRecurringTransferJob;
@@ -14,3 +15,4 @@ Artisan::command('inspire', function () {
 Schedule::job(new TransactRecurringIncomeJob)->daily();
 Schedule::job(new TransactRecurringExpenseJob)->daily();
 Schedule::job(new TransactRecurringTransferJob)->daily();
+Schedule::job(new RecordMonthlyBalancesJob)->monthlyOn(1, '00:00');

@@ -49,6 +49,15 @@
                         {{ $diff >= 0 ? '+' : '' }}{{ number_format($diff, 2) }}
                     </div>
                 </div>
+                @if ($monthlyAverageBalance !== null)
+                    <div class="stat">
+                        <div class="stat-title">Monthly Avg Balance</div>
+                        <div class="stat-value text-lg {{ $monthlyAverageBalance >= 0 ? 'text-success' : 'text-error' }}">
+                            {{ number_format($monthlyAverageBalance, 2) }}
+                        </div>
+                        <div class="stat-desc">Based on previous month</div>
+                    </div>
+                @endif
             </div>
 
             <div class="space-y-4">
@@ -63,6 +72,23 @@
                     <label class="text-sm font-medium text-base-content/70">Initial Date</label>
                     <p class="mt-1">{{ $account->initial_date->format('F d, Y') }}</p>
                 </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('accounts.transactions', $account) }}" class="btn btn-outline btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    View Transactions
+                </a>
+                <a href="{{ route('accounts.balances', $account) }}" class="btn btn-outline btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    View Historical Balances
+                </a>
             </div>
 
             @if ($account->account_type === \App\Enums\AccountType::Savings && $account->data)

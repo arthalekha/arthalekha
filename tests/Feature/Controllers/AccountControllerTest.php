@@ -3,7 +3,10 @@
 use App\Enums\AccountType;
 use App\Enums\Frequency;
 use App\Models\Account;
+use App\Models\Balance;
+use App\Models\Income;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -28,8 +31,8 @@ test('authenticated user can view accounts index', function () {
 });
 
 test('user can only see their own accounts', function () {
-    $ownAccount = Account::factory()->forUser($this->user)->create();
-    $otherAccount = Account::factory()->create();
+    $ownAccount = Account::factory()->forUser($this->user)->create(['name' => 'My Own Account']);
+    $otherAccount = Account::factory()->create(['name' => 'Other User Account']);
 
     $this->actingAs($this->user)
         ->get(route('accounts.index'))
@@ -411,4 +414,99 @@ test('show page displays credit card account data', function () {
         ->assertSee('24%')
         ->assertSee('Day 15 of each month')
         ->assertSee('20 days');
+});
+
+test('show page displays monthly average balance for savings account when previous month balance exists', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create(['current_balance' => 2000.00]);
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 1000.00,
+        'recorded_until' => '2024-01-31',
+    ]);
+
+    // Add current month income to test the calculation
+    Income::factory()->forUser($this->user)->forAccount($account)->create([
+        'amount' => 500.00,
+        'transacted_at' => '2024-02-10',
+    ]);
+
+    // Service calculates daily averages from Feb 1 to Feb 15 (15 days):
+    // Feb 1-9: 1000 each (9 days), Feb 10: 1000+500=1500, Feb 11-15: 1000 each (5 days)
+    // Sum = 9*1000 + 1500 + 5*1000 = 15500, Average = 15500/15 = 1033.33
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Monthly Avg Balance')
+        ->assertSee('1,033.33')
+        ->assertSee('Based on previous month');
+});
+
+test('show page displays zero monthly average balance for savings account when no previous month balance exists', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create(['current_balance' => 2000.00]);
+
+    // Service returns 0 when no previous month balance exists (defaults to 0)
+    // Daily average of 0 for 15 days = 0
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Monthly Avg Balance')
+        ->assertViewHas('monthlyAverageBalance', 0.0);
+});
+
+test('show page does not display monthly average balance for non-savings accounts', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::CreditCard)
+        ->create(['current_balance' => 2000.00]);
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 1000.00,
+        'recorded_until' => '2024-01-31',
+    ]);
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertDontSee('Monthly Avg Balance')
+        ->assertViewHas('monthlyAverageBalance', null);
+});
+
+test('show page passes monthly average balance to view for savings account', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create(['current_balance' => 3000.00]);
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 1000.00,
+        'recorded_until' => '2024-01-31',
+    ]);
+
+    // Add current month transactions
+    Income::factory()->forUser($this->user)->forAccount($account)->create([
+        'amount' => 1000.00,
+        'transacted_at' => '2024-02-10',
+    ]);
+
+    // Service calculates daily averages from Feb 1 to Feb 15 (15 days):
+    // Feb 1-9: 1000 each (9 days), Feb 10: 1000+1000=2000, Feb 11-15: 1000 each (5 days)
+    // Sum = 9*1000 + 2000 + 5*1000 = 16000, Average = 16000/15 = 1066.67
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertViewHas('monthlyAverageBalance', fn ($value) => abs($value - 1066.6666666666667) < 0.01);
 });

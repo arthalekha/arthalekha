@@ -2,8 +2,10 @@
 
 use App\Enums\AccountType;
 use App\Models\Account;
+use App\Models\Balance;
 use App\Models\User;
 use App\Services\AccountService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -202,4 +204,59 @@ test('decimal precision is maintained for balances', function () {
 
     expect($account->current_balance)->toBe('9999999.99');
     expect($account->initial_balance)->toBe('5555555.55');
+});
+
+test('previousMonthBalance returns balance for previous month', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()->forUser($this->user)->create();
+
+    $balance = Balance::factory()->forAccount($account)->create([
+        'balance' => 1500.00,
+        'recorded_until' => '2024-01-31',
+    ]);
+
+    expect($account->previousMonthBalance)->not->toBeNull();
+    expect($account->previousMonthBalance->id)->toBe($balance->id);
+    expect($account->previousMonthBalance->balance)->toBe('1500.00');
+});
+
+test('previousMonthBalance returns null when no balance exists for previous month', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()->forUser($this->user)->create();
+
+    expect($account->previousMonthBalance)->toBeNull();
+});
+
+test('previousMonthBalance ignores balances from other months', function () {
+    Carbon::setTestNow('2024-02-15');
+
+    $account = Account::factory()->forUser($this->user)->create();
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 1000.00,
+        'recorded_until' => '2023-12-31',
+    ]);
+
+    Balance::factory()->forAccount($account)->create([
+        'balance' => 2000.00,
+        'recorded_until' => '2024-02-29',
+    ]);
+
+    expect($account->previousMonthBalance)->toBeNull();
+});
+
+test('previousMonthBalance works correctly at month boundaries', function () {
+    Carbon::setTestNow('2024-03-01');
+
+    $account = Account::factory()->forUser($this->user)->create();
+
+    $balance = Balance::factory()->forAccount($account)->create([
+        'balance' => 2500.00,
+        'recorded_until' => '2024-02-29',
+    ]);
+
+    expect($account->previousMonthBalance)->not->toBeNull();
+    expect($account->previousMonthBalance->id)->toBe($balance->id);
 });

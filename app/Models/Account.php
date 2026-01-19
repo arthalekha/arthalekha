@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Date;
 
 #[ObservedBy(AccountObserver::class)]
 class Account extends Model
@@ -47,6 +50,19 @@ class Account extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function balances(): HasMany
+    {
+        return $this->hasMany(Balance::class);
+    }
+
+    public function previousMonthBalance(): HasOne
+    {
+        $previousMonthEnd = Date::now()->subMonth()->endOfMonth()->toDateString();
+
+        return $this->hasOne(Balance::class)
+            ->whereDate('recorded_until', $previousMonthEnd);
     }
 
     protected function label(): Attribute

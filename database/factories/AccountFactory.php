@@ -22,10 +22,10 @@ class AccountFactory extends Factory
 
         return [
             'user_id' => User::factory(),
-            'name' => fake()->words(2, true),
+            'name' => fake()->randomElement(['ICICI', 'AXIS', 'HDFC', 'CASH']),
             'identifier' => fake()->optional()->bankAccountNumber(),
             'account_type' => fake()->randomElement(AccountType::cases()),
-            'current_balance' => $initialBalance + fake()->randomFloat(2, -10000, 50000),
+            'current_balance' => $initialBalance,
             'initial_date' => fake()->date(),
             'initial_balance' => $initialBalance,
             'data' => null,
@@ -43,6 +43,14 @@ class AccountFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'account_type' => $type,
+        ]);
+    }
+
+    public function ofSameBalances(float $balance = 0): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'initial_balance' => $balance,
+            'current_balance' => $balance,
         ]);
     }
 }

@@ -9,12 +9,17 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class AccountService
 {
     private const CACHE_TTL = 3600; // 1 hour
+
+    public function __construct(
+        protected BalanceService $balanceService,
+    ) {}
 
     /**
      * Get all accounts for a user (cached).
@@ -72,7 +77,13 @@ class AccountService
         $data['user_id'] = $user->id;
         $data['current_balance'] = $data['initial_balance'] ?? 0;
 
-        $account = Account::create($data);
+        $account = DB::transaction(function () use ($data) {
+            $account = Account::create($data);
+
+            $this->balanceService->createInitialBalanceEntries($account);
+
+            return $account;
+        });
 
         $this->clearCache($user->id);
 
@@ -121,6 +132,8 @@ class AccountService
     public function incrementBalance(Expense|Income $transaction): void
     {
         Account::where('id', $transaction->account_id)->increment('current_balance', $transaction->amount);
+
+        $this->balanceService->incrementBalance($transaction->account_id, $transaction->amount, $transaction->transacted_at);
     }
 
     /**
@@ -129,17 +142,7 @@ class AccountService
     public function decrementBalance(Expense|Income $transaction): void
     {
         Account::where('id', $transaction->account_id)->decrement('current_balance', $transaction->amount);
-    }
 
-    /**
-     * Adjust account balance by a specific amount.
-     */
-    public function adjustBalance(int $accountId, float $amount): void
-    {
-        if ($amount > 0) {
-            Account::where('id', $accountId)->increment('current_balance', $amount);
-        } elseif ($amount < 0) {
-            Account::where('id', $accountId)->decrement('current_balance', abs($amount));
-        }
+        $this->balanceService->decrementBalance($transaction->account_id, $transaction->amount, $transaction->transacted_at);
     }
 }

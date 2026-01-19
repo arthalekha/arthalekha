@@ -92,20 +92,13 @@ class IncomeService
             $tags = $data['tags'] ?? [];
             unset($data['tags']);
 
-            $oldAccountId = $income->account_id;
-            $oldAmount = $income->amount;
+            $this->accountService->decrementBalance($income);
 
             $income->update($data);
+
             $income->tags()->sync($tags);
 
-            if ($oldAccountId === $income->account_id) {
-                // Income increase = balance increase (positive adjustment)
-                $difference = $income->amount - $oldAmount;
-                $this->accountService->adjustBalance($income->account_id, $difference);
-            } else {
-                $this->accountService->adjustBalance($oldAccountId, -$oldAmount);
-                $this->accountService->incrementBalance($income);
-            }
+            $this->accountService->incrementBalance($income);
 
             return $income->fresh();
         });

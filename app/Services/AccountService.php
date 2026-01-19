@@ -145,16 +145,4 @@ class AccountService
 
         $this->balanceService->decrementBalance($transaction->account_id, $transaction->amount, $transaction->transacted_at);
     }
-
-    /**
-     * Adjust account balance by a specific amount.
-     */
-    public function adjustBalance(int $accountId, float $amount): void
-    {
-        if ($amount > 0) {
-            Account::where('id', $accountId)->increment('current_balance', $amount);
-        } elseif ($amount < 0) {
-            Account::where('id', $accountId)->decrement('current_balance', abs($amount));
-        }
-    }
 }

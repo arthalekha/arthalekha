@@ -92,20 +92,16 @@ class ExpenseService
             $tags = $data['tags'] ?? [];
             unset($data['tags']);
 
-            $oldAccountId = $expense->account_id;
-            $oldAmount = $expense->amount;
-
             $expense->update($data);
             $expense->tags()->sync($tags);
 
-            if ($oldAccountId === $expense->account_id) {
-                // Expense increase = balance decrease (negative adjustment)
-                $difference = $oldAmount - $expense->amount;
-                $this->accountService->adjustBalance($expense->account_id, $difference);
-            } else {
-                $this->accountService->adjustBalance($oldAccountId, $oldAmount);
-                $this->accountService->decrementBalance($expense);
-            }
+            $this->accountService->incrementBalance($expense);
+
+            $expense->update($data);
+
+            $expense->tags()->sync($tags);
+
+            $this->accountService->decrementBalance($expense);
 
             return $expense->fresh();
         });

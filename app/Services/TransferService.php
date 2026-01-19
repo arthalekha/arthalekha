@@ -16,6 +16,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class TransferService
 {
+    public function __construct(protected BalanceService $balanceService) {}
+
     /**
      * Get paginated transfers for a user with filters.
      */
@@ -74,6 +76,8 @@ class TransferService
 
             Account::where('id', $transfer->debtor_id)->decrement('current_balance', $transfer->amount);
             Account::where('id', $transfer->creditor_id)->increment('current_balance', $transfer->amount);
+            $this->balanceService->incrementBalance($transfer->creditor_id, $transfer->amount, $transfer->transacted_at);
+            $this->balanceService->decrementBalance($transfer->debtor_id, $transfer->amount, $transfer->transacted_at);
 
             return $transfer;
         });
@@ -94,20 +98,19 @@ class TransferService
             $oldCreditorId = $transfer->creditor_id;
             $oldAmount = $transfer->amount;
 
+            // Reverse the old transfer
+            Account::where('id', $transfer->debtor_id)->increment('current_balance', $transfer->amount);
+            Account::where('id', $transfer->creditor_id)->decrement('current_balance', $transfer->amount);
+            $this->balanceService->decrementBalance($transfer->creditor_id, $transfer->amount, $transfer->transacted_at);
+            $this->balanceService->incrementBalance($transfer->debtor_id, $transfer->amount, $transfer->transacted_at);
+
             $transfer->update($data);
             $transfer->tags()->sync($tags);
 
-            $newDebtorId = $transfer->debtor_id;
-            $newCreditorId = $transfer->creditor_id;
-            $newAmount = $transfer->amount;
-
-            // Reverse the old transfer
-            Account::where('id', $oldDebtorId)->increment('current_balance', $oldAmount);
-            Account::where('id', $oldCreditorId)->decrement('current_balance', $oldAmount);
-
-            // Apply the new transfer
-            Account::where('id', $newDebtorId)->decrement('current_balance', $newAmount);
-            Account::where('id', $newCreditorId)->increment('current_balance', $newAmount);
+            Account::where('id', $transfer->debtor_id)->decrement('current_balance', $transfer->amount);
+            Account::where('id', $transfer->creditor_id)->increment('current_balance', $transfer->amount);
+            $this->balanceService->incrementBalance($transfer->creditor_id, $transfer->amount, $transfer->transacted_at);
+            $this->balanceService->decrementBalance($transfer->debtor_id, $transfer->amount, $transfer->transacted_at);
 
             return $transfer->fresh();
         });
@@ -121,6 +124,8 @@ class TransferService
         return DB::transaction(function () use ($transfer) {
             Account::where('id', $transfer->debtor_id)->increment('current_balance', $transfer->amount);
             Account::where('id', $transfer->creditor_id)->decrement('current_balance', $transfer->amount);
+            $this->balanceService->decrementBalance($transfer->creditor_id, $transfer->amount, $transfer->transacted_at);
+            $this->balanceService->incrementBalance($transfer->debtor_id, $transfer->amount, $transfer->transacted_at);
 
             return $transfer->delete();
         });

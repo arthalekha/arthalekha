@@ -10,17 +10,21 @@ use function Pest\Laravel\assertDatabaseCount;
 
 uses(RefreshDatabase::class);
 
-it('does not create a balance entry when date is today', function (int $days, int $count) {
+beforeEach(function () {
+    $this->user = User::factory()->create();
+});
+
+it('tests balance entry insertions', function (int $days, int $count) {
     Date::setTestNow(now()->setDay(15));
     $service = app(AccountService::class);
 
-    $user = User::factory()->create();
+    $this->user = User::factory()->create();
 
     $account = Account::factory()->make([
         'initial_date' => today()->subDays($days),
     ])->toArray();
 
-    $service->createAccount($user, $account);
+    $service->createAccount($this->user, $account);
 
     assertDatabaseCount(Balance::class, $count);
 })->with([

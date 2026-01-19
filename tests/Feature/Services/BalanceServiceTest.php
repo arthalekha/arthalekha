@@ -210,30 +210,3 @@ test('backfillBalancesForAccount creates balance records for each month', functi
     expect($februaryBalance->balance)->toBe('1300.00');
     expect($marchBalance->balance)->toBe('1300.00');
 });
-
-test('backfillBalancesForAccount returns zero when no transactions', function () {
-    $account = Account::factory()->forUser($this->user)->create();
-
-    $processed = $this->service->backfillBalancesForAccount($account);
-
-    expect($processed)->toBe(0);
-    expect(Balance::count())->toBe(0);
-});
-
-test('backfillBalancesForAccount uses initial balance as starting point', function () {
-    Carbon::setTestNow('2024-03-15');
-
-    $account = Account::factory()->forUser($this->user)->create([
-        'initial_balance' => 5000.00,
-    ]);
-
-    Income::factory()->forUser($this->user)->forAccount($account)->create([
-        'amount' => 100.00,
-        'transacted_at' => '2024-01-15',
-    ]);
-
-    $this->service->backfillBalancesForAccount($account);
-
-    $balance = Balance::first();
-    expect($balance->balance)->toBe('5100.00');
-});

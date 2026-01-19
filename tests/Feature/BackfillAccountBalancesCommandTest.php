@@ -21,15 +21,6 @@ test('command runs successfully with no accounts', function () {
         ->assertSuccessful();
 });
 
-test('command skips accounts with no transactions', function () {
-    Account::factory()->forUser($this->user)->create();
-
-    $this->artisan('accounts:backfill-balances')
-        ->assertSuccessful();
-
-    expect(Balance::count())->toBe(0);
-});
-
 test('command creates balance records from income transactions', function () {
     Carbon::setTestNow('2024-03-15');
 

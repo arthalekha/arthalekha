@@ -42,13 +42,6 @@
                     <div class="stat-title">Initial Balance</div>
                     <div class="stat-value text-lg">{{ number_format($account->initial_balance, 2) }}</div>
                 </div>
-                <div class="stat">
-                    <div class="stat-title">Difference</div>
-                    @php $diff = $account->current_balance - $account->initial_balance; @endphp
-                    <div class="stat-value text-lg {{ $diff >= 0 ? 'text-success' : 'text-error' }}">
-                        {{ $diff >= 0 ? '+' : '' }}{{ number_format($diff, 2) }}
-                    </div>
-                </div>
                 @if ($monthlyAverageBalance !== null)
                     <div class="stat">
                         <div class="stat-title">Monthly Avg Balance</div>

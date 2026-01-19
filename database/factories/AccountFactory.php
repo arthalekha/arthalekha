@@ -25,7 +25,7 @@ class AccountFactory extends Factory
             'name' => fake()->randomElement(['ICICI', 'AXIS', 'HDFC', 'CASH']),
             'identifier' => fake()->optional()->bankAccountNumber(),
             'account_type' => fake()->randomElement(AccountType::cases()),
-            'current_balance' => $initialBalance + fake()->randomFloat(2, -10000, 50000),
+            'current_balance' => $initialBalance,
             'initial_date' => fake()->date(),
             'initial_balance' => $initialBalance,
             'data' => null,

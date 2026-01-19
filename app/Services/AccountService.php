@@ -112,4 +112,20 @@ class AccountService
     {
         return $account->user_id === $user->id;
     }
+
+    /**
+     * Increment account balance.
+     */
+    public function incrementBalance(int $accountId, float $amount): void
+    {
+        Account::where('id', $accountId)->increment('current_balance', $amount);
+    }
+
+    /**
+     * Decrement account balance.
+     */
+    public function decrementBalance(int $accountId, float $amount): void
+    {
+        Account::where('id', $accountId)->decrement('current_balance', $amount);
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Account;
 use App\Models\Income;
 use App\Models\User;
 use App\QueryFilters\FromDateFilter;
@@ -16,6 +15,10 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class IncomeService
 {
+    public function __construct(
+        private AccountService $accountService
+    ) {}
+
     /**
      * Get paginated incomes for a user with filters.
      */
@@ -72,7 +75,7 @@ class IncomeService
             $income = Income::create($data);
             $income->tags()->sync($tags);
 
-            Account::where('id', $income->account_id)->increment('current_balance', $income->amount);
+            $this->accountService->incrementBalance($income->account_id, $income->amount);
 
             return $income;
         });
@@ -95,17 +98,16 @@ class IncomeService
             $income->update($data);
             $income->tags()->sync($tags);
 
-            $newAccountId = $income->account_id;
-            $newAmount = $income->amount;
-
-            if ($oldAccountId === $newAccountId) {
-                $difference = $newAmount - $oldAmount;
-                if ($difference != 0) {
-                    Account::where('id', $newAccountId)->increment('current_balance', $difference);
+            if ($oldAccountId === $income->account_id) {
+                $difference = $income->amount - $oldAmount;
+                if ($difference > 0) {
+                    $this->accountService->incrementBalance($income->account_id, $difference);
+                } elseif ($difference < 0) {
+                    $this->accountService->decrementBalance($income->account_id, abs($difference));
                 }
             } else {
-                Account::where('id', $oldAccountId)->decrement('current_balance', $oldAmount);
-                Account::where('id', $newAccountId)->increment('current_balance', $newAmount);
+                $this->accountService->decrementBalance($oldAccountId, $oldAmount);
+                $this->accountService->incrementBalance($income->account_id, $income->amount);
             }
 
             return $income->fresh();
@@ -118,7 +120,7 @@ class IncomeService
     public function deleteIncome(Income $income): bool
     {
         return DB::transaction(function () use ($income) {
-            Account::where('id', $income->account_id)->decrement('current_balance', $income->amount);
+            $this->accountService->decrementBalance($income->account_id, $income->amount);
 
             return $income->delete();
         });

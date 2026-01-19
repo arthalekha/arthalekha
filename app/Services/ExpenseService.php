@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Account;
 use App\Models\Expense;
 use App\Models\User;
 use App\QueryFilters\FromDateFilter;
@@ -16,6 +15,10 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class ExpenseService
 {
+    public function __construct(
+        private AccountService $accountService
+    ) {}
+
     /**
      * Get paginated expenses for a user with filters.
      */
@@ -72,7 +75,7 @@ class ExpenseService
             $expense = Expense::create($data);
             $expense->tags()->sync($tags);
 
-            Account::where('id', $expense->account_id)->decrement('current_balance', $expense->amount);
+            $this->accountService->decrementBalance($expense->account_id, $expense->amount);
 
             return $expense;
         });
@@ -95,17 +98,16 @@ class ExpenseService
             $expense->update($data);
             $expense->tags()->sync($tags);
 
-            $newAccountId = $expense->account_id;
-            $newAmount = $expense->amount;
-
-            if ($oldAccountId === $newAccountId) {
-                $difference = $newAmount - $oldAmount;
-                if ($difference != 0) {
-                    Account::where('id', $newAccountId)->decrement('current_balance', $difference);
+            if ($oldAccountId === $expense->account_id) {
+                $difference = $expense->amount - $oldAmount;
+                if ($difference > 0) {
+                    $this->accountService->decrementBalance($expense->account_id, $difference);
+                } elseif ($difference < 0) {
+                    $this->accountService->incrementBalance($expense->account_id, abs($difference));
                 }
             } else {
-                Account::where('id', $oldAccountId)->increment('current_balance', $oldAmount);
-                Account::where('id', $newAccountId)->decrement('current_balance', $newAmount);
+                $this->accountService->incrementBalance($oldAccountId, $oldAmount);
+                $this->accountService->decrementBalance($expense->account_id, $expense->amount);
             }
 
             return $expense->fresh();
@@ -118,7 +120,7 @@ class ExpenseService
     public function deleteExpense(Expense $expense): bool
     {
         return DB::transaction(function () use ($expense) {
-            Account::where('id', $expense->account_id)->increment('current_balance', $expense->amount);
+            $this->accountService->incrementBalance($expense->account_id, $expense->amount);
 
             return $expense->delete();
         });

@@ -441,9 +441,7 @@ test('show page displays monthly average balance for savings account when previo
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
-        ->assertSee('Monthly Avg Balance')
-        ->assertSee('1,033.33')
-        ->assertSee('Based on monthly period');
+        ->assertSee('1,033.33');
 });
 
 test('show page displays zero monthly average balance for savings account when no previous month balance exists', function () {

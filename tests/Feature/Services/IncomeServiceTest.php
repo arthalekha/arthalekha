@@ -24,7 +24,7 @@ beforeEach(function () {
     $this->incomeService = app(IncomeService::class);
 });
 
-it('updates current balance when income is created and deleted', function () {
+it('updates current balance when income is created, updated and deleted', function () {
     $incomeData = Income::factory()
         ->for($this->account)
         ->make([

@@ -92,9 +92,6 @@ class ExpenseService
             $tags = $data['tags'] ?? [];
             unset($data['tags']);
 
-            $expense->update($data);
-            $expense->tags()->sync($tags);
-
             $this->accountService->incrementBalance($expense);
 
             $expense->update($data);

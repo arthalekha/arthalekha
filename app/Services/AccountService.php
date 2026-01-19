@@ -16,6 +16,10 @@ class AccountService
 {
     private const CACHE_TTL = 3600; // 1 hour
 
+    public function __construct(
+        protected BalanceService $balanceService,
+    ) {}
+
     /**
      * Get all accounts for a user (cached).
      *
@@ -123,6 +127,8 @@ class AccountService
     public function incrementBalance(Expense|Income $transaction): void
     {
         Account::where('id', $transaction->account_id)->increment('current_balance', $transaction->amount);
+
+        $this->balanceService->incrementBalance($transaction->account_id, $transaction->amount, $transaction->transacted_at);
     }
 
     /**
@@ -131,6 +137,8 @@ class AccountService
     public function decrementBalance(Expense|Income $transaction): void
     {
         Account::where('id', $transaction->account_id)->decrement('current_balance', $transaction->amount);
+
+        $this->balanceService->decrementBalance($transaction->account_id, $transaction->amount, $transaction->transacted_at);
     }
 
     /**

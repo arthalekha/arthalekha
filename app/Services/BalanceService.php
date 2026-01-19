@@ -194,4 +194,20 @@ class BalanceService
             ->whereMonth('transacted_at', $month->month)
             ->sum('amount');
     }
+
+    public function incrementBalance(Account $account, float $amount, CarbonInterface $date): void
+    {
+        Balance::query()
+            ->whereDate('recorded_until', '<=', $date->toDateString())
+            ->where('account_id', $account->id)
+            ->increment('current_balance', $amount);
+    }
+
+    public function decrementBalance(Account $account, float $amount, CarbonInterface $date): void
+    {
+        Balance::query()
+            ->whereDate('recorded_until', '<=', $date->toDateString())
+            ->where('account_id', $account->id)
+            ->decrement('current_balance', $amount);
+    }
 }

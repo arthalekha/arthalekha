@@ -75,7 +75,7 @@ class IncomeService
             $income = Income::create($data);
             $income->tags()->sync($tags);
 
-            $this->accountService->incrementBalance($income->account_id, $income->amount);
+            $this->accountService->incrementBalance($income);
 
             return $income;
         });
@@ -99,15 +99,12 @@ class IncomeService
             $income->tags()->sync($tags);
 
             if ($oldAccountId === $income->account_id) {
+                // Income increase = balance increase (positive adjustment)
                 $difference = $income->amount - $oldAmount;
-                if ($difference > 0) {
-                    $this->accountService->incrementBalance($income->account_id, $difference);
-                } elseif ($difference < 0) {
-                    $this->accountService->decrementBalance($income->account_id, abs($difference));
-                }
+                $this->accountService->adjustBalance($income->account_id, $difference);
             } else {
-                $this->accountService->decrementBalance($oldAccountId, $oldAmount);
-                $this->accountService->incrementBalance($income->account_id, $income->amount);
+                $this->accountService->adjustBalance($oldAccountId, -$oldAmount);
+                $this->accountService->incrementBalance($income);
             }
 
             return $income->fresh();
@@ -120,7 +117,7 @@ class IncomeService
     public function deleteIncome(Income $income): bool
     {
         return DB::transaction(function () use ($income) {
-            $this->accountService->decrementBalance($income->account_id, $income->amount);
+            $this->accountService->decrementBalance($income);
 
             return $income->delete();
         });

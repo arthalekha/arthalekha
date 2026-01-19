@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Account;
+use App\Models\Expense;
+use App\Models\Income;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -116,16 +118,28 @@ class AccountService
     /**
      * Increment account balance.
      */
-    public function incrementBalance(int $accountId, float $amount): void
+    public function incrementBalance(Expense|Income $transaction): void
     {
-        Account::where('id', $accountId)->increment('current_balance', $amount);
+        Account::where('id', $transaction->account_id)->increment('current_balance', $transaction->amount);
     }
 
     /**
      * Decrement account balance.
      */
-    public function decrementBalance(int $accountId, float $amount): void
+    public function decrementBalance(Expense|Income $transaction): void
     {
-        Account::where('id', $accountId)->decrement('current_balance', $amount);
+        Account::where('id', $transaction->account_id)->decrement('current_balance', $transaction->amount);
+    }
+
+    /**
+     * Adjust account balance by a specific amount.
+     */
+    public function adjustBalance(int $accountId, float $amount): void
+    {
+        if ($amount > 0) {
+            Account::where('id', $accountId)->increment('current_balance', $amount);
+        } elseif ($amount < 0) {
+            Account::where('id', $accountId)->decrement('current_balance', abs($amount));
+        }
     }
 }

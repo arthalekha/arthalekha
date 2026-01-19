@@ -75,7 +75,7 @@ class ExpenseService
             $expense = Expense::create($data);
             $expense->tags()->sync($tags);
 
-            $this->accountService->decrementBalance($expense->account_id, $expense->amount);
+            $this->accountService->decrementBalance($expense);
 
             return $expense;
         });
@@ -99,15 +99,12 @@ class ExpenseService
             $expense->tags()->sync($tags);
 
             if ($oldAccountId === $expense->account_id) {
-                $difference = $expense->amount - $oldAmount;
-                if ($difference > 0) {
-                    $this->accountService->decrementBalance($expense->account_id, $difference);
-                } elseif ($difference < 0) {
-                    $this->accountService->incrementBalance($expense->account_id, abs($difference));
-                }
+                // Expense increase = balance decrease (negative adjustment)
+                $difference = $oldAmount - $expense->amount;
+                $this->accountService->adjustBalance($expense->account_id, $difference);
             } else {
-                $this->accountService->incrementBalance($oldAccountId, $oldAmount);
-                $this->accountService->decrementBalance($expense->account_id, $expense->amount);
+                $this->accountService->adjustBalance($oldAccountId, $oldAmount);
+                $this->accountService->decrementBalance($expense);
             }
 
             return $expense->fresh();
@@ -120,7 +117,7 @@ class ExpenseService
     public function deleteExpense(Expense $expense): bool
     {
         return DB::transaction(function () use ($expense) {
-            $this->accountService->incrementBalance($expense->account_id, $expense->amount);
+            $this->accountService->incrementBalance($expense);
 
             return $expense->delete();
         });

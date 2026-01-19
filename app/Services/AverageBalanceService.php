@@ -63,11 +63,11 @@ class AverageBalanceService
 
         $this->data = collect();
 
-        $previousAmount = $account->previousMonthBalance()->value('balance') ?? 0;
+        $dayAmount = $account->previousMonthBalance()->value('balance') ?? $account->initial_balance;
 
         for ($d = $startDate->toMutable(); $d->lte($endDate); $d->addDay()) {
 
-            $dayAmount = $previousAmount
+            $dayAmount = $dayAmount
                 + $this->incomes->get($d->toDateString(), 0)
                 - $this->expenses->get($d->toDateString(), 0)
                 + $this->creditTransfers->get($d->toDateString(), 0)

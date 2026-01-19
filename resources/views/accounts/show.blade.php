@@ -43,12 +43,16 @@
                     <div class="stat-value text-lg">{{ number_format($account->initial_balance, 2) }}</div>
                 </div>
                 @if ($averageBalance !== null)
+                    @php
+                        $requiredAverageBalance = $account->data['average_balance_amount'] ?? null;
+                        $isAboveRequired = $requiredAverageBalance === null || $averageBalance >= $requiredAverageBalance;
+                    @endphp
                     <div class="stat">
                         <div class="stat-title">{{ $averageBalanceFrequency->label() }} Avg Balance</div>
-                        <div class="stat-value text-lg text-info">
+                        <div class="stat-value text-lg {{ $isAboveRequired ? 'text-success' : 'text-error' }}">
                             {{ number_format($averageBalance, 2) }}
                         </div>
-                        <div class="stat-desc">Based on {{ strtolower($averageBalanceFrequency->label()) }} period</div>
+                        <div class="stat-desc">Required: {{ number_format($requiredAverageBalance, 2) }}</div>
                     </div>
                 @endif
             </div>

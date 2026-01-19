@@ -45,4 +45,12 @@ class AccountFactory extends Factory
             'account_type' => $type,
         ]);
     }
+
+    public function ofSameBalances(float $balance = 0): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'initial_balance' => $balance,
+            'current_balance' => $balance,
+        ]);
+    }
 }

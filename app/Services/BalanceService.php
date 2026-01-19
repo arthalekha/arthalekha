@@ -195,19 +195,19 @@ class BalanceService
             ->sum('amount');
     }
 
-    public function incrementBalance(Account $account, float $amount, CarbonInterface $date): void
+    public function incrementBalance(int $accountId, float $amount, CarbonInterface $date): void
     {
         Balance::query()
-            ->whereDate('recorded_until', '<=', $date->toDateString())
-            ->where('account_id', $account->id)
-            ->increment('current_balance', $amount);
+            ->whereDate('recorded_until', '>=', $date->endOfMonth())
+            ->where('account_id', $accountId)
+            ->increment('balance', $amount);
     }
 
-    public function decrementBalance(Account $account, float $amount, CarbonInterface $date): void
+    public function decrementBalance(int $accountId, float $amount, CarbonInterface $date): void
     {
         Balance::query()
-            ->whereDate('recorded_until', '<=', $date->toDateString())
-            ->where('account_id', $account->id)
-            ->decrement('current_balance', $amount);
+            ->whereDate('recorded_until', '>=', $date->endOfMonth())
+            ->where('account_id', $accountId)
+            ->decrement('balance', $amount);
     }
 }

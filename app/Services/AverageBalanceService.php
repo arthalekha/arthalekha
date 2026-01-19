@@ -26,7 +26,8 @@ class AverageBalanceService
     {
         $frequency = $this->getFrequency($account);
         $startDate = $frequency->startOfPeriod(Date::today());
-        $endDate = Date::today();
+
+        $endDate = Date::now();
 
         $this->incomes = Income::query()
             ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')

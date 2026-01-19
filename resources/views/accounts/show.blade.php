@@ -45,7 +45,7 @@
                 @if ($monthlyAverageBalance !== null)
                     <div class="stat">
                         <div class="stat-title">Monthly Avg Balance</div>
-                        <div class="stat-value text-lg {{ $monthlyAverageBalance >= 0 ? 'text-success' : 'text-error' }}">
+                        <div class="stat-value text-lg text-info">
                             {{ number_format($monthlyAverageBalance, 2) }}
                         </div>
                         <div class="stat-desc">Based on previous month</div>

@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -76,9 +77,13 @@ class AccountService
         $data['user_id'] = $user->id;
         $data['current_balance'] = $data['initial_balance'] ?? 0;
 
-        $account = Account::create($data);
+        $account = DB::transaction(function () use ($data) {
+            $account = Account::create($data);
 
-        app(BalanceService::class)->createInitialBalanceEntries($account);
+            $this->balanceService->createInitialBalanceEntries($account);
+
+            return $account;
+        });
 
         $this->clearCache($user->id);
 

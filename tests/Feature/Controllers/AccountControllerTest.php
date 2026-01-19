@@ -443,7 +443,7 @@ test('show page displays monthly average balance for savings account when previo
         ->assertSuccessful()
         ->assertSee('Monthly Avg Balance')
         ->assertSee('1,033.33')
-        ->assertSee('Based on previous month');
+        ->assertSee('Based on monthly period');
 });
 
 test('show page displays zero monthly average balance for savings account when no previous month balance exists', function () {
@@ -460,7 +460,7 @@ test('show page displays zero monthly average balance for savings account when n
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
         ->assertSee('Monthly Avg Balance')
-        ->assertViewHas('monthlyAverageBalance', 0.0);
+        ->assertViewHas('averageBalance', 0.0);
 });
 
 test('show page does not display monthly average balance for non-savings accounts', function () {
@@ -479,11 +479,11 @@ test('show page does not display monthly average balance for non-savings account
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
-        ->assertDontSee('Monthly Avg Balance')
-        ->assertViewHas('monthlyAverageBalance', null);
+        ->assertDontSee('Avg Balance')
+        ->assertViewHas('averageBalance', null);
 });
 
-test('show page passes monthly average balance to view for savings account', function () {
+test('show page passes average balance to view for savings account', function () {
     Carbon::setTestNow('2024-02-15');
 
     $account = Account::factory()
@@ -508,5 +508,5 @@ test('show page passes monthly average balance to view for savings account', fun
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
-        ->assertViewHas('monthlyAverageBalance', fn ($value) => abs($value - 1066.6666666666667) < 0.01);
+        ->assertViewHas('averageBalance', fn ($value) => abs($value - 1066.6666666666667) < 0.01);
 });

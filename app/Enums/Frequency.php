@@ -38,4 +38,16 @@ enum Frequency: string
             self::Yearly => $date->copy()->startOfYear(),
         };
     }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Daily => 'Daily',
+            self::Weekly => 'Weekly',
+            self::Biweekly => 'Biweekly',
+            self::Monthly => 'Monthly',
+            self::Quarterly => 'Quarterly',
+            self::Yearly => 'Yearly',
+        };
+    }
 }

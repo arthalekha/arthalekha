@@ -64,12 +64,15 @@ class AccountController extends Controller
             abort(403);
         }
 
-        $monthlyAverageBalance = null;
+        $averageBalance = null;
+        $averageBalanceFrequency = null;
         if ($account->account_type === AccountType::Savings) {
-            $monthlyAverageBalance = App::make(AverageBalanceService::class)->calculate($account);
+            $averageBalance = App::make(AverageBalanceService::class)->calculate($account);
+            $frequencyValue = $account->data['average_balance_frequency'] ?? null;
+            $averageBalanceFrequency = $frequencyValue ? Frequency::tryFrom($frequencyValue) : Frequency::Monthly;
         }
 
-        return view('accounts.show', compact('account', 'monthlyAverageBalance'));
+        return view('accounts.show', compact('account', 'averageBalance', 'averageBalanceFrequency'));
     }
 
     /**

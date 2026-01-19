@@ -42,13 +42,13 @@
                     <div class="stat-title">Initial Balance</div>
                     <div class="stat-value text-lg">{{ number_format($account->initial_balance, 2) }}</div>
                 </div>
-                @if ($monthlyAverageBalance !== null)
+                @if ($averageBalance !== null)
                     <div class="stat">
-                        <div class="stat-title">Monthly Avg Balance</div>
+                        <div class="stat-title">{{ $averageBalanceFrequency->label() }} Avg Balance</div>
                         <div class="stat-value text-lg text-info">
-                            {{ number_format($monthlyAverageBalance, 2) }}
+                            {{ number_format($averageBalance, 2) }}
                         </div>
-                        <div class="stat-desc">Based on previous month</div>
+                        <div class="stat-desc">Based on {{ strtolower($averageBalanceFrequency->label()) }} period</div>
                     </div>
                 @endif
             </div>

@@ -211,11 +211,13 @@ class BalanceService
 
     public function getBalanceForDate(Account $account, CarbonInterface $date): float
     {
-        // Check the previous month balance or use initial Balance
-        $balance = $account->previousMonthBalance()->first();
-
-        if ($balance) {
+        if ($balance = $account->previousMonthBalance()->first()) {
+            return $balance->balance
+                + $this->calculateBalanceForPeriod($account, $balance->recorded_until->addDay(), $date);
         }
+
+        return $account->initial_balance
+            + $this->calculateBalanceForPeriod($account, $account->initial_date, $date);
     }
 
     public function calculateBalanceForPeriod(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float

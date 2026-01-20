@@ -36,7 +36,7 @@ test('getMonthlyIncome returns sum of incomes for a month', function () {
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $income = $this->service->getMonthlyIncome($account, $january);
+    $income = $this->service->getPeriodicIncome($account, $january);
 
     expect($income)->toBe(800.0);
 });

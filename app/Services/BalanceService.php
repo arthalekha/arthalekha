@@ -47,10 +47,10 @@ class BalanceService
         $startDate = $month->startOfMonth();
         $endDate = $month->endOfMonth();
 
-        $monthlyIncome = $this->getMonthlyIncome($account, $startDate, $endDate);
-        $monthlyExpense = $this->getMonthlyExpense($account, $startDate, $endDate);
-        $monthlyTransferIn = $this->getMonthlyTransferIn($account, $startDate, $endDate);
-        $monthlyTransferOut = $this->getMonthlyTransferOut($account, $startDate, $endDate);
+        $monthlyIncome = $this->getPeriodicIncome($account, $startDate, $endDate);
+        $monthlyExpense = $this->getPeriodicExpense($account, $startDate, $endDate);
+        $monthlyTransferIn = $this->getPeriodicTransferIn($account, $startDate, $endDate);
+        $monthlyTransferOut = $this->getPeriodicTransferOut($account, $startDate, $endDate);
 
         return $monthlyIncome - $monthlyExpense + $monthlyTransferIn - $monthlyTransferOut;
     }
@@ -157,7 +157,7 @@ class BalanceService
     /**
      * Get total income for an account in a specific month.
      */
-    public function getMonthlyIncome(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
+    public function getPeriodicIncome(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
     {
         return (float) Income::where('account_id', $account->id)
             ->whereDate('transacted_at', '>=', $startDate->toDateString())
@@ -168,7 +168,7 @@ class BalanceService
     /**
      * Get total expenses for an account in a specific month.
      */
-    public function getMonthlyExpense(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
+    public function getPeriodicExpense(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
     {
         return (float) Expense::where('account_id', $account->id)
             ->whereDate('transacted_at', '>=', $startDate->toDateString())
@@ -179,7 +179,7 @@ class BalanceService
     /**
      * Get total transfers into an account in a specific month.
      */
-    public function getMonthlyTransferIn(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
+    public function getPeriodicTransferIn(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
     {
         return (float) Transfer::where('creditor_id', $account->id)
             ->whereDate('transacted_at', '>=', $startDate->toDateString())
@@ -190,7 +190,7 @@ class BalanceService
     /**
      * Get total transfers out of an account in a specific month.
      */
-    public function getMonthlyTransferOut(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
+    public function getPeriodicTransferOut(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
     {
         return (float) Transfer::where('debtor_id', $account->id)
             ->whereDate('transacted_at', '>=', $startDate->toDateString())

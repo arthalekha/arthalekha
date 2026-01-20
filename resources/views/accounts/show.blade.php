@@ -86,6 +86,12 @@
                     </svg>
                     View Historical Balances
                 </a>
+                <a href="{{ route('accounts.projected-balance', $account) }}" class="btn btn-outline btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    View Projected Balance
+                </a>
             </div>
 
             @if ($account->account_type === \App\Enums\AccountType::Savings && $account->data)

@@ -10,6 +10,8 @@ use App\Services\BalanceService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use function PHPUnit\Framework\assertEquals;
+
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
@@ -17,7 +19,7 @@ beforeEach(function () {
     $this->service = app(BalanceService::class);
 });
 
-test('getMonthlyIncome returns sum of incomes for a month', function () {
+test('getPeriodicIncome returns sum of incomes for a month', function () {
     $account = Account::factory()->forUser($this->user)->create();
 
     Income::factory()->forUser($this->user)->forAccount($account)->create([
@@ -36,12 +38,12 @@ test('getMonthlyIncome returns sum of incomes for a month', function () {
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $income = $this->service->getMonthlyIncome($account, $january);
+    $income = $this->service->getPeriodicIncome($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($income)->toBe(800.0);
 });
 
-test('getMonthlyExpense returns sum of expenses for a month', function () {
+test('getPeriodicExpense returns sum of expenses for a month', function () {
     $account = Account::factory()->forUser($this->user)->create();
 
     Expense::factory()->forUser($this->user)->forAccount($account)->create([
@@ -55,12 +57,12 @@ test('getMonthlyExpense returns sum of expenses for a month', function () {
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $expense = $this->service->getMonthlyExpense($account, $january);
+    $expense = $this->service->getPeriodicExpense($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($expense)->toBe(350.0);
 });
 
-test('getMonthlyTransferIn returns sum of transfers into account', function () {
+test('getPeriodicTransferIn returns sum of transfers into account', function () {
     $account = Account::factory()->forUser($this->user)->create();
     $otherAccount = Account::factory()->forUser($this->user)->create();
 
@@ -72,12 +74,12 @@ test('getMonthlyTransferIn returns sum of transfers into account', function () {
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $transferIn = $this->service->getMonthlyTransferIn($account, $january);
+    $transferIn = $this->service->getPeriodicTransferIn($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($transferIn)->toBe(500.0);
 });
 
-test('getMonthlyTransferOut returns sum of transfers out of account', function () {
+test('getPeriodicTransferOut returns sum of transfers out of account', function () {
     $account = Account::factory()->forUser($this->user)->create();
     $otherAccount = Account::factory()->forUser($this->user)->create();
 
@@ -89,7 +91,7 @@ test('getMonthlyTransferOut returns sum of transfers out of account', function (
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $transferOut = $this->service->getMonthlyTransferOut($account, $january);
+    $transferOut = $this->service->getPeriodicTransferOut($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($transferOut)->toBe(300.0);
 });
@@ -180,33 +182,54 @@ test('saveBalance updates existing balance record', function () {
     expect(Balance::count())->toBe(1);
 });
 
-test('backfillBalancesForAccount creates balance records for each month', function () {
-    Carbon::setTestNow('2024-04-15');
+it('checks getBalanceForDate with history', function () {
+    $account = Account::factory()->for($this->user)
+        ->create([
+            'initial_date' => '2025-12-15',
+            'initial_balance' => 1000,
+            'current_balance' => 950,
+        ]); // 1000
 
-    $account = Account::factory()->forUser($this->user)->create([
-        'initial_balance' => 1000.00,
-    ]);
+    Income::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 100, 'transacted_at' => $date = '2025-12-15']); // 1100
+    assertEquals(1100, $this->service->getBalanceForDate($account, Date::make($date)));
 
-    Income::factory()->forUser($this->user)->forAccount($account)->create([
-        'amount' => 500.00,
-        'transacted_at' => '2024-01-15',
-    ]);
+    Expense::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 50, 'transacted_at' => $date = '2025-12-15']); // 1050
+    assertEquals(1050, $this->service->getBalanceForDate($account, Date::make($date)));
 
-    Expense::factory()->forUser($this->user)->forAccount($account)->create([
-        'amount' => 200.00,
-        'transacted_at' => '2024-02-15',
-    ]);
+    Transfer::factory()->for($account, 'creditor')
+        ->create(['amount' => 200, 'transacted_at' => $date = '2025-12-20']); // 1250
+    assertEquals(1250, $this->service->getBalanceForDate($account, Date::make($date)));
 
-    $processed = $this->service->backfillBalancesForAccount($account);
+    Transfer::factory()->for($account, 'debtor')
+        ->create(['amount' => 400, 'transacted_at' => $date = '2025-12-21']); // 850
+    assertEquals(850, $this->service->getBalanceForDate($account, Date::make($date)));
 
-    expect($processed)->toBe(3);
-    expect(Balance::count())->toBe(3);
+    Balance::factory()->for($account)->create([
+        'balance' => 850,
+        'recorded_until' => $date = '2025-12-31',
+    ]); // 850
+    assertEquals(850, $this->service->getBalanceForDate($account, Date::make($date)));
 
-    $januaryBalance = Balance::whereDate('recorded_until', '2024-01-31')->first();
-    $februaryBalance = Balance::whereDate('recorded_until', '2024-02-29')->first();
-    $marchBalance = Balance::whereDate('recorded_until', '2024-03-31')->first();
+    Income::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 100, 'transacted_at' => $date = '2025-01-01']); // 950
+});
 
-    expect($januaryBalance->balance)->toBe('1500.00');
-    expect($februaryBalance->balance)->toBe('1300.00');
-    expect($marchBalance->balance)->toBe('1300.00');
+it('checks getBalanceForDate without any history', function () {
+    Date::setTestNow(Date::create(2026, 01, 20));
+    $account = Account::factory()->for($this->user)
+        ->create([
+            'initial_date' => '2026-01-01',
+            'initial_balance' => 1000,
+            'current_balance' => 1050,
+        ]); // 1000
+
+    Income::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 100, 'transacted_at' => $date = '2026-01-01']); // 1100
+    assertEquals(1100, $this->service->getBalanceForDate($account, Date::make($date)));
+
+    Expense::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 50, 'transacted_at' => $date = '2026-01-10']); // 1050
+    assertEquals(1050, $this->service->getBalanceForDate($account, Date::today()));
 });

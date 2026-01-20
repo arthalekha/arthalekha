@@ -5,8 +5,8 @@ use App\Jobs\TransactRecurringExpenseJob;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\RecurringExpense;
-use App\Models\Tag;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -125,7 +125,7 @@ test('it does not delete recurring expense with unlimited recurrences', function
 });
 
 test('it copies tags from recurring expense to expense', function () {
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $recurringExpense = RecurringExpense::factory()
         ->forUser($this->user)

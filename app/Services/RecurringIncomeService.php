@@ -41,7 +41,7 @@ class RecurringIncomeService
         unset($data['tags']);
 
         $recurringIncome = RecurringIncome::create($data);
-        $recurringIncome->tags()->sync($tags);
+        $recurringIncome->syncTags($tags);
 
         return $recurringIncome;
     }
@@ -57,7 +57,7 @@ class RecurringIncomeService
         unset($data['tags']);
 
         $recurringIncome->update($data);
-        $recurringIncome->tags()->sync($tags);
+        $recurringIncome->syncTags($tags);
 
         return $recurringIncome->fresh();
     }

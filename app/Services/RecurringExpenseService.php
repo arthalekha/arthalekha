@@ -41,7 +41,7 @@ class RecurringExpenseService
         unset($data['tags']);
 
         $recurringExpense = RecurringExpense::create($data);
-        $recurringExpense->tags()->sync($tags);
+        $recurringExpense->syncTags($tags);
 
         return $recurringExpense;
     }
@@ -57,7 +57,7 @@ class RecurringExpenseService
         unset($data['tags']);
 
         $recurringExpense->update($data);
-        $recurringExpense->tags()->sync($tags);
+        $recurringExpense->syncTags($tags);
 
         return $recurringExpense->fresh();
     }

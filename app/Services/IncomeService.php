@@ -73,7 +73,7 @@ class IncomeService
             unset($data['tags']);
 
             $income = Income::create($data);
-            $income->tags()->sync($tags);
+            $income->syncTags($tags);
 
             $this->accountService->incrementBalance($income);
 
@@ -96,7 +96,7 @@ class IncomeService
 
             $income->update($data);
 
-            $income->tags()->sync($tags);
+            $income->syncTags($tags);
 
             $this->accountService->incrementBalance($income);
 

@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use SourcedOpen\Tags\Traits\HasTags;
 
 class Transfer extends Model
 {
     /** @use HasFactory<\Database\Factories\TransferFactory> */
     use HasFactory;
+
+    use HasTags;
 
     protected $fillable = [
         'user_id',
@@ -51,10 +53,5 @@ class Transfer extends Model
     public function debtor(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'debtor_id');
-    }
-
-    public function tags(): MorphToMany
-    {
-        return $this->morphToMany(Tag::class, 'taggable');
     }
 }

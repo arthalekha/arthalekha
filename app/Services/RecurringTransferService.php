@@ -41,7 +41,7 @@ class RecurringTransferService
         unset($data['tags']);
 
         $recurringTransfer = RecurringTransfer::create($data);
-        $recurringTransfer->tags()->sync($tags);
+        $recurringTransfer->syncTags($tags);
 
         return $recurringTransfer;
     }
@@ -57,7 +57,7 @@ class RecurringTransferService
         unset($data['tags']);
 
         $recurringTransfer->update($data);
-        $recurringTransfer->tags()->sync($tags);
+        $recurringTransfer->syncTags($tags);
 
         return $recurringTransfer->fresh();
     }

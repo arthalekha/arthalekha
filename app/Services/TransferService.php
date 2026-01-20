@@ -72,7 +72,7 @@ class TransferService
             unset($data['tags']);
 
             $transfer = Transfer::create($data);
-            $transfer->tags()->sync($tags);
+            $transfer->syncTags($tags);
 
             Account::where('id', $transfer->debtor_id)->decrement('current_balance', $transfer->amount);
             Account::where('id', $transfer->creditor_id)->increment('current_balance', $transfer->amount);
@@ -105,7 +105,7 @@ class TransferService
             $this->balanceService->incrementBalance($transfer->debtor_id, $transfer->amount, $transfer->transacted_at);
 
             $transfer->update($data);
-            $transfer->tags()->sync($tags);
+            $transfer->syncTags($tags);
 
             Account::where('id', $transfer->debtor_id)->decrement('current_balance', $transfer->amount);
             Account::where('id', $transfer->creditor_id)->increment('current_balance', $transfer->amount);

@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTagRequest;
 use App\Http\Requests\UpdateTagRequest;
-use App\Models\Tag;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use SourcedOpen\Tags\Models\Tag;
 
 class TagController extends Controller
 {

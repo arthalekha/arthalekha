@@ -1,10 +1,11 @@
 <?php
 
 use App\Models\Account;
-use App\Models\Tag;
 use App\Models\Transfer;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use SourcedOpen\Tags\Models\Tag;
 
 uses(RefreshDatabase::class);
 
@@ -62,7 +63,7 @@ test('transfer has MorphToMany tags relationship', function () {
         'creditor_id' => $this->accountA->id,
         'debtor_id' => $this->accountB->id,
     ]);
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $transfer->tags()->attach($tags);
 
@@ -75,7 +76,7 @@ test('tags can be attached to transfer', function () {
         'creditor_id' => $this->accountA->id,
         'debtor_id' => $this->accountB->id,
     ]);
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $transfer->tags()->attach($tag);
 

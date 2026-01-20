@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Tag;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -16,7 +16,7 @@ test('guest cannot access tags index', function () {
 });
 
 test('authenticated user can view tags index', function () {
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('tags.index'))
@@ -65,7 +65,7 @@ test('creating a tag requires a valid hex color', function () {
 });
 
 test('tag name must be unique', function () {
-    Tag::factory()->create(['name' => 'Existing Tag']);
+    TagFactory::new()->create(['name' => 'Existing Tag']);
 
     $this->actingAs($this->user)
         ->post(route('tags.store'), [
@@ -76,7 +76,7 @@ test('tag name must be unique', function () {
 });
 
 test('authenticated user can view a tag', function () {
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $this->actingAs($this->user)
         ->get(route('tags.show', $tag))
@@ -86,7 +86,7 @@ test('authenticated user can view a tag', function () {
 });
 
 test('authenticated user can view edit tag form', function () {
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $this->actingAs($this->user)
         ->get(route('tags.edit', $tag))
@@ -96,7 +96,7 @@ test('authenticated user can view edit tag form', function () {
 });
 
 test('authenticated user can update a tag', function () {
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $updatedData = [
         'name' => 'Updated Tag',
@@ -112,7 +112,7 @@ test('authenticated user can update a tag', function () {
 });
 
 test('updating a tag allows keeping the same name', function () {
-    $tag = Tag::factory()->create(['name' => 'Original Name']);
+    $tag = TagFactory::new()->create(['name' => 'Original Name']);
 
     $this->actingAs($this->user)
         ->put(route('tags.update', $tag), [
@@ -124,7 +124,7 @@ test('updating a tag allows keeping the same name', function () {
 });
 
 test('authenticated user can delete a tag', function () {
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $this->actingAs($this->user)
         ->delete(route('tags.destroy', $tag))

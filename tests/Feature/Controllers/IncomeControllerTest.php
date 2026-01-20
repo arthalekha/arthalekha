@@ -3,9 +3,10 @@
 use App\Models\Account;
 use App\Models\Income;
 use App\Models\Person;
-use App\Models\Tag;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use SourcedOpen\Tags\Models\Tag;
 
 uses(RefreshDatabase::class);
 
@@ -447,7 +448,7 @@ test('accounts and people are passed to index view for filter dropdowns', functi
 // Tag tests
 
 test('create form includes tags', function () {
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('incomes.create'))
@@ -457,7 +458,7 @@ test('create form includes tags', function () {
 
 test('edit form includes tags', function () {
     $income = Income::factory()->forUser($this->user)->forAccount($this->account)->create();
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('incomes.edit', $income))
@@ -466,7 +467,7 @@ test('edit form includes tags', function () {
 });
 
 test('income can be created with tags', function () {
-    $tags = Tag::factory()->count(2)->create();
+    $tags = TagFactory::new()->count(2)->create();
 
     $incomeData = [
         'account_id' => $this->account->id,
@@ -486,7 +487,7 @@ test('income can be created with tags', function () {
 
 test('income can be updated with tags', function () {
     $income = Income::factory()->forUser($this->user)->forAccount($this->account)->create();
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $updatedData = [
         'account_id' => $this->account->id,
@@ -506,7 +507,7 @@ test('income can be updated with tags', function () {
 
 test('income tags can be removed on update', function () {
     $income = Income::factory()->forUser($this->user)->forAccount($this->account)->create();
-    $tags = Tag::factory()->count(2)->create();
+    $tags = TagFactory::new()->count(2)->create();
     $income->tags()->attach($tags);
 
     $updatedData = [
@@ -526,8 +527,8 @@ test('income tags can be removed on update', function () {
 });
 
 test('can filter incomes by tag', function () {
-    $tag = Tag::factory()->create();
-    $anotherTag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
+    $anotherTag = TagFactory::new()->create();
 
     $incomeWithTag = Income::factory()
         ->forUser($this->user)
@@ -549,7 +550,7 @@ test('can filter incomes by tag', function () {
 });
 
 test('tags are passed to income index view for filter dropdown', function () {
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('incomes.index'))
@@ -558,7 +559,7 @@ test('tags are passed to income index view for filter dropdown', function () {
 });
 
 test('tag filter is passed to income view', function () {
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $this->actingAs($this->user)
         ->get(route('incomes.index', ['filter' => ['tag_id' => $tag->id]]))

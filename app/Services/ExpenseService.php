@@ -73,7 +73,7 @@ class ExpenseService
             unset($data['tags']);
 
             $expense = Expense::create($data);
-            $expense->tags()->sync($tags);
+            $expense->syncTags($tags);
 
             $this->accountService->decrementBalance($expense);
 
@@ -96,7 +96,7 @@ class ExpenseService
 
             $expense->update($data);
 
-            $expense->tags()->sync($tags);
+            $expense->syncTags($tags);
 
             $this->accountService->decrementBalance($expense);
 

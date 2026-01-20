@@ -5,8 +5,8 @@ use App\Jobs\TransactRecurringIncomeJob;
 use App\Models\Account;
 use App\Models\Income;
 use App\Models\RecurringIncome;
-use App\Models\Tag;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -125,7 +125,7 @@ test('it does not delete recurring income with unlimited recurrences', function 
 });
 
 test('it copies tags from recurring income to income', function () {
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $recurringIncome = RecurringIncome::factory()
         ->forUser($this->user)

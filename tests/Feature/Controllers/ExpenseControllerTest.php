@@ -3,9 +3,10 @@
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Person;
-use App\Models\Tag;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use SourcedOpen\Tags\Models\Tag;
 
 uses(RefreshDatabase::class);
 
@@ -447,7 +448,7 @@ test('accounts and people are passed to expense index view for filter dropdowns'
 // Tag tests
 
 test('expense create form includes tags', function () {
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('expenses.create'))
@@ -457,7 +458,7 @@ test('expense create form includes tags', function () {
 
 test('expense edit form includes tags', function () {
     $expense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create();
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('expenses.edit', $expense))
@@ -466,7 +467,7 @@ test('expense edit form includes tags', function () {
 });
 
 test('expense can be created with tags', function () {
-    $tags = Tag::factory()->count(2)->create();
+    $tags = TagFactory::new()->count(2)->create();
 
     $expenseData = [
         'account_id' => $this->account->id,
@@ -486,7 +487,7 @@ test('expense can be created with tags', function () {
 
 test('expense can be updated with tags', function () {
     $expense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create();
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $updatedData = [
         'account_id' => $this->account->id,
@@ -506,7 +507,7 @@ test('expense can be updated with tags', function () {
 
 test('expense tags can be removed on update', function () {
     $expense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create();
-    $tags = Tag::factory()->count(2)->create();
+    $tags = TagFactory::new()->count(2)->create();
     $expense->tags()->attach($tags);
 
     $updatedData = [
@@ -526,8 +527,8 @@ test('expense tags can be removed on update', function () {
 });
 
 test('can filter expenses by tag', function () {
-    $tag = Tag::factory()->create();
-    $anotherTag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
+    $anotherTag = TagFactory::new()->create();
 
     $expenseWithTag = Expense::factory()
         ->forUser($this->user)
@@ -549,7 +550,7 @@ test('can filter expenses by tag', function () {
 });
 
 test('tags are passed to expense index view for filter dropdown', function () {
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('expenses.index'))
@@ -558,7 +559,7 @@ test('tags are passed to expense index view for filter dropdown', function () {
 });
 
 test('tag filter is passed to expense view', function () {
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $this->actingAs($this->user)
         ->get(route('expenses.index', ['filter' => ['tag_id' => $tag->id]]))

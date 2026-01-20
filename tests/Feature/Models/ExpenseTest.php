@@ -3,9 +3,10 @@
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Person;
-use App\Models\Tag;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use SourcedOpen\Tags\Models\Tag;
 
 uses(RefreshDatabase::class);
 
@@ -53,7 +54,7 @@ test('expense belongs to account', function () {
 
 test('expense has MorphToMany tags relationship', function () {
     $expense = Expense::factory()->forAccount($this->account)->create();
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $expense->tags()->attach($tags);
 
@@ -63,7 +64,7 @@ test('expense has MorphToMany tags relationship', function () {
 
 test('tags can be attached to expense', function () {
     $expense = Expense::factory()->forAccount($this->account)->create();
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $expense->tags()->attach($tag);
 
@@ -74,11 +75,11 @@ test('tags can be attached to expense', function () {
 test('tags can be synced on expense', function () {
     $expense = Expense::factory()->forAccount($this->account)->create();
 
-    $initialTags = Tag::factory()->count(2)->create();
+    $initialTags = TagFactory::new()->count(2)->create();
     $expense->tags()->attach($initialTags);
     expect($expense->tags)->toHaveCount(2);
 
-    $newTags = Tag::factory()->count(3)->create();
+    $newTags = TagFactory::new()->count(3)->create();
     $expense->tags()->sync($newTags->pluck('id'));
     $expense->refresh();
 
@@ -87,7 +88,7 @@ test('tags can be synced on expense', function () {
 
 test('tags can be detached from expense', function () {
     $expense = Expense::factory()->forAccount($this->account)->create();
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $expense->tags()->attach($tags);
     expect($expense->tags)->toHaveCount(3);

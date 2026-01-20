@@ -1,10 +1,11 @@
 <?php
 
 use App\Models\Account;
-use App\Models\Tag;
 use App\Models\Transfer;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use SourcedOpen\Tags\Models\Tag;
 
 uses(RefreshDatabase::class);
 
@@ -233,7 +234,7 @@ test('user cannot delete another users transfer', function () {
 // Tag tests
 
 test('transfer create form includes tags', function () {
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('transfers.create'))
@@ -247,7 +248,7 @@ test('transfer edit form includes tags', function () {
         ->fromAccount($this->sourceAccount)
         ->toAccount($this->destinationAccount)
         ->create();
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('transfers.edit', $transfer))
@@ -256,7 +257,7 @@ test('transfer edit form includes tags', function () {
 });
 
 test('transfer can be created with tags', function () {
-    $tags = Tag::factory()->count(2)->create();
+    $tags = TagFactory::new()->count(2)->create();
 
     $transferData = [
         'debtor_id' => $this->sourceAccount->id,
@@ -281,7 +282,7 @@ test('transfer can be updated with tags', function () {
         ->fromAccount($this->sourceAccount)
         ->toAccount($this->destinationAccount)
         ->create();
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $updatedData = [
         'debtor_id' => $this->sourceAccount->id,
@@ -306,7 +307,7 @@ test('transfer tags can be removed on update', function () {
         ->fromAccount($this->sourceAccount)
         ->toAccount($this->destinationAccount)
         ->create();
-    $tags = Tag::factory()->count(2)->create();
+    $tags = TagFactory::new()->count(2)->create();
     $transfer->tags()->attach($tags);
 
     $updatedData = [
@@ -339,8 +340,8 @@ test('transfer index defaults to current month date range', function () {
 });
 
 test('can filter transfers by tag', function () {
-    $tag = Tag::factory()->create();
-    $anotherTag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
+    $anotherTag = TagFactory::new()->create();
 
     $transferWithTag = Transfer::factory()
         ->forUser($this->user)
@@ -406,7 +407,7 @@ test('can filter transfers by debtor account', function () {
 });
 
 test('tags and accounts are passed to transfer index view for filter dropdowns', function () {
-    Tag::factory()->count(3)->create();
+    TagFactory::new()->count(3)->create();
 
     $this->actingAs($this->user)
         ->get(route('transfers.index'))
@@ -416,7 +417,7 @@ test('tags and accounts are passed to transfer index view for filter dropdowns',
 });
 
 test('tag filter is passed to transfer view', function () {
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $this->actingAs($this->user)
         ->get(route('transfers.index', ['filter' => ['tag_id' => $tag->id]]))

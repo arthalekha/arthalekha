@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Observers\TagObserver;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use SourcedOpen\Tags\Models\Tag;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,6 +17,12 @@ class AppServiceProvider extends ServiceProvider
         $this->configureCommands();
         $this->configurePasswordValidation();
         $this->configureDates();
+        $this->configureObservers();
+    }
+
+    private function configureObservers(): void
+    {
+        Tag::observe(TagObserver::class);
     }
 
     private function configureDates(): void

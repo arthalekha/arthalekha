@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\Tag;
 use App\Services\TagService;
+use SourcedOpen\Tags\Models\Tag;
 
 class TagObserver
 {

@@ -3,9 +3,10 @@
 use App\Models\Account;
 use App\Models\Income;
 use App\Models\Person;
-use App\Models\Tag;
 use App\Models\User;
+use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use SourcedOpen\Tags\Models\Tag;
 
 uses(RefreshDatabase::class);
 
@@ -53,7 +54,7 @@ test('income belongs to account', function () {
 
 test('income has MorphToMany tags relationship', function () {
     $income = Income::factory()->forAccount($this->account)->create();
-    $tags = Tag::factory()->count(3)->create();
+    $tags = TagFactory::new()->count(3)->create();
 
     $income->tags()->attach($tags);
 
@@ -63,7 +64,7 @@ test('income has MorphToMany tags relationship', function () {
 
 test('tags can be attached to income', function () {
     $income = Income::factory()->forAccount($this->account)->create();
-    $tag = Tag::factory()->create();
+    $tag = TagFactory::new()->create();
 
     $income->tags()->attach($tag);
 

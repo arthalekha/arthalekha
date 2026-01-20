@@ -6,12 +6,14 @@ use App\Enums\Frequency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use SourcedOpen\Tags\Traits\HasTags;
 
 class RecurringIncome extends Model
 {
     /** @use HasFactory<\Database\Factories\RecurringIncomeFactory> */
     use HasFactory;
+
+    use HasTags;
 
     protected $fillable = [
         'user_id',
@@ -50,10 +52,5 @@ class RecurringIncome extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
-    }
-
-    public function tags(): MorphToMany
-    {
-        return $this->morphToMany(Tag::class, 'taggable');
     }
 }

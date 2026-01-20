@@ -435,13 +435,13 @@ test('show page displays monthly average balance for savings account when previo
         'transacted_at' => '2024-02-10',
     ]);
 
-    // Service calculates daily averages from Feb 1 to Feb 15 (15 days):
-    // Feb 1-9: 1000 each (9 days), Feb 10: 1000+500=1500, Feb 11-15: 1000 each (5 days)
-    // Sum = 9*1000 + 1500 + 5*1000 = 15500, Average = 15500/15 = 1033.33
+    // Service calculates running daily balances from Feb 1 to Feb 15 (15 days):
+    // Feb 1-9: 1000 each (9 days), Feb 10: 1000+500=1500, Feb 11-15: 1500 each (5 days)
+    // Sum = 9*1000 + 1500 + 5*1500 = 9000 + 1500 + 7500 = 18000, Average = 18000/15 = 1200
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
-        ->assertSee('1,033.33');
+        ->assertSee('1,200.00');
 });
 
 test('show page displays zero monthly average balance for savings account when no previous month balance exists', function () {
@@ -450,9 +450,10 @@ test('show page displays zero monthly average balance for savings account when n
     $account = Account::factory()
         ->forUser($this->user)
         ->ofType(AccountType::Savings)
-        ->create(['current_balance' => 2000.00]);
+        ->ofSameBalances(0)
+        ->create();
 
-    // Service returns 0 when no previous month balance exists (defaults to 0)
+    // Service uses initial_balance (0) when no previous month balance exists
     // Daily average of 0 for 15 days = 0
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
@@ -500,11 +501,11 @@ test('show page passes average balance to view for savings account', function ()
         'transacted_at' => '2024-02-10',
     ]);
 
-    // Service calculates daily averages from Feb 1 to Feb 15 (15 days):
-    // Feb 1-9: 1000 each (9 days), Feb 10: 1000+1000=2000, Feb 11-15: 1000 each (5 days)
-    // Sum = 9*1000 + 2000 + 5*1000 = 16000, Average = 16000/15 = 1066.67
+    // Service calculates running daily balances from Feb 1 to Feb 15 (15 days):
+    // Feb 1-9: 1000 each (9 days), Feb 10: 1000+1000=2000, Feb 11-15: 2000 each (5 days)
+    // Sum = 9*1000 + 2000 + 5*2000 = 9000 + 2000 + 10000 = 21000, Average = 21000/15 = 1400
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
         ->assertSuccessful()
-        ->assertViewHas('averageBalance', fn ($value) => abs($value - 1066.6666666666667) < 0.01);
+        ->assertViewHas('averageBalance', fn ($value) => abs($value - 1400.0) < 0.01);
 });

@@ -47,12 +47,12 @@ class BalanceService
         $startDate = $month->startOfMonth();
         $endDate = $month->endOfMonth();
 
-        $monthlyIncome = $this->getPeriodicIncome($account, $startDate, $endDate);
-        $monthlyExpense = $this->getPeriodicExpense($account, $startDate, $endDate);
-        $monthlyTransferIn = $this->getPeriodicTransferIn($account, $startDate, $endDate);
-        $monthlyTransferOut = $this->getPeriodicTransferOut($account, $startDate, $endDate);
+        $periodicIncome = $this->getPeriodicIncome($account, $startDate, $endDate);
+        $periodicExpense = $this->getPeriodicExpense($account, $startDate, $endDate);
+        $periodicTransferIn = $this->getPeriodicTransferIn($account, $startDate, $endDate);
+        $periodicTransferOut = $this->getPeriodicTransferOut($account, $startDate, $endDate);
 
-        return $monthlyIncome - $monthlyExpense + $monthlyTransferIn - $monthlyTransferOut;
+        return $periodicIncome - $periodicExpense + $periodicTransferIn - $periodicTransferOut;
     }
 
     /**

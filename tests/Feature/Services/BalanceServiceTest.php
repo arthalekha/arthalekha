@@ -10,6 +10,8 @@ use App\Services\BalanceService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use function PHPUnit\Framework\assertEquals;
+
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
@@ -178,4 +180,56 @@ test('saveBalance updates existing balance record', function () {
 
     expect($balance->balance)->toBe('2000.00');
     expect(Balance::count())->toBe(1);
+});
+
+it('checks getBalanceForDate with history', function () {
+    $account = Account::factory()->for($this->user)
+        ->create([
+            'initial_date' => '2025-12-15',
+            'initial_balance' => 1000,
+            'current_balance' => 950,
+        ]); // 1000
+
+    Income::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 100, 'transacted_at' => $date = '2025-12-15']); // 1100
+    assertEquals(1100, $this->service->getBalanceForDate($account, Date::make($date)));
+
+    Expense::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 50, 'transacted_at' => $date = '2025-12-15']); // 1050
+    assertEquals(1050, $this->service->getBalanceForDate($account, Date::make($date)));
+
+    Transfer::factory()->for($account, 'creditor')
+        ->create(['amount' => 200, 'transacted_at' => $date = '2025-12-20']); // 1250
+    assertEquals(1250, $this->service->getBalanceForDate($account, Date::make($date)));
+
+    Transfer::factory()->for($account, 'debtor')
+        ->create(['amount' => 400, 'transacted_at' => $date = '2025-12-21']); // 850
+    assertEquals(850, $this->service->getBalanceForDate($account, Date::make($date)));
+
+    Balance::factory()->for($account)->create([
+        'balance' => 850,
+        'recorded_until' => $date = '2025-12-31',
+    ]); // 850
+    assertEquals(850, $this->service->getBalanceForDate($account, Date::make($date)));
+
+    Income::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 100, 'transacted_at' => $date = '2025-01-01']); // 950
+});
+
+it('checks getBalanceForDate without any history', function () {
+    Date::setTestNow(Date::create(2026, 01, 20));
+    $account = Account::factory()->for($this->user)
+        ->create([
+            'initial_date' => '2026-01-01',
+            'initial_balance' => 1000,
+            'current_balance' => 1050,
+        ]); // 1000
+
+    Income::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 100, 'transacted_at' => $date = '2026-01-01']); // 1100
+    assertEquals(1100, $this->service->getBalanceForDate($account, Date::make($date)));
+
+    Expense::factory()->forUser($this->user)->forAccount($account)
+        ->create(['amount' => 50, 'transacted_at' => $date = '2026-01-10']); // 1050
+    assertEquals(1050, $this->service->getBalanceForDate($account, Date::today()));
 });

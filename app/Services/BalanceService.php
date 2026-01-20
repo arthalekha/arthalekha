@@ -211,6 +211,10 @@ class BalanceService
 
     public function getBalanceForDate(Account $account, CarbonInterface $date): float
     {
+        if ($date->isToday()) {
+            return $account->current_balance;
+        }
+
         if ($balance = $account->previousMonthBalance()->first()) {
             return $balance->balance
                 + $this->calculateAmountForPeriod($account, $balance->recorded_until->addDay(), $date);

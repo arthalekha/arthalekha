@@ -178,6 +178,14 @@ test('authenticated user can update their own income', function () {
     ]);
 });
 
+test('authenticated user cannot view edit form for another users income', function () {
+    $otherIncome = Income::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.edit', $otherIncome))
+        ->assertForbidden();
+});
+
 test('user cannot update another users income', function () {
     $otherIncome = Income::factory()->create();
 

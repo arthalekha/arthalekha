@@ -178,6 +178,14 @@ test('authenticated user can update their own expense', function () {
     ]);
 });
 
+test('authenticated user cannot view edit form for another users expense', function () {
+    $otherExpense = Expense::factory()->create();
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.edit', $otherExpense))
+        ->assertForbidden();
+});
+
 test('user cannot update another users expense', function () {
     $otherExpense = Expense::factory()->create();
 

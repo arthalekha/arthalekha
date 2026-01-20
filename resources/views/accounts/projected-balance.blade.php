@@ -169,9 +169,9 @@
     function initProjectedBalanceChart() {
         const dates = @json($dates);
         const incomeData = @json($incomeData);
-        const expenseData = @json($expenseData);
+        const expenseData = @json($expenseData).map(v => -v);
         const transferInData = @json($transferInData);
-        const transferOutData = @json($transferOutData);
+        const transferOutData = @json($transferOutData).map(v => -v);
         const balanceData = @json($balanceData);
 
         const ctx = document.getElementById('projectedBalanceChart').getContext('2d');
@@ -233,7 +233,6 @@
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true,
                         position: 'left',
                         title: {
                             display: true,
@@ -254,6 +253,19 @@
                 plugins: {
                     legend: {
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.parsed.y;
+                                label += Math.abs(value).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                return label;
+                            }
+                        }
                     }
                 }
             }

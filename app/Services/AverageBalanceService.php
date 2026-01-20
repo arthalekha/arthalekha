@@ -29,37 +29,13 @@ class AverageBalanceService
 
         $endDate = Date::now();
 
-        $this->incomes = Income::query()
-            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
-            ->where('account_id', $account->id)
-            ->whereBetween('transacted_at', [$startDate, $endDate])
-            ->groupBy('day')
-            ->orderBy('day')
-            ->pluck('total_amount', 'day');
+        $this->incomes = $this->fetchIncomes($account, $startDate, $endDate);
 
-        $this->expenses = Expense::query()
-            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
-            ->where('account_id', $account->id)
-            ->whereBetween('transacted_at', [$startDate, $endDate])
-            ->groupBy('day')
-            ->orderBy('day')
-            ->pluck('total_amount', 'day');
+        $this->expenses = $this->fetchExpenses($account, $startDate, $endDate);
 
-        $this->creditTransfers = Transfer::query()
-            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
-            ->where('creditor_id', $account->id)
-            ->whereBetween('transacted_at', [$startDate, $endDate])
-            ->groupBy('day')
-            ->orderBy('day')
-            ->pluck('total_amount', 'day');
+        $this->creditTransfers = $this->fetchCreditTransfers($account, $startDate, $endDate);
 
-        $this->debitTransfers = Transfer::query()
-            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
-            ->where('debtor_id', $account->id)
-            ->whereBetween('transacted_at', [$startDate, $endDate])
-            ->groupBy('day')
-            ->orderBy('day')
-            ->pluck('total_amount', 'day');
+        $this->debitTransfers = $this->fetchDebitTransfers($account, $startDate, $endDate);
 
         $this->data = collect();
 
@@ -88,5 +64,49 @@ class AverageBalanceService
         }
 
         return Frequency::tryFrom($frequencyValue) ?? Frequency::Monthly;
+    }
+
+    private function fetchIncomes(Account $account, mixed $startDate, mixed $endDate): Collection
+    {
+        return Income::query()
+            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
+            ->where('account_id', $account->id)
+            ->whereBetween('transacted_at', [$startDate, $endDate])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->pluck('total_amount', 'day');
+    }
+
+    private function fetchExpenses(Account $account, mixed $startDate, mixed $endDate): Collection
+    {
+        return Expense::query()
+            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
+            ->where('account_id', $account->id)
+            ->whereBetween('transacted_at', [$startDate, $endDate])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->pluck('total_amount', 'day');
+    }
+
+    private function fetchCreditTransfers(Account $account, mixed $startDate, mixed $endDate): Collection
+    {
+        return Transfer::query()
+            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
+            ->where('creditor_id', $account->id)
+            ->whereBetween('transacted_at', [$startDate, $endDate])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->pluck('total_amount', 'day');
+    }
+
+    private function fetchDebitTransfers(Account $account, mixed $startDate, mixed $endDate): Collection
+    {
+        return Transfer::query()
+            ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
+            ->where('debtor_id', $account->id)
+            ->whereBetween('transacted_at', [$startDate, $endDate])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->pluck('total_amount', 'day');
     }
 }

@@ -38,7 +38,7 @@ test('getPeriodicIncome returns sum of incomes for a month', function () {
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $income = $this->service->getPeriodicIncome($account, $january->startOfMonth(), $january->endOfMonth());
+    $income = $this->service->getPeriodicIncome($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($income)->toBe(800.0);
 });
@@ -57,7 +57,7 @@ test('getPeriodicExpense returns sum of expenses for a month', function () {
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $expense = $this->service->getPeriodicExpense($account, $january->startOfMonth(), $january->endOfMonth());
+    $expense = $this->service->getPeriodicExpense($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($expense)->toBe(350.0);
 });
@@ -74,7 +74,7 @@ test('getPeriodicTransferIn returns sum of transfers into account', function () 
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $transferIn = $this->service->getPeriodicTransferIn($account, $january->startOfMonth(), $january->endOfMonth());
+    $transferIn = $this->service->getPeriodicTransferIn($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($transferIn)->toBe(500.0);
 });
@@ -91,7 +91,7 @@ test('getPeriodicTransferOut returns sum of transfers out of account', function 
     ]);
 
     $january = Carbon::parse('2024-01-15');
-    $transferOut = $this->service->getPeriodicTransferOut($account, $january->startOfMonth(), $january->endOfMonth());
+    $transferOut = $this->service->getPeriodicTransferOut($account, $january->copy()->startOfMonth(), $january->copy()->endOfMonth());
 
     expect($transferOut)->toBe(300.0);
 });

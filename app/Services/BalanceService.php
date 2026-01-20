@@ -44,8 +44,8 @@ class BalanceService
      */
     public function calculateBalanceForMonth(Account $account, CarbonInterface $month): float
     {
-        $startDate = $month->startOfMonth();
-        $endDate = $month->endOfMonth();
+        $startDate = $month->copy()->startOfMonth();
+        $endDate = $month->copy()->endOfMonth();
 
         return $this->calculateAmountForPeriod($account, $startDate, $endDate);
     }

@@ -47,12 +47,7 @@ class BalanceService
         $startDate = $month->startOfMonth();
         $endDate = $month->endOfMonth();
 
-        $periodicIncome = $this->getPeriodicIncome($account, $startDate, $endDate);
-        $periodicExpense = $this->getPeriodicExpense($account, $startDate, $endDate);
-        $periodicTransferIn = $this->getPeriodicTransferIn($account, $startDate, $endDate);
-        $periodicTransferOut = $this->getPeriodicTransferOut($account, $startDate, $endDate);
-
-        return $periodicIncome - $periodicExpense + $periodicTransferIn - $periodicTransferOut;
+        return $this->calculateBalanceForPeriod($account, $startDate, $endDate);
     }
 
     /**
@@ -221,5 +216,15 @@ class BalanceService
 
         if ($balance) {
         }
+    }
+
+    public function calculateBalanceForPeriod(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
+    {
+        $periodicIncome = $this->getPeriodicIncome($account, $startDate, $endDate);
+        $periodicExpense = $this->getPeriodicExpense($account, $startDate, $endDate);
+        $periodicTransferIn = $this->getPeriodicTransferIn($account, $startDate, $endDate);
+        $periodicTransferOut = $this->getPeriodicTransferOut($account, $startDate, $endDate);
+
+        return $periodicIncome - $periodicExpense + $periodicTransferIn - $periodicTransferOut;
     }
 }

@@ -47,7 +47,7 @@ class BalanceService
         $startDate = $month->startOfMonth();
         $endDate = $month->endOfMonth();
 
-        return $this->calculateBalanceForPeriod($account, $startDate, $endDate);
+        return $this->calculateAmountForPeriod($account, $startDate, $endDate);
     }
 
     /**
@@ -213,14 +213,14 @@ class BalanceService
     {
         if ($balance = $account->previousMonthBalance()->first()) {
             return $balance->balance
-                + $this->calculateBalanceForPeriod($account, $balance->recorded_until->addDay(), $date);
+                + $this->calculateAmountForPeriod($account, $balance->recorded_until->addDay(), $date);
         }
 
         return $account->initial_balance
-            + $this->calculateBalanceForPeriod($account, $account->initial_date, $date);
+            + $this->calculateAmountForPeriod($account, $account->initial_date, $date);
     }
 
-    public function calculateBalanceForPeriod(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
+    public function calculateAmountForPeriod(Account $account, CarbonInterface $startDate, CarbonInterface $endDate): float
     {
         $periodicIncome = $this->getPeriodicIncome($account, $startDate, $endDate);
         $periodicExpense = $this->getPeriodicExpense($account, $startDate, $endDate);

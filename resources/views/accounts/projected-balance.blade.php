@@ -84,6 +84,12 @@
                 {{ number_format($summary['endingBalance'], 2) }}
             </div>
         </div>
+        <div class="stat">
+            <div class="stat-title">Average Balance</div>
+            <div class="stat-value text-lg text-purple-500">
+                {{ number_format($summary['averageBalance'], 2) }}
+            </div>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 gap-6 mb-6">
@@ -173,6 +179,7 @@
         const transferInData = @json($transferInData);
         const transferOutData = @json($transferOutData).map(v => -v);
         const balanceData = @json($balanceData);
+        const averageBalanceData = @json($averageBalanceData);
 
         const ctx = document.getElementById('projectedBalanceChart').getContext('2d');
         new Chart(ctx, {
@@ -224,6 +231,18 @@
                         pointRadius: 2,
                         pointBackgroundColor: 'rgb(99, 102, 241)',
                         order: 1,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: 'Average Balance',
+                        data: averageBalanceData,
+                        type: 'line',
+                        borderColor: 'rgb(168, 85, 247)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0,
+                        order: 2,
                         yAxisID: 'y1'
                     }
                 ]

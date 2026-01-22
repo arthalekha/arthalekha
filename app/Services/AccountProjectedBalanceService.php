@@ -35,7 +35,8 @@ class AccountProjectedBalanceService
      *     transferInData: array<float>,
      *     transferOutData: array<float>,
      *     balanceData: array<float>,
-     *     summary: array{totalIncome: float, totalExpense: float, totalTransferIn: float, totalTransferOut: float, startingBalance: float, endingBalance: float}
+     *     averageBalanceData: array<float>,
+     *     summary: array{totalIncome: float, totalExpense: float, totalTransferIn: float, totalTransferOut: float, startingBalance: float, endingBalance: float, averageBalance: float}
      * }
      */
     public function calculate(Account $account, Carbon $startDate, Carbon $endDate): array
@@ -262,7 +263,8 @@ class AccountProjectedBalanceService
      *     transferInData: array<float>,
      *     transferOutData: array<float>,
      *     balanceData: array<float>,
-     *     summary: array{totalIncome: float, totalExpense: float, totalTransferIn: float, totalTransferOut: float, startingBalance: float, endingBalance: float}
+     *     averageBalanceData: array<float>,
+     *     summary: array{totalIncome: float, totalExpense: float, totalTransferIn: float, totalTransferOut: float, startingBalance: float, endingBalance: float, averageBalance: float}
      * }
      */
     protected function formatOutput(float $startingBalance): array
@@ -292,6 +294,8 @@ class AccountProjectedBalanceService
         }
 
         $endingBalance = ! empty($balanceData) ? end($balanceData) : $startingBalance;
+        $averageBalance = ! empty($balanceData) ? array_sum($balanceData) / count($balanceData) : $startingBalance;
+        $averageBalanceData = array_fill(0, count($balanceData), $averageBalance);
 
         return [
             'dailyProjections' => $this->dailyProjections,
@@ -301,6 +305,7 @@ class AccountProjectedBalanceService
             'transferInData' => $transferInData,
             'transferOutData' => $transferOutData,
             'balanceData' => $balanceData,
+            'averageBalanceData' => $averageBalanceData,
             'summary' => [
                 'totalIncome' => $totalIncome,
                 'totalExpense' => $totalExpense,
@@ -308,6 +313,7 @@ class AccountProjectedBalanceService
                 'totalTransferOut' => $totalTransferOut,
                 'startingBalance' => $startingBalance,
                 'endingBalance' => $endingBalance,
+                'averageBalance' => $averageBalance,
             ],
         ];
     }

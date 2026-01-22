@@ -386,19 +386,23 @@ test('provides chart data arrays', function () {
     $response->assertViewHas('transferInData');
     $response->assertViewHas('transferOutData');
     $response->assertViewHas('balanceData');
+    $response->assertViewHas('averageBalanceData');
 
     $dates = $response->viewData('dates');
     $incomeData = $response->viewData('incomeData');
     $expenseData = $response->viewData('expenseData');
     $balanceData = $response->viewData('balanceData');
+    $averageBalanceData = $response->viewData('averageBalanceData');
 
     expect($dates)->toBeArray();
     expect($incomeData)->toBeArray();
     expect($expenseData)->toBeArray();
     expect($balanceData)->toBeArray();
+    expect($averageBalanceData)->toBeArray();
     expect(count($incomeData))->toBe(count($dates));
     expect(count($expenseData))->toBe(count($dates));
     expect(count($balanceData))->toBe(count($dates));
+    expect(count($averageBalanceData))->toBe(count($dates));
 });
 
 test('provides daily breakdown', function () {
@@ -437,4 +441,38 @@ test('starting balance uses previous month balance when available', function () 
 
     $summary = $response->viewData('summary');
     expect($summary['startingBalance'])->toBe(2500.0);
+});
+
+test('calculates average balance for the period', function () {
+    Carbon::setTestNow(Carbon::create(2025, 3, 1));
+
+    $this->account->update(['initial_balance' => 1000]);
+
+    Income::factory()
+        ->forUser($this->user)
+        ->forAccount($this->account)
+        ->create([
+            'amount' => 300,
+            'transacted_at' => Carbon::create(2025, 3, 2),
+        ]);
+
+    $response = $this->actingAs($this->user)
+        ->get(route('accounts.projected-balance', [
+            'account' => $this->account,
+            'filter' => [
+                'from_date' => '2025-03-01',
+                'to_date' => '2025-03-03',
+            ],
+        ]));
+
+    $response->assertSuccessful();
+
+    $summary = $response->viewData('summary');
+    $balanceData = $response->viewData('balanceData');
+    $averageBalanceData = $response->viewData('averageBalanceData');
+
+    // Day 1: 1000, Day 2: 1300, Day 3: 1300 => Average: (1000 + 1300 + 1300) / 3 = 1200
+    expect($balanceData)->toBe([1000.0, 1300.0, 1300.0]);
+    expect($summary['averageBalance'])->toBe(1200.0);
+    expect($averageBalanceData)->toBe([1200.0, 1200.0, 1200.0]);
 });

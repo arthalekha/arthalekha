@@ -39,6 +39,7 @@ class AccountProjectedBalanceController extends Controller
             'transferInData' => $projectionData['transferInData'],
             'transferOutData' => $projectionData['transferOutData'],
             'balanceData' => $projectionData['balanceData'],
+            'averageBalanceData' => $projectionData['averageBalanceData'],
             'summary' => $projectionData['summary'],
         ]);
     }

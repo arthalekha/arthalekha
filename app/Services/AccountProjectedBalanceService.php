@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Account;
-use App\Models\Balance;
 use App\Models\Expense;
 use App\Models\Income;
 use App\Models\RecurringExpense;
@@ -20,6 +19,10 @@ class AccountProjectedBalanceService
      * @var array<string, array{income: float, expense: float, transfer_in: float, transfer_out: float, balance: float}>
      */
     protected array $dailyProjections = [];
+
+    public function __construct(
+        protected BalanceService $balanceService
+    ) {}
 
     /**
      * Calculate projected balance for an account within a date range.
@@ -56,74 +59,9 @@ class AccountProjectedBalanceService
 
     protected function getStartingBalance(Account $account, Carbon $startDate): float
     {
-        $startOfCurrentMonth = Carbon::now()->startOfMonth();
+        $dayBeforeStart = $startDate->copy()->subDay();
 
-        if ($startDate->equalTo($startOfCurrentMonth)) {
-            $previousBalance = $account->previousMonthBalance()->value('balance');
-            if ($previousBalance !== null) {
-                return (float) $previousBalance;
-            }
-        }
-
-        $balanceRecord = Balance::query()
-            ->where('account_id', $account->id)
-            ->whereDate('recorded_until', '<', $startDate)
-            ->orderByDesc('recorded_until')
-            ->first();
-
-        if ($balanceRecord) {
-            $baseBalance = (float) $balanceRecord->balance;
-            $balanceEndDate = Carbon::parse($balanceRecord->recorded_until);
-            $dayAfterBalance = $balanceEndDate->copy()->addDay();
-
-            $incomes = Income::query()
-                ->where('account_id', $account->id)
-                ->whereDate('transacted_at', '>=', $dayAfterBalance)
-                ->whereDate('transacted_at', '<', $startDate)
-                ->sum('amount');
-
-            $expenses = Expense::query()
-                ->where('account_id', $account->id)
-                ->whereDate('transacted_at', '>=', $dayAfterBalance)
-                ->whereDate('transacted_at', '<', $startDate)
-                ->sum('amount');
-
-            $creditTransfers = Transfer::query()
-                ->where('creditor_id', $account->id)
-                ->whereDate('transacted_at', '>=', $dayAfterBalance)
-                ->whereDate('transacted_at', '<', $startDate)
-                ->sum('amount');
-
-            $debitTransfers = Transfer::query()
-                ->where('debtor_id', $account->id)
-                ->whereDate('transacted_at', '>=', $dayAfterBalance)
-                ->whereDate('transacted_at', '<', $startDate)
-                ->sum('amount');
-
-            return $baseBalance + $incomes - $expenses + $creditTransfers - $debitTransfers;
-        }
-
-        $incomes = Income::query()
-            ->where('account_id', $account->id)
-            ->whereDate('transacted_at', '<', $startDate)
-            ->sum('amount');
-
-        $expenses = Expense::query()
-            ->where('account_id', $account->id)
-            ->whereDate('transacted_at', '<', $startDate)
-            ->sum('amount');
-
-        $creditTransfers = Transfer::query()
-            ->where('creditor_id', $account->id)
-            ->whereDate('transacted_at', '<', $startDate)
-            ->sum('amount');
-
-        $debitTransfers = Transfer::query()
-            ->where('debtor_id', $account->id)
-            ->whereDate('transacted_at', '<', $startDate)
-            ->sum('amount');
-
-        return (float) $account->initial_balance + $incomes - $expenses + $creditTransfers - $debitTransfers;
+        return $this->balanceService->getBalanceForDate($account, $dayBeforeStart);
     }
 
     protected function initializeDailyProjections(Carbon $startDate, Carbon $endDate): void

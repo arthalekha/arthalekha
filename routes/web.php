@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountBalanceController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AccountProjectedBalanceController;
 use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
@@ -27,6 +28,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('accounts', AccountController::class);
     Route::get('accounts/{account}/transactions', AccountTransactionController::class)->name('accounts.transactions');
     Route::get('accounts/{account}/balances', AccountBalanceController::class)->name('accounts.balances');
+    Route::get('accounts/{account}/projected-balance', AccountProjectedBalanceController::class)->name('accounts.projected-balance');
     Route::resource('expenses', ExpenseController::class);
     Route::post('expenses/export/csv', [ExpenseController::class, 'export'])->name('expenses.export');
     Route::resource('incomes', IncomeController::class);

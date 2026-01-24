@@ -11,7 +11,7 @@ class FamilyModeController extends Controller
     {
         $route = request()
             ->string('route')
-            ->replace(['store', 'edit', 'update'], 'index')
+            ->replace(['create', 'edit', 'update'], 'index')
             ->when(
                 fn (Stringable $str) => $str->startsWith('family.'),
                 fn (Stringable $str) => $str->remove('family.'),

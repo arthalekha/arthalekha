@@ -35,9 +35,9 @@ test('toggle from family route to regular route', function () {
         ->assertRedirect(route('accounts.index'));
 });
 
-test('toggle replaces store action with index', function () {
+test('toggle replaces create action with index', function () {
     $this->actingAs($this->user)
-        ->post(route('mode.toggle'), ['route' => 'incomes.store'])
+        ->post(route('mode.toggle'), ['route' => 'incomes.create'])
         ->assertRedirect(route('family.incomes.index'));
 });
 

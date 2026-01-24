@@ -20,12 +20,11 @@ class ExpenseService
     ) {}
 
     /**
-     * Get paginated expenses for a user with filters.
+     * Get paginated expenses with filters.
      */
-    public function getExpensesForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getExpenses(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Expense::class)
-            ->where('user_id', $user->id)
             ->with(['account', 'person'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
@@ -43,10 +42,9 @@ class ExpenseService
     /**
      * Get expenses query for export with filters.
      */
-    public function getExpensesQueryForExport(User $user): Builder
+    public function getExpensesQueryForExport(): Builder
     {
         return QueryBuilder::for(Expense::class)
-            ->where('user_id', $user->id)
             ->with(['account', 'person', 'tags'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),

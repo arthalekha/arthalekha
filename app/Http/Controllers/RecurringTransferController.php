@@ -34,8 +34,8 @@ class RecurringTransferController extends Controller
             'frequency' => $request->input('filter.frequency'),
         ];
 
-        $recurringTransfers = $this->recurringTransferService->getRecurringTransfersForUser(Auth::user());
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $recurringTransfers = $this->recurringTransferService->getRecurringTransfers();
+        $accounts = $this->accountService->getAll();
         $frequencies = Frequency::cases();
 
         return view('recurring-transfers.index', compact('recurringTransfers', 'accounts', 'frequencies', 'filters'));
@@ -46,7 +46,7 @@ class RecurringTransferController extends Controller
      */
     public function create(): View
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $frequencies = Frequency::cases();
         $tags = $this->tagService->getAll();
 
@@ -79,7 +79,7 @@ class RecurringTransferController extends Controller
      */
     public function edit(RecurringTransfer $recurringTransfer): View|RedirectResponse
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $frequencies = Frequency::cases();
         $tags = $this->tagService->getAll();
         $recurringTransfer->load('tags');

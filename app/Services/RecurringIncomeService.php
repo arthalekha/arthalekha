@@ -11,12 +11,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 class RecurringIncomeService
 {
     /**
-     * Get paginated recurring incomes for a user with filters.
+     * Get paginated recurring incomes with filters.
      */
-    public function getRecurringIncomesForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getRecurringIncomes(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(RecurringIncome::class)
-            ->where('user_id', $user->id)
             ->with(['account', 'person', 'tags'])
             ->allowedFilters([
                 AllowedFilter::partial('search', 'description'),

@@ -11,12 +11,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 class RecurringExpenseService
 {
     /**
-     * Get paginated recurring expenses for a user with filters.
+     * Get paginated recurring expenses with filters.
      */
-    public function getRecurringExpensesForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getRecurringExpenses(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(RecurringExpense::class)
-            ->where('user_id', $user->id)
             ->with(['account', 'person', 'tags'])
             ->allowedFilters([
                 AllowedFilter::partial('search', 'description'),

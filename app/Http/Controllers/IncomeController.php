@@ -49,8 +49,8 @@ class IncomeController extends Controller
             ],
         ]);
 
-        $incomes = $this->incomeService->getIncomesForUser(Auth::user());
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $incomes = $this->incomeService->getIncomes();
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $tags = $this->tagService->getAll();
 
@@ -62,7 +62,7 @@ class IncomeController extends Controller
      */
     public function create(): View
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $tags = $this->tagService->getAll();
 
@@ -95,7 +95,7 @@ class IncomeController extends Controller
      */
     public function edit(Income $income): View|RedirectResponse
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $tags = $this->tagService->getAll();
         $income->load('tags');
@@ -137,7 +137,7 @@ class IncomeController extends Controller
             ],
         ]);
 
-        $query = $this->incomeService->getIncomesQueryForExport(Auth::user());
+        $query = $this->incomeService->getIncomesQueryForExport();
 
         return (new IncomesExport($query))->download('incomes.csv', Excel::CSV);
     }

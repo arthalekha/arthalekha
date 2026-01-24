@@ -36,8 +36,8 @@ class RecurringExpenseController extends Controller
             'frequency' => $request->input('filter.frequency'),
         ];
 
-        $recurringExpenses = $this->recurringExpenseService->getRecurringExpensesForUser(Auth::user());
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $recurringExpenses = $this->recurringExpenseService->getRecurringExpenses();
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
 
@@ -49,7 +49,7 @@ class RecurringExpenseController extends Controller
      */
     public function create(): View
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
         $tags = $this->tagService->getAll();
@@ -83,7 +83,7 @@ class RecurringExpenseController extends Controller
      */
     public function edit(RecurringExpense $recurringExpense): View|RedirectResponse
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
         $tags = $this->tagService->getAll();

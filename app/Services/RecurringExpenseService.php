@@ -69,12 +69,4 @@ class RecurringExpenseService
     {
         return $recurringExpense->delete();
     }
-
-    /**
-     * Check if the user owns the recurring expense.
-     */
-    public function userOwnsRecurringExpense(User $user, RecurringExpense $recurringExpense): bool
-    {
-        return $recurringExpense->user_id === $user->id;
-    }
 }

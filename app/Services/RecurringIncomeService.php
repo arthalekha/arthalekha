@@ -69,12 +69,4 @@ class RecurringIncomeService
     {
         return $recurringIncome->delete();
     }
-
-    /**
-     * Check if the user owns the recurring income.
-     */
-    public function userOwnsRecurringIncome(User $user, RecurringIncome $recurringIncome): bool
-    {
-        return $recurringIncome->user_id === $user->id;
-    }
 }

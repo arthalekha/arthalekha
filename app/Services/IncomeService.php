@@ -115,12 +115,4 @@ class IncomeService
             return $income->delete();
         });
     }
-
-    /**
-     * Check if the user owns the income.
-     */
-    public function userOwnsIncome(User $user, Income $income): bool
-    {
-        return $income->user_id === $user->id;
-    }
 }

@@ -118,14 +118,6 @@ class AccountService
     }
 
     /**
-     * Check if the user owns the account.
-     */
-    public function userOwnsAccount(User $user, Account $account): bool
-    {
-        return $account->user_id === $user->id;
-    }
-
-    /**
      * Increment account balance.
      */
     public function incrementBalance(Expense|Income $transaction): void

@@ -130,12 +130,4 @@ class TransferService
             return $transfer->delete();
         });
     }
-
-    /**
-     * Check if the user owns the transfer.
-     */
-    public function userOwnsTransfer(User $user, Transfer $transfer): bool
-    {
-        return $transfer->user_id === $user->id;
-    }
 }

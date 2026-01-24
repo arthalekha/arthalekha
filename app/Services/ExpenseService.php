@@ -115,12 +115,4 @@ class ExpenseService
             return $expense->delete();
         });
     }
-
-    /**
-     * Check if the user owns the expense.
-     */
-    public function userOwnsExpense(User $user, Expense $expense): bool
-    {
-        return $expense->user_id === $user->id;
-    }
 }

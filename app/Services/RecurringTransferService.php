@@ -69,12 +69,4 @@ class RecurringTransferService
     {
         return $recurringTransfer->delete();
     }
-
-    /**
-     * Check if the user owns the recurring transfer.
-     */
-    public function userOwnsRecurringTransfer(User $user, RecurringTransfer $recurringTransfer): bool
-    {
-        return $recurringTransfer->user_id === $user->id;
-    }
 }

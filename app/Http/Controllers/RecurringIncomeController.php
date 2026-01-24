@@ -73,10 +73,6 @@ class RecurringIncomeController extends Controller
      */
     public function show(RecurringIncome $recurringIncome): View|RedirectResponse
     {
-        if (! $this->recurringIncomeService->userOwnsRecurringIncome(Auth::user(), $recurringIncome)) {
-            abort(403);
-        }
-
         $recurringIncome->load(['account', 'person', 'tags']);
 
         return view('recurring-incomes.show', compact('recurringIncome'));
@@ -87,10 +83,6 @@ class RecurringIncomeController extends Controller
      */
     public function edit(RecurringIncome $recurringIncome): View|RedirectResponse
     {
-        if (! $this->recurringIncomeService->userOwnsRecurringIncome(Auth::user(), $recurringIncome)) {
-            abort(403);
-        }
-
         $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
@@ -105,10 +97,6 @@ class RecurringIncomeController extends Controller
      */
     public function update(UpdateRecurringIncomeRequest $request, RecurringIncome $recurringIncome): RedirectResponse
     {
-        if (! $this->recurringIncomeService->userOwnsRecurringIncome(Auth::user(), $recurringIncome)) {
-            abort(403);
-        }
-
         $this->recurringIncomeService->updateRecurringIncome($recurringIncome, $request->validated());
 
         return redirect()->route('recurring-incomes.index')
@@ -120,10 +108,6 @@ class RecurringIncomeController extends Controller
      */
     public function destroy(RecurringIncome $recurringIncome): RedirectResponse
     {
-        if (! $this->recurringIncomeService->userOwnsRecurringIncome(Auth::user(), $recurringIncome)) {
-            abort(403);
-        }
-
         $this->recurringIncomeService->deleteRecurringIncome($recurringIncome);
 
         return redirect()->route('recurring-incomes.index')

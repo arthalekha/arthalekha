@@ -81,10 +81,6 @@ class TransferController extends Controller
      */
     public function show(Transfer $transfer): View|RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
         $transfer->load(['creditor', 'debtor']);
 
         return view('transfers.show', compact('transfer'));
@@ -95,10 +91,6 @@ class TransferController extends Controller
      */
     public function edit(Transfer $transfer): View|RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
         $accounts = $this->accountService->getAllForUser(Auth::id());
         $tags = $this->tagService->getAll();
         $transfer->load('tags');
@@ -111,10 +103,6 @@ class TransferController extends Controller
      */
     public function update(UpdateTransferRequest $request, Transfer $transfer): RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
         $this->transferService->updateTransfer($transfer, $request->validated());
 
         return redirect()->route('transfers.index')
@@ -126,10 +114,6 @@ class TransferController extends Controller
      */
     public function destroy(Transfer $transfer): RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
         $this->transferService->deleteTransfer($transfer);
 
         return redirect()->route('transfers.index')

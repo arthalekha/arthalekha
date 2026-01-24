@@ -85,10 +85,6 @@ class IncomeController extends Controller
      */
     public function show(Income $income): View|RedirectResponse
     {
-        if (! $this->incomeService->userOwnsIncome(Auth::user(), $income)) {
-            abort(403);
-        }
-
         $income->load(['account', 'person']);
 
         return view('incomes.show', compact('income'));
@@ -99,10 +95,6 @@ class IncomeController extends Controller
      */
     public function edit(Income $income): View|RedirectResponse
     {
-        if (! $this->incomeService->userOwnsIncome(Auth::user(), $income)) {
-            abort(403);
-        }
-
         $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = $this->personService->getAll();
         $tags = $this->tagService->getAll();
@@ -116,10 +108,6 @@ class IncomeController extends Controller
      */
     public function update(UpdateIncomeRequest $request, Income $income): RedirectResponse
     {
-        if (! $this->incomeService->userOwnsIncome(Auth::user(), $income)) {
-            abort(403);
-        }
-
         $this->incomeService->updateIncome($income, $request->validated());
 
         return redirect()->route('incomes.index')
@@ -131,10 +119,6 @@ class IncomeController extends Controller
      */
     public function destroy(Income $income): RedirectResponse
     {
-        if (! $this->incomeService->userOwnsIncome(Auth::user(), $income)) {
-            abort(403);
-        }
-
         $this->incomeService->deleteIncome($income);
 
         return redirect()->route('incomes.index')

@@ -73,10 +73,6 @@ class RecurringExpenseController extends Controller
      */
     public function show(RecurringExpense $recurringExpense): View|RedirectResponse
     {
-        if (! $this->recurringExpenseService->userOwnsRecurringExpense(Auth::user(), $recurringExpense)) {
-            abort(403);
-        }
-
         $recurringExpense->load(['account', 'person', 'tags']);
 
         return view('recurring-expenses.show', compact('recurringExpense'));
@@ -87,10 +83,6 @@ class RecurringExpenseController extends Controller
      */
     public function edit(RecurringExpense $recurringExpense): View|RedirectResponse
     {
-        if (! $this->recurringExpenseService->userOwnsRecurringExpense(Auth::user(), $recurringExpense)) {
-            abort(403);
-        }
-
         $accounts = $this->accountService->getAllForUser(Auth::id());
         $people = $this->personService->getAll();
         $frequencies = Frequency::cases();
@@ -105,10 +97,6 @@ class RecurringExpenseController extends Controller
      */
     public function update(UpdateRecurringExpenseRequest $request, RecurringExpense $recurringExpense): RedirectResponse
     {
-        if (! $this->recurringExpenseService->userOwnsRecurringExpense(Auth::user(), $recurringExpense)) {
-            abort(403);
-        }
-
         $this->recurringExpenseService->updateRecurringExpense($recurringExpense, $request->validated());
 
         return redirect()->route('recurring-expenses.index')
@@ -120,10 +108,6 @@ class RecurringExpenseController extends Controller
      */
     public function destroy(RecurringExpense $recurringExpense): RedirectResponse
     {
-        if (! $this->recurringExpenseService->userOwnsRecurringExpense(Auth::user(), $recurringExpense)) {
-            abort(403);
-        }
-
         $this->recurringExpenseService->deleteRecurringExpense($recurringExpense);
 
         return redirect()->route('recurring-expenses.index')

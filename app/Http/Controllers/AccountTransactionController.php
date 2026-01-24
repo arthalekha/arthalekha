@@ -11,7 +11,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 
 class AccountTransactionController extends Controller
 {
@@ -20,10 +19,6 @@ class AccountTransactionController extends Controller
      */
     public function __invoke(Request $request, Account $account): View
     {
-        if ($account->user_id !== Auth::id()) {
-            abort(403);
-        }
-
         $filters = [
             'from_date' => $request->input('filter.from_date', Carbon::now()->startOfMonth()->format('Y-m-d')),
             'to_date' => $request->input('filter.to_date', Carbon::now()->endOfMonth()->format('Y-m-d')),

@@ -25,9 +25,9 @@
                 @includeWhen(request()->routeIs('family.*'), 'layouts.family-nav')
             @endauth
         </div>
-        <div class="flex-none gap-2">
+        <div class="flex-none flex items-center gap-2">
             @auth
-                <form method="POST" action="{{ route('mode.toggle') }}" class="flex items-center">
+                <form method="POST" action="{{ route('mode.toggle') }}">
                     @csrf
                     <input type="hidden" name="route" value="{{ request()->route()->getName() }}">
                     <label class="swap btn btn-ghost btn-circle {{ request()->routeIs('family.*') ? 'btn-primary' : '' }}">

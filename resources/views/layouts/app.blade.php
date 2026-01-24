@@ -21,24 +21,8 @@
         <div class="flex-1">
             <a href="{{ url('/') }}" class="btn btn-ghost text-xl">{{ config('app.name', 'Laravel') }}</a>
             @auth
-                <ul class="menu menu-horizontal px-1">
-                    <li><a href="{{ route('accounts.index') }}" class="{{ request()->routeIs('accounts.*') ? 'active' : '' }}">Accounts</a></li>
-                    <li><a href="{{ route('incomes.index') }}" class="{{ request()->routeIs('incomes.*') ? 'active' : '' }}">Incomes</a></li>
-                    <li><a href="{{ route('expenses.index') }}" class="{{ request()->routeIs('expenses.*') ? 'active' : '' }}">Expenses</a></li>
-                    <li><a href="{{ route('transfers.index') }}" class="{{ request()->routeIs('transfers.*') ? 'active' : '' }}">Transfers</a></li>
-                    <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">Tags</a></li>
-                    <li><a href="{{ route('projected-dashboard') }}" class="{{ request()->routeIs('projected-dashboard') ? 'active' : '' }}">Projections</a></li>
-                    <li>
-                        <details>
-                            <summary class="{{ request()->routeIs('recurring-*') ? 'active' : '' }}">Recurring</summary>
-                            <ul class="bg-base-100 rounded-t-none p-2 z-[1] w-48">
-                                <li><a href="{{ route('recurring-incomes.index') }}" class="{{ request()->routeIs('recurring-incomes.*') ? 'active' : '' }}">Incomes</a></li>
-                                <li><a href="{{ route('recurring-expenses.index') }}" class="{{ request()->routeIs('recurring-expenses.*') ? 'active' : '' }}">Expenses</a></li>
-                                <li><a href="{{ route('recurring-transfers.index') }}" class="{{ request()->routeIs('recurring-transfers.*') ? 'active' : '' }}">Transfers</a></li>
-                            </ul>
-                        </details>
-                    </li>
-                </ul>
+                @includeUnless(request()->routeIs('family.*'), 'layouts.individual-nav')
+                @includeWhen(request()->routeIs('family.*'), 'layouts.family-nav')
             @endauth
         </div>
         <div class="flex-none gap-2">

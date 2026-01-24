@@ -145,7 +145,7 @@ test('user cannot view another users income', function () {
 
     $this->actingAs($this->user)
         ->get(route('incomes.show', $otherIncome))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can view edit form for their own income', function () {
@@ -184,7 +184,7 @@ test('authenticated user cannot view edit form for another users income', functi
 
     $this->actingAs($this->user)
         ->get(route('incomes.edit', $otherIncome))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('user cannot update another users income', function () {
@@ -197,7 +197,7 @@ test('user cannot update another users income', function () {
             'transacted_at' => now()->format('Y-m-d H:i:s'),
             'amount' => 100,
         ])
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can delete their own income', function () {
@@ -216,7 +216,7 @@ test('user cannot delete another users income', function () {
 
     $this->actingAs($this->user)
         ->delete(route('incomes.destroy', $otherIncome))
-        ->assertForbidden();
+        ->assertNotFound();
 
     $this->assertDatabaseHas('incomes', ['id' => $otherIncome->id]);
 });

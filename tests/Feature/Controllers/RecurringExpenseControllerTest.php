@@ -186,7 +186,7 @@ test('user cannot view another users recurring expense', function () {
 
     $this->actingAs($this->user)
         ->get(route('recurring-expenses.show', $otherRecurringExpense))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can view edit form for their own recurring expense', function () {
@@ -232,7 +232,7 @@ test('user cannot update another users recurring expense', function () {
             'amount' => 100,
             'frequency' => Frequency::Monthly->value,
         ])
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can delete their own recurring expense', function () {
@@ -251,7 +251,7 @@ test('user cannot delete another users recurring expense', function () {
 
     $this->actingAs($this->user)
         ->delete(route('recurring-expenses.destroy', $otherRecurringExpense))
-        ->assertForbidden();
+        ->assertNotFound();
 
     $this->assertDatabaseHas('recurring_expenses', ['id' => $otherRecurringExpense->id]);
 });

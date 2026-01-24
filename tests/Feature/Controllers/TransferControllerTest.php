@@ -149,7 +149,7 @@ test('user cannot view another users transfer', function () {
 
     $this->actingAs($this->user)
         ->get(route('transfers.show', $otherTransfer))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can view edit form for their own transfer', function () {
@@ -203,7 +203,7 @@ test('user cannot update another users transfer', function () {
             'transacted_at' => now()->format('Y-m-d H:i:s'),
             'amount' => 100,
         ])
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can delete their own transfer', function () {
@@ -226,7 +226,7 @@ test('user cannot delete another users transfer', function () {
 
     $this->actingAs($this->user)
         ->delete(route('transfers.destroy', $otherTransfer))
-        ->assertForbidden();
+        ->assertNotFound();
 
     $this->assertDatabaseHas('transfers', ['id' => $otherTransfer->id]);
 });

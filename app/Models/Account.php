@@ -6,8 +6,10 @@ use App\Data\AccountData\AccountData;
 use App\Data\AccountData\CreditCardAccountData;
 use App\Data\AccountData\SavingsAccountData;
 use App\Enums\AccountType;
+use App\Models\Scopes\FamilyUserScope;
 use App\Observers\AccountObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Date;
 
 #[ObservedBy(AccountObserver::class)]
+#[ScopedBy(FamilyUserScope::class)]
 class Account extends Model
 {
     /** @use HasFactory<\Database\Factories\AccountFactory> */

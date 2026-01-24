@@ -57,7 +57,6 @@ class AccountService
     public function getAccountsForUser(User $user, int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Account::class)
-            ->where('user_id', $user->id)
             ->allowedFilters([
                 AllowedFilter::exact('account_type'),
                 AllowedFilter::partial('name'),

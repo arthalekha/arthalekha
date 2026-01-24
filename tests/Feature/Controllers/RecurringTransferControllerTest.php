@@ -197,7 +197,7 @@ test('user cannot view another users recurring transfer', function () {
 
     $this->actingAs($this->user)
         ->get(route('recurring-transfers.show', $otherRecurringTransfer))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can view edit form for their own recurring transfer', function () {
@@ -253,7 +253,7 @@ test('user cannot update another users recurring transfer', function () {
             'amount' => 100,
             'frequency' => Frequency::Monthly->value,
         ])
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can delete their own recurring transfer', function () {
@@ -276,7 +276,7 @@ test('user cannot delete another users recurring transfer', function () {
 
     $this->actingAs($this->user)
         ->delete(route('recurring-transfers.destroy', $otherRecurringTransfer))
-        ->assertForbidden();
+        ->assertNotFound();
 
     $this->assertDatabaseHas('recurring_transfers', ['id' => $otherRecurringTransfer->id]);
 });

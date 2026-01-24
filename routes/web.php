@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
         'as' => 'family.',
         'prefix' => 'family',
     ], function () {
+        Route::get('home', HomeController::class)->name('home');
         Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
         Route::get('incomes', [IncomeController::class, 'index'])->name('incomes.index');
         Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');

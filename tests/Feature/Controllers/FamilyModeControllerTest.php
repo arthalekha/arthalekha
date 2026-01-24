@@ -73,6 +73,7 @@ test('toggle works for all supported routes', function (string $regularRoute, st
         ->post(route('mode.toggle'), ['route' => $familyRoute])
         ->assertRedirect(route($regularRoute));
 })->with([
+    'home' => ['home', 'family.home'],
     'accounts' => ['accounts.index', 'family.accounts.index'],
     'incomes' => ['incomes.index', 'family.incomes.index'],
     'expenses' => ['expenses.index', 'family.expenses.index'],
@@ -317,6 +318,7 @@ test('family routes require authentication', function (string $route) {
     $this->get(route($route))
         ->assertRedirect(route('login'));
 })->with([
+    'family.home',
     'family.accounts.index',
     'family.incomes.index',
     'family.expenses.index',
@@ -332,6 +334,11 @@ test('family routes require authentication', function (string $route) {
 | Family Routes - View Structure Tests
 |--------------------------------------------------------------------------
 */
+test('family home uses correct view', function () {
+    $this->actingAs($this->user)
+        ->get(route('family.home'))
+        ->assertViewIs('home');
+});
 
 test('family accounts index uses correct view', function () {
     $this->actingAs($this->user)

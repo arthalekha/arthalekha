@@ -54,7 +54,7 @@ class AccountService
     /**
      * Get paginated accounts for a user.
      */
-    public function getAccountsForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getAccounts(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Account::class)
             ->allowedFilters([
@@ -63,7 +63,7 @@ class AccountService
             ])
             ->defaultSort('-created_at')
             ->paginate($perPage)
-            ->appends(request()->query());
+            ->withQueryString();
     }
 
     /**

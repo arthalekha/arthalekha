@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountProjectedBalanceController;
 use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\FamilyModeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\InviteUserController;
@@ -43,4 +44,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/invite', [InviteUserController::class, 'create'])->name('users.invite');
     Route::post('users/invite', [InviteUserController::class, 'store'])->name('users.invite.store');
+
+    Route::post('mode/toggle', FamilyModeController::class)->name('mode.toggle');
 });

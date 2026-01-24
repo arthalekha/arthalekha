@@ -75,7 +75,6 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Type</th>
-                                <th>Identifier</th>
                                 <th class="text-right">Current Balance</th>
                                 <th>Initial Date</th>
                                 <th class="text-right">Actions</th>
@@ -84,12 +83,9 @@
                         <tbody>
                             @foreach ($accounts as $account)
                                 <tr>
-                                    <td class="font-medium">{{ $account->name }}</td>
+                                    <td class="font-medium">{{ $account->label }}</td>
                                     <td>
                                         <span class="badge badge-ghost">{{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }}</span>
-                                    </td>
-                                    <td class="text-sm text-base-content/70">
-                                        {{ $account->identifier ?? '-' }}
                                     </td>
                                     <td class="text-right font-mono {{ $account->current_balance >= 0 ? 'text-success' : 'text-error' }}">
                                         {{ number_format($account->current_balance, 2) }}

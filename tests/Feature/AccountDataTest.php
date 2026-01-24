@@ -56,12 +56,14 @@ describe('CreditCardAccountData', function () {
             'interest_frequency' => 'monthly',
             'bill_generated_on' => 15,
             'repayment_of_bill_after_days' => 20,
+            'credit_limit' => 50000.00,
         ]);
 
         expect($data->rateOfInterest)->toBe(24.0)
             ->and($data->interestFrequency)->toBe('monthly')
             ->and($data->billGeneratedOn)->toBe(15)
-            ->and($data->repaymentOfBillAfterDays)->toBe(20);
+            ->and($data->repaymentOfBillAfterDays)->toBe(20)
+            ->and($data->creditLimit)->toBe(50000.00);
     });
 
     it('can be converted to array', function () {
@@ -70,6 +72,7 @@ describe('CreditCardAccountData', function () {
             interestFrequency: 'monthly',
             billGeneratedOn: 15,
             repaymentOfBillAfterDays: 20,
+            creditLimit: 50000.00,
         );
 
         expect($data->toArray())->toBe([
@@ -77,6 +80,7 @@ describe('CreditCardAccountData', function () {
             'interest_frequency' => 'monthly',
             'bill_generated_on' => 15,
             'repayment_of_bill_after_days' => 20,
+            'credit_limit' => 50000.00,
         ]);
     });
 
@@ -86,7 +90,8 @@ describe('CreditCardAccountData', function () {
         expect($data->rateOfInterest)->toBeNull()
             ->and($data->interestFrequency)->toBeNull()
             ->and($data->billGeneratedOn)->toBeNull()
-            ->and($data->repaymentOfBillAfterDays)->toBeNull();
+            ->and($data->repaymentOfBillAfterDays)->toBeNull()
+            ->and($data->creditLimit)->toBeNull();
     });
 });
 

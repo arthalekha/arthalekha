@@ -278,6 +278,7 @@ test('authenticated user can create a credit card account with additional data',
             'interest_frequency' => Frequency::Monthly->value,
             'bill_generated_on' => 15,
             'repayment_of_bill_after_days' => 20,
+            'credit_limit' => 50000.00,
         ],
     ];
 
@@ -292,6 +293,7 @@ test('authenticated user can create a credit card account with additional data',
         'interest_frequency' => Frequency::Monthly->value,
         'bill_generated_on' => 15,
         'repayment_of_bill_after_days' => 20,
+        'credit_limit' => 50000.00,
     ]);
 });
 
@@ -509,3 +511,242 @@ test('show page passes average balance to view for savings account', function ()
         ->assertSuccessful()
         ->assertViewHas('averageBalance', fn ($value) => abs($value - 1400.0) < 0.01);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Dataset-Based Validation Tests
+|--------------------------------------------------------------------------
+*/
+
+test('account can be created for all account types', function (AccountType $accountType) {
+    $accountData = [
+        'name' => "Test {$accountType->value} Account",
+        'account_type' => $accountType->value,
+        'initial_balance' => 1000.00,
+        'initial_date' => '2025-01-01',
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('accounts', [
+        'name' => "Test {$accountType->value} Account",
+        'account_type' => $accountType->value,
+        'user_id' => $this->user->id,
+    ]);
+})->with([
+    'Cash' => [AccountType::Cash],
+    'Savings' => [AccountType::Savings],
+    'CreditCard' => [AccountType::CreditCard],
+    'Wallet' => [AccountType::Wallet],
+    'Investment' => [AccountType::Investment],
+    'Loan' => [AccountType::Loan],
+    'Other' => [AccountType::Other],
+]);
+
+test('savings account validates data fields correctly', function (string $field, mixed $invalidValue, string $errorField) {
+    $accountData = [
+        'name' => 'Test Savings',
+        'account_type' => AccountType::Savings->value,
+        'initial_balance' => 1000,
+        'initial_date' => '2025-01-01',
+        'data' => [
+            $field => $invalidValue,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertSessionHasErrors($errorField);
+})->with([
+    'rate_of_interest exceeds max' => ['rate_of_interest', 150, 'data.rate_of_interest'],
+    'rate_of_interest negative' => ['rate_of_interest', -5, 'data.rate_of_interest'],
+    'interest_frequency invalid enum' => ['interest_frequency', 'invalid', 'data.interest_frequency'],
+    'average_balance_frequency invalid enum' => ['average_balance_frequency', 'invalid', 'data.average_balance_frequency'],
+    'average_balance_amount negative' => ['average_balance_amount', -100, 'data.average_balance_amount'],
+]);
+
+test('credit card account validates data fields correctly', function (string $field, mixed $invalidValue, string $errorField) {
+    $accountData = [
+        'name' => 'Test Credit Card',
+        'account_type' => AccountType::CreditCard->value,
+        'initial_balance' => 0,
+        'initial_date' => '2025-01-01',
+        'data' => [
+            $field => $invalidValue,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertSessionHasErrors($errorField);
+})->with([
+    'rate_of_interest exceeds max' => ['rate_of_interest', 150, 'data.rate_of_interest'],
+    'rate_of_interest negative' => ['rate_of_interest', -5, 'data.rate_of_interest'],
+    'interest_frequency invalid enum' => ['interest_frequency', 'invalid', 'data.interest_frequency'],
+    'bill_generated_on too low' => ['bill_generated_on', 0, 'data.bill_generated_on'],
+    'bill_generated_on too high' => ['bill_generated_on', 32, 'data.bill_generated_on'],
+    'repayment_of_bill_after_days too low' => ['repayment_of_bill_after_days', 0, 'data.repayment_of_bill_after_days'],
+    'repayment_of_bill_after_days too high' => ['repayment_of_bill_after_days', 61, 'data.repayment_of_bill_after_days'],
+    'credit_limit negative' => ['credit_limit', -1000, 'data.credit_limit'],
+]);
+
+test('savings account accepts valid data fields', function (string $field, mixed $validValue) {
+    $accountData = [
+        'name' => 'Test Savings',
+        'account_type' => AccountType::Savings->value,
+        'initial_balance' => 1000,
+        'initial_date' => '2025-01-01',
+        'data' => [
+            $field => $validValue,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+})->with([
+    'rate_of_interest at 0' => ['rate_of_interest', 0],
+    'rate_of_interest at 100' => ['rate_of_interest', 100],
+    'rate_of_interest decimal' => ['rate_of_interest', 5.75],
+    'interest_frequency monthly' => ['interest_frequency', Frequency::Monthly->value],
+    'interest_frequency quarterly' => ['interest_frequency', Frequency::Quarterly->value],
+    'average_balance_frequency monthly' => ['average_balance_frequency', Frequency::Monthly->value],
+    'average_balance_amount zero' => ['average_balance_amount', 0],
+    'average_balance_amount positive' => ['average_balance_amount', 10000],
+]);
+
+test('credit card account accepts valid data fields', function (string $field, mixed $validValue) {
+    $accountData = [
+        'name' => 'Test Credit Card',
+        'account_type' => AccountType::CreditCard->value,
+        'initial_balance' => 0,
+        'initial_date' => '2025-01-01',
+        'data' => [
+            $field => $validValue,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+})->with([
+    'rate_of_interest at 0' => ['rate_of_interest', 0],
+    'rate_of_interest at 100' => ['rate_of_interest', 100],
+    'rate_of_interest decimal' => ['rate_of_interest', 24.99],
+    'interest_frequency monthly' => ['interest_frequency', Frequency::Monthly->value],
+    'bill_generated_on at 1' => ['bill_generated_on', 1],
+    'bill_generated_on at 31' => ['bill_generated_on', 31],
+    'bill_generated_on mid month' => ['bill_generated_on', 15],
+    'repayment_of_bill_after_days at 1' => ['repayment_of_bill_after_days', 1],
+    'repayment_of_bill_after_days at 60' => ['repayment_of_bill_after_days', 60],
+    'repayment_of_bill_after_days typical' => ['repayment_of_bill_after_days', 20],
+    'credit_limit zero' => ['credit_limit', 0],
+    'credit_limit positive' => ['credit_limit', 100000],
+    'credit_limit decimal' => ['credit_limit', 50000.50],
+]);
+
+test('update savings account validates data fields correctly', function (string $field, mixed $invalidValue, string $errorField) {
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::Savings)
+        ->create();
+
+    $updateData = [
+        'name' => 'Updated Savings',
+        'initial_balance' => 1000,
+        'initial_date' => '2025-01-01',
+        'data' => [
+            $field => $invalidValue,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('accounts.update', $account), $updateData)
+        ->assertSessionHasErrors($errorField);
+})->with([
+    'rate_of_interest exceeds max' => ['rate_of_interest', 150, 'data.rate_of_interest'],
+    'rate_of_interest negative' => ['rate_of_interest', -5, 'data.rate_of_interest'],
+    'interest_frequency invalid enum' => ['interest_frequency', 'invalid', 'data.interest_frequency'],
+    'average_balance_frequency invalid enum' => ['average_balance_frequency', 'invalid', 'data.average_balance_frequency'],
+    'average_balance_amount negative' => ['average_balance_amount', -100, 'data.average_balance_amount'],
+]);
+
+test('update credit card account validates data fields correctly', function (string $field, mixed $invalidValue, string $errorField) {
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::CreditCard)
+        ->create();
+
+    $updateData = [
+        'name' => 'Updated Credit Card',
+        'initial_balance' => 0,
+        'initial_date' => '2025-01-01',
+        'data' => [
+            $field => $invalidValue,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('accounts.update', $account), $updateData)
+        ->assertSessionHasErrors($errorField);
+})->with([
+    'rate_of_interest exceeds max' => ['rate_of_interest', 150, 'data.rate_of_interest'],
+    'rate_of_interest negative' => ['rate_of_interest', -5, 'data.rate_of_interest'],
+    'interest_frequency invalid enum' => ['interest_frequency', 'invalid', 'data.interest_frequency'],
+    'bill_generated_on too low' => ['bill_generated_on', 0, 'data.bill_generated_on'],
+    'bill_generated_on too high' => ['bill_generated_on', 32, 'data.bill_generated_on'],
+    'repayment_of_bill_after_days too low' => ['repayment_of_bill_after_days', 0, 'data.repayment_of_bill_after_days'],
+    'repayment_of_bill_after_days too high' => ['repayment_of_bill_after_days', 61, 'data.repayment_of_bill_after_days'],
+    'credit_limit negative' => ['credit_limit', -1000, 'data.credit_limit'],
+]);
+
+test('account types without special data do not validate savings or credit card fields', function (AccountType $accountType) {
+    $accountData = [
+        'name' => "Test {$accountType->value}",
+        'account_type' => $accountType->value,
+        'initial_balance' => 1000,
+        'initial_date' => '2025-01-01',
+        'data' => [
+            'rate_of_interest' => 150, // Would fail for Savings/CreditCard
+            'bill_generated_on' => 50, // Would fail for CreditCard
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+})->with([
+    'Cash' => [AccountType::Cash],
+    'Wallet' => [AccountType::Wallet],
+    'Investment' => [AccountType::Investment],
+    'Loan' => [AccountType::Loan],
+    'Other' => [AccountType::Other],
+]);
+
+test('base account validation fails for all account types', function (AccountType $accountType, array $invalidData, string $errorField) {
+    $accountData = array_merge([
+        'account_type' => $accountType->value,
+        'initial_date' => '2025-01-01',
+    ], $invalidData);
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.store'), $accountData)
+        ->assertSessionHasErrors($errorField);
+})->with([
+    'Cash missing name' => [AccountType::Cash, ['initial_balance' => 100], 'name'],
+    'Savings missing name' => [AccountType::Savings, ['initial_balance' => 100], 'name'],
+    'CreditCard missing name' => [AccountType::CreditCard, ['initial_balance' => 0], 'name'],
+    'Wallet missing name' => [AccountType::Wallet, ['initial_balance' => 100], 'name'],
+    'Investment missing name' => [AccountType::Investment, ['initial_balance' => 100], 'name'],
+    'Loan missing name' => [AccountType::Loan, ['initial_balance' => 100], 'name'],
+    'Other missing name' => [AccountType::Other, ['initial_balance' => 100], 'name'],
+    'Cash missing initial_balance' => [AccountType::Cash, ['name' => 'Test'], 'initial_balance'],
+    'Savings missing initial_balance' => [AccountType::Savings, ['name' => 'Test'], 'initial_balance'],
+    'CreditCard missing initial_balance' => [AccountType::CreditCard, ['name' => 'Test'], 'initial_balance'],
+]);

@@ -9,6 +9,7 @@ readonly class CreditCardAccountData implements AccountData
         public ?string $interestFrequency = null,
         public ?int $billGeneratedOn = null,
         public ?int $repaymentOfBillAfterDays = null,
+        public ?float $creditLimit = null,
     ) {}
 
     /**
@@ -21,6 +22,7 @@ readonly class CreditCardAccountData implements AccountData
             'interest_frequency' => $this->interestFrequency,
             'bill_generated_on' => $this->billGeneratedOn,
             'repayment_of_bill_after_days' => $this->repaymentOfBillAfterDays,
+            'credit_limit' => $this->creditLimit,
         ];
     }
 
@@ -34,6 +36,7 @@ readonly class CreditCardAccountData implements AccountData
             interestFrequency: $data['interest_frequency'] ?? null,
             billGeneratedOn: $data['bill_generated_on'] ?? null,
             repaymentOfBillAfterDays: $data['repayment_of_bill_after_days'] ?? null,
+            creditLimit: $data['credit_limit'] ?? null,
         );
     }
 }

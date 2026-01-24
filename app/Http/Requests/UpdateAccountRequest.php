@@ -44,6 +44,7 @@ class UpdateAccountRequest extends FormRequest
                 'data.interest_frequency' => ['nullable', Rule::enum(Frequency::class)],
                 'data.bill_generated_on' => ['nullable', 'integer', 'min:1', 'max:31'],
                 'data.repayment_of_bill_after_days' => ['nullable', 'integer', 'min:1', 'max:60'],
+                'data.credit_limit' => ['nullable', 'numeric', 'min:0'],
             ],
             default => [],
         };

@@ -51,45 +51,6 @@ class BalanceService
     }
 
     /**
-     * Backfill balance records for an account from the first transaction to the previous month.
-     *
-     * @return int Number of balance records processed
-     */
-    public function backfillBalancesForAccount(Account $account): int
-    {
-        $firstTransactionDate = $this->getFirstTransactionDate($account);
-
-        if (! $firstTransactionDate) {
-            $firstTransactionDate = $account->initial_date;
-        }
-
-        $startMonth = Carbon::parse($firstTransactionDate)->startOfMonth();
-        $endMonth = Carbon::now()->subMonth()->endOfMonth();
-
-        if ($startMonth->greaterThan($endMonth)) {
-            return 0;
-        }
-
-        $processed = 0;
-        $runningBalance = (float) $account->initial_balance;
-        $currentMonth = $startMonth->copy();
-
-        while ($currentMonth->lte($endMonth)) {
-            $monthEnd = $currentMonth->copy()->endOfMonth();
-
-            $monthlyChange = $this->calculateBalanceForMonth($account, $currentMonth);
-            $runningBalance += $monthlyChange;
-
-            $this->saveBalance($account, $monthEnd, $runningBalance);
-            $processed++;
-
-            $currentMonth->addMonth();
-        }
-
-        return $processed;
-    }
-
-    /**
      * Save or update a balance record for an account.
      */
     public function saveBalance(Account $account, CarbonInterface $date, float $balance): Balance

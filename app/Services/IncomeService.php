@@ -20,12 +20,11 @@ class IncomeService
     ) {}
 
     /**
-     * Get paginated incomes for a user with filters.
+     * Get paginated incomes with filters.
      */
-    public function getIncomesForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getIncomes(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Income::class)
-            ->where('user_id', $user->id)
             ->with(['account', 'person'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
@@ -43,10 +42,9 @@ class IncomeService
     /**
      * Get incomes query for export with filters.
      */
-    public function getIncomesQueryForExport(User $user): Builder
+    public function getIncomesQueryForExport(): Builder
     {
         return QueryBuilder::for(Income::class)
-            ->where('user_id', $user->id)
             ->with(['account', 'person', 'tags'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
@@ -114,13 +112,5 @@ class IncomeService
 
             return $income->delete();
         });
-    }
-
-    /**
-     * Check if the user owns the income.
-     */
-    public function userOwnsIncome(User $user, Income $income): bool
-    {
-        return $income->user_id === $user->id;
     }
 }

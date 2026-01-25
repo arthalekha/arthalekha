@@ -4,7 +4,6 @@ use App\Enums\AccountType;
 use App\Models\Account;
 use App\Models\Balance;
 use App\Models\User;
-use App\Services\AccountService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -120,43 +119,6 @@ test('data can be null', function () {
     ]);
 
     expect($account->data)->toBeNull();
-});
-
-test('creating account calls AccountService clearCache', function () {
-    $accountService = Mockery::mock(AccountService::class);
-    $accountService->shouldReceive('clearCache')
-        ->once()
-        ->with($this->user->id);
-
-    app()->instance(AccountService::class, $accountService);
-
-    Account::factory()->forUser($this->user)->create();
-});
-
-test('updating account calls AccountService clearCache', function () {
-    $account = Account::factory()->forUser($this->user)->create();
-
-    $accountService = Mockery::mock(AccountService::class);
-    $accountService->shouldReceive('clearCache')
-        ->once()
-        ->with($this->user->id);
-
-    app()->instance(AccountService::class, $accountService);
-
-    $account->update(['name' => 'Updated Name']);
-});
-
-test('deleting account calls AccountService clearCache', function () {
-    $account = Account::factory()->forUser($this->user)->create();
-
-    $accountService = Mockery::mock(AccountService::class);
-    $accountService->shouldReceive('clearCache')
-        ->once()
-        ->with($this->user->id);
-
-    app()->instance(AccountService::class, $accountService);
-
-    $account->delete();
 });
 
 test('forUser factory state works correctly', function () {

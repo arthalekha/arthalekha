@@ -22,7 +22,7 @@ test('user cannot access another users account balances', function () {
 
     $this->actingAs($this->user)
         ->get(route('accounts.balances', $otherAccount))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can view their account balances', function () {

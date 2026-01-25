@@ -31,7 +31,7 @@ test('user cannot access another users account projected balance', function () {
 
     $this->actingAs($this->user)
         ->get(route('accounts.projected-balance', $otherAccount))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can view their account projected balance', function () {

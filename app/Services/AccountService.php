@@ -8,63 +8,39 @@ use App\Models\Income;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class AccountService
 {
-    private const CACHE_TTL = 3600; // 1 hour
-
     public function __construct(
         protected BalanceService $balanceService,
     ) {}
 
     /**
-     * Get all accounts for a user (cached).
+     * Get all accounts.
      *
      * @return Collection<int, Account>
      */
-    public function getAllForUser(int $userId): Collection
+    public function getAll(): Collection
     {
-        return Cache::remember(
-            $this->getCacheKey($userId),
-            self::CACHE_TTL,
-            fn () => Account::where('user_id', $userId)->get()
-        );
+        return Account::all();
     }
 
     /**
-     * Clear the accounts cache for a user.
+     * Get paginated accounts.
      */
-    public function clearCache(int $userId): void
-    {
-        Cache::forget($this->getCacheKey($userId));
-    }
-
-    /**
-     * Get the cache key for a user's accounts.
-     */
-    private function getCacheKey(int $userId): string
-    {
-        return "user.{$userId}.accounts";
-    }
-
-    /**
-     * Get paginated accounts for a user.
-     */
-    public function getAccountsForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getAccounts(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Account::class)
-            ->where('user_id', $user->id)
             ->allowedFilters([
                 AllowedFilter::exact('account_type'),
                 AllowedFilter::partial('name'),
             ])
             ->defaultSort('-created_at')
             ->paginate($perPage)
-            ->appends(request()->query());
+            ->withQueryString();
     }
 
     /**
@@ -77,17 +53,13 @@ class AccountService
         $data['user_id'] = $user->id;
         $data['current_balance'] = $data['initial_balance'] ?? 0;
 
-        $account = DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data) {
             $account = Account::create($data);
 
             $this->balanceService->createInitialBalanceEntries($account);
 
             return $account;
         });
-
-        $this->clearCache($user->id);
-
-        return $account;
     }
 
     /**
@@ -99,8 +71,6 @@ class AccountService
     {
         $account->update($data);
 
-        $this->clearCache($account->user_id);
-
         return $account->fresh();
     }
 
@@ -109,21 +79,7 @@ class AccountService
      */
     public function deleteAccount(Account $account): bool
     {
-        $userId = $account->user_id;
-
-        $result = $account->delete();
-
-        $this->clearCache($userId);
-
-        return $result;
-    }
-
-    /**
-     * Check if the user owns the account.
-     */
-    public function userOwnsAccount(User $user, Account $account): bool
-    {
-        return $account->user_id === $user->id;
+        return $account->delete();
     }
 
     /**

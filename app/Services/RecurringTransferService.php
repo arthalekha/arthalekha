@@ -11,12 +11,11 @@ use Spatie\QueryBuilder\QueryBuilder;
 class RecurringTransferService
 {
     /**
-     * Get paginated recurring transfers for a user with filters.
+     * Get paginated recurring transfers with filters.
      */
-    public function getRecurringTransfersForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getRecurringTransfers(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(RecurringTransfer::class)
-            ->where('user_id', $user->id)
             ->with(['creditor', 'debtor', 'tags'])
             ->allowedFilters([
                 AllowedFilter::partial('search', 'description'),
@@ -68,13 +67,5 @@ class RecurringTransferService
     public function deleteRecurringTransfer(RecurringTransfer $recurringTransfer): bool
     {
         return $recurringTransfer->delete();
-    }
-
-    /**
-     * Check if the user owns the recurring transfer.
-     */
-    public function userOwnsRecurringTransfer(User $user, RecurringTransfer $recurringTransfer): bool
-    {
-        return $recurringTransfer->user_id === $user->id;
     }
 }

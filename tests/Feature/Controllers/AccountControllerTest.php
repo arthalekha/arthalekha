@@ -136,7 +136,7 @@ test('user cannot view another users account', function () {
 
     $this->actingAs($this->user)
         ->get(route('accounts.show', $account))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can view edit form for their own account', function () {
@@ -155,7 +155,7 @@ test('user cannot edit another users account', function () {
 
     $this->actingAs($this->user)
         ->get(route('accounts.edit', $account))
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('authenticated user can update their own account', function () {
@@ -193,7 +193,7 @@ test('user cannot update another users account', function () {
             'initial_balance' => 0,
             'initial_date' => '2025-01-01',
         ])
-        ->assertForbidden();
+        ->assertNotFound();
 });
 
 test('account type cannot be changed during update', function () {
@@ -232,7 +232,7 @@ test('user cannot delete another users account', function () {
 
     $this->actingAs($this->user)
         ->delete(route('accounts.destroy', $account))
-        ->assertForbidden();
+        ->assertNotFound();
 
     $this->assertDatabaseHas('accounts', ['id' => $account->id]);
 });

@@ -34,8 +34,8 @@ class RecurringTransferController extends Controller
             'frequency' => $request->input('filter.frequency'),
         ];
 
-        $recurringTransfers = $this->recurringTransferService->getRecurringTransfersForUser(Auth::user());
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $recurringTransfers = $this->recurringTransferService->getRecurringTransfers();
+        $accounts = $this->accountService->getAll();
         $frequencies = Frequency::cases();
 
         return view('recurring-transfers.index', compact('recurringTransfers', 'accounts', 'frequencies', 'filters'));
@@ -46,7 +46,7 @@ class RecurringTransferController extends Controller
      */
     public function create(): View
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $frequencies = Frequency::cases();
         $tags = $this->tagService->getAll();
 
@@ -69,10 +69,6 @@ class RecurringTransferController extends Controller
      */
     public function show(RecurringTransfer $recurringTransfer): View|RedirectResponse
     {
-        if (! $this->recurringTransferService->userOwnsRecurringTransfer(Auth::user(), $recurringTransfer)) {
-            abort(403);
-        }
-
         $recurringTransfer->load(['creditor', 'debtor', 'tags']);
 
         return view('recurring-transfers.show', compact('recurringTransfer'));
@@ -83,11 +79,7 @@ class RecurringTransferController extends Controller
      */
     public function edit(RecurringTransfer $recurringTransfer): View|RedirectResponse
     {
-        if (! $this->recurringTransferService->userOwnsRecurringTransfer(Auth::user(), $recurringTransfer)) {
-            abort(403);
-        }
-
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $frequencies = Frequency::cases();
         $tags = $this->tagService->getAll();
         $recurringTransfer->load('tags');
@@ -100,10 +92,6 @@ class RecurringTransferController extends Controller
      */
     public function update(UpdateRecurringTransferRequest $request, RecurringTransfer $recurringTransfer): RedirectResponse
     {
-        if (! $this->recurringTransferService->userOwnsRecurringTransfer(Auth::user(), $recurringTransfer)) {
-            abort(403);
-        }
-
         $this->recurringTransferService->updateRecurringTransfer($recurringTransfer, $request->validated());
 
         return redirect()->route('recurring-transfers.index')
@@ -115,10 +103,6 @@ class RecurringTransferController extends Controller
      */
     public function destroy(RecurringTransfer $recurringTransfer): RedirectResponse
     {
-        if (! $this->recurringTransferService->userOwnsRecurringTransfer(Auth::user(), $recurringTransfer)) {
-            abort(403);
-        }
-
         $this->recurringTransferService->deleteRecurringTransfer($recurringTransfer);
 
         return redirect()->route('recurring-transfers.index')

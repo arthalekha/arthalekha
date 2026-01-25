@@ -27,7 +27,7 @@ class AccountController extends Controller
      */
     public function index(): View
     {
-        $accounts = $this->accountService->getAccountsForUser(Auth::user());
+        $accounts = $this->accountService->getAccounts();
         $accountTypes = AccountType::cases();
 
         return view('accounts.index', compact('accounts', 'accountTypes'));
@@ -60,10 +60,6 @@ class AccountController extends Controller
      */
     public function show(Account $account): View|RedirectResponse
     {
-        if (! $this->accountService->userOwnsAccount(Auth::user(), $account)) {
-            abort(403);
-        }
-
         $averageBalance = null;
         $averageBalanceFrequency = null;
         if ($account->account_type === AccountType::Savings) {
@@ -80,10 +76,6 @@ class AccountController extends Controller
      */
     public function edit(Account $account): View|RedirectResponse
     {
-        if (! $this->accountService->userOwnsAccount(Auth::user(), $account)) {
-            abort(403);
-        }
-
         $accountTypes = AccountType::cases();
         $frequencies = Frequency::cases();
 
@@ -95,10 +87,6 @@ class AccountController extends Controller
      */
     public function update(UpdateAccountRequest $request, Account $account): RedirectResponse
     {
-        if (! $this->accountService->userOwnsAccount(Auth::user(), $account)) {
-            abort(403);
-        }
-
         $this->accountService->updateAccount($account, $request->validated());
 
         return redirect()->route('accounts.index')
@@ -110,10 +98,6 @@ class AccountController extends Controller
      */
     public function destroy(Account $account): RedirectResponse
     {
-        if (! $this->accountService->userOwnsAccount(Auth::user(), $account)) {
-            abort(403);
-        }
-
         $this->accountService->deleteAccount($account);
 
         return redirect()->route('accounts.index')

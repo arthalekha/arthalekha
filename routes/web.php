@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountProjectedBalanceController;
 use App\Http\Controllers\AccountTransactionController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\FamilyModeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\InviteUserController;
@@ -43,4 +44,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/invite', [InviteUserController::class, 'create'])->name('users.invite');
     Route::post('users/invite', [InviteUserController::class, 'store'])->name('users.invite.store');
+
+    Route::post('mode/toggle', FamilyModeController::class)->name('mode.toggle');
+
+    Route::group([
+        'as' => 'family.',
+        'prefix' => 'family',
+    ], function () {
+        Route::get('home', HomeController::class)->name('home');
+        Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
+        Route::get('incomes', [IncomeController::class, 'index'])->name('incomes.index');
+        Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::get('transfers', [TransferController::class, 'index'])->name('transfers.index');
+        Route::get('recurring-incomes', [RecurringIncomeController::class, 'index'])->name('recurring-incomes.index');
+        Route::get('recurring-expenses', [RecurringExpenseController::class, 'index'])->name('recurring-expenses.index');
+        Route::get('recurring-transfers', [RecurringTransferController::class, 'index'])->name('recurring-transfers.index');
+        Route::get('projected-dashboard', ProjectedDashboardController::class)->name('projected-dashboard');
+    });
 });

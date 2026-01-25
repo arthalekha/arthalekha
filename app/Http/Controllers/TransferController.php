@@ -47,8 +47,8 @@ class TransferController extends Controller
             ],
         ]);
 
-        $transfers = $this->transferService->getTransfersForUser(Auth::user());
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $transfers = $this->transferService->getTransfers();
+        $accounts = $this->accountService->getAll();
         $tags = $this->tagService->getAll();
 
         return view('transfers.index', compact('transfers', 'accounts', 'tags', 'filters'));
@@ -59,7 +59,7 @@ class TransferController extends Controller
      */
     public function create(): View
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $tags = $this->tagService->getAll();
 
         return view('transfers.create', compact('accounts', 'tags'));
@@ -81,10 +81,6 @@ class TransferController extends Controller
      */
     public function show(Transfer $transfer): View|RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
         $transfer->load(['creditor', 'debtor']);
 
         return view('transfers.show', compact('transfer'));
@@ -95,11 +91,7 @@ class TransferController extends Controller
      */
     public function edit(Transfer $transfer): View|RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $tags = $this->tagService->getAll();
         $transfer->load('tags');
 
@@ -111,10 +103,6 @@ class TransferController extends Controller
      */
     public function update(UpdateTransferRequest $request, Transfer $transfer): RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
         $this->transferService->updateTransfer($transfer, $request->validated());
 
         return redirect()->route('transfers.index')
@@ -126,10 +114,6 @@ class TransferController extends Controller
      */
     public function destroy(Transfer $transfer): RedirectResponse
     {
-        if (! $this->transferService->userOwnsTransfer(Auth::user(), $transfer)) {
-            abort(403);
-        }
-
         $this->transferService->deleteTransfer($transfer);
 
         return redirect()->route('transfers.index')
@@ -148,7 +132,7 @@ class TransferController extends Controller
             ],
         ]);
 
-        $query = $this->transferService->getTransfersQueryForExport(Auth::user());
+        $query = $this->transferService->getTransfersQueryForExport();
 
         return (new TransfersExport($query))->download('transfers.csv', Excel::CSV);
     }

@@ -49,8 +49,8 @@ class ExpenseController extends Controller
             ],
         ]);
 
-        $expenses = $this->expenseService->getExpensesForUser(Auth::user());
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $expenses = $this->expenseService->getExpenses();
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $tags = $this->tagService->getAll();
 
@@ -62,7 +62,7 @@ class ExpenseController extends Controller
      */
     public function create(): View
     {
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $tags = $this->tagService->getAll();
 
@@ -85,10 +85,6 @@ class ExpenseController extends Controller
      */
     public function show(Expense $expense): View|RedirectResponse
     {
-        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
-            abort(403);
-        }
-
         $expense->load(['account', 'person']);
 
         return view('expenses.show', compact('expense'));
@@ -99,11 +95,7 @@ class ExpenseController extends Controller
      */
     public function edit(Expense $expense): View|RedirectResponse
     {
-        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
-            abort(403);
-        }
-
-        $accounts = $this->accountService->getAllForUser(Auth::id());
+        $accounts = $this->accountService->getAll();
         $people = $this->personService->getAll();
         $tags = $this->tagService->getAll();
         $expense->load('tags');
@@ -116,10 +108,6 @@ class ExpenseController extends Controller
      */
     public function update(UpdateExpenseRequest $request, Expense $expense): RedirectResponse
     {
-        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
-            abort(403);
-        }
-
         $this->expenseService->updateExpense($expense, $request->validated());
 
         return redirect()->route('expenses.index')
@@ -131,10 +119,6 @@ class ExpenseController extends Controller
      */
     public function destroy(Expense $expense): RedirectResponse
     {
-        if (! $this->expenseService->userOwnsExpense(Auth::user(), $expense)) {
-            abort(403);
-        }
-
         $this->expenseService->deleteExpense($expense);
 
         return redirect()->route('expenses.index')
@@ -153,7 +137,7 @@ class ExpenseController extends Controller
             ],
         ]);
 
-        $query = $this->expenseService->getExpensesQueryForExport(Auth::user());
+        $query = $this->expenseService->getExpensesQueryForExport();
 
         return (new ExpensesExport($query))->download('expenses.csv', Excel::CSV);
     }

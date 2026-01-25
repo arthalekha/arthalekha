@@ -21,27 +21,27 @@
         <div class="flex-1">
             <a href="{{ url('/') }}" class="btn btn-ghost text-xl">{{ config('app.name', 'Laravel') }}</a>
             @auth
-                <ul class="menu menu-horizontal px-1">
-                    <li><a href="{{ route('accounts.index') }}" class="{{ request()->routeIs('accounts.*') ? 'active' : '' }}">Accounts</a></li>
-                    <li><a href="{{ route('incomes.index') }}" class="{{ request()->routeIs('incomes.*') ? 'active' : '' }}">Incomes</a></li>
-                    <li><a href="{{ route('expenses.index') }}" class="{{ request()->routeIs('expenses.*') ? 'active' : '' }}">Expenses</a></li>
-                    <li><a href="{{ route('transfers.index') }}" class="{{ request()->routeIs('transfers.*') ? 'active' : '' }}">Transfers</a></li>
-                    <li><a href="{{ route('tags.index') }}" class="{{ request()->routeIs('tags.*') ? 'active' : '' }}">Tags</a></li>
-                    <li><a href="{{ route('projected-dashboard') }}" class="{{ request()->routeIs('projected-dashboard') ? 'active' : '' }}">Projections</a></li>
-                    <li>
-                        <details>
-                            <summary class="{{ request()->routeIs('recurring-*') ? 'active' : '' }}">Recurring</summary>
-                            <ul class="bg-base-100 rounded-t-none p-2 z-[1] w-48">
-                                <li><a href="{{ route('recurring-incomes.index') }}" class="{{ request()->routeIs('recurring-incomes.*') ? 'active' : '' }}">Incomes</a></li>
-                                <li><a href="{{ route('recurring-expenses.index') }}" class="{{ request()->routeIs('recurring-expenses.*') ? 'active' : '' }}">Expenses</a></li>
-                                <li><a href="{{ route('recurring-transfers.index') }}" class="{{ request()->routeIs('recurring-transfers.*') ? 'active' : '' }}">Transfers</a></li>
-                            </ul>
-                        </details>
-                    </li>
-                </ul>
+                @includeUnless(request()->routeIs('family.*'), 'layouts.individual-nav')
+                @includeWhen(request()->routeIs('family.*'), 'layouts.family-nav')
             @endauth
         </div>
-        <div class="flex-none gap-2">
+        <div class="flex-none flex items-center gap-2">
+            @auth
+                <form method="POST" action="{{ route('mode.toggle') }}">
+                    @csrf
+                    <input type="hidden" name="route" value="{{ request()->route()->getName() }}">
+                    <label class="swap btn btn-ghost btn-circle {{ request()->routeIs('family.*') ? 'btn-primary' : '' }}">
+                        <input type="checkbox" onclick="this.form.submit()" @checked(request()->routeIs('family.*'))>
+                        <svg class="swap-off h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <svg class="swap-on h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </label>
+                </form>
+            @endauth
+
             <label class="swap swap-rotate btn btn-ghost btn-circle">
                 <input type="checkbox" id="theme-toggle" class="theme-controller" value="forest-dark">
                 <svg class="swap-off h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

@@ -19,12 +19,11 @@ class TransferService
     public function __construct(protected BalanceService $balanceService) {}
 
     /**
-     * Get paginated transfers for a user with filters.
+     * Get paginated transfers with filters.
      */
-    public function getTransfersForUser(User $user, int $perPage = 10): LengthAwarePaginator
+    public function getTransfers(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Transfer::class)
-            ->where('user_id', $user->id)
             ->with(['creditor', 'debtor'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
@@ -42,10 +41,9 @@ class TransferService
     /**
      * Get transfers query for export with filters.
      */
-    public function getTransfersQueryForExport(User $user): Builder
+    public function getTransfersQueryForExport(): Builder
     {
         return QueryBuilder::for(Transfer::class)
-            ->where('user_id', $user->id)
             ->with(['creditor', 'debtor', 'tags'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
@@ -129,13 +127,5 @@ class TransferService
 
             return $transfer->delete();
         });
-    }
-
-    /**
-     * Check if the user owns the transfer.
-     */
-    public function userOwnsTransfer(User $user, Transfer $transfer): bool
-    {
-        return $transfer->user_id === $user->id;
     }
 }

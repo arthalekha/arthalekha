@@ -51,17 +51,14 @@ test('session is regenerated on logout to prevent fixation', function () {
 });
 
 test('password is hashed and never stored in plain text', function () {
-    $this->post('/register', [
-        'name' => 'New User',
-        'email' => 'newuser@example.com',
+    $user = User::factory()->create([
         'password' => 'plaintextpassword',
-        'password_confirmation' => 'plaintextpassword',
     ]);
 
-    $user = User::where('email', 'newuser@example.com')->first();
+    $user->refresh();
 
     expect($user->password)->not->toBe('plaintextpassword');
-    expect(strlen($user->password))->toBeGreaterThan(20); // Hashed passwords are long
+    expect(strlen($user->password))->toBeGreaterThan(20);
     expect(Hash::check('plaintextpassword', $user->password))->toBeTrue();
 });
 
@@ -119,22 +116,19 @@ test('remember token is set on login with remember me', function () {
     expect($this->user->remember_token)->not->toBeNull();
 });
 
-test('email is case insensitive but stored lowercase', function () {
-    $response = $this->post('/register', [
-        'name' => 'New User',
-        'email' => 'NEWUSER@EXAMPLE.COM',
+test('email is case insensitive for login', function () {
+    $user = User::factory()->create([
+        'email' => 'newuser@example.com',
         'password' => 'password123',
-        'password_confirmation' => 'password123',
     ]);
 
-    // Email should be stored in lowercase
-    $user = User::where('email', 'newuser@example.com')->first();
-    expect($user)->not->toBeNull();
-    expect($user->email)->toBe('newuser@example.com');
+    $response = $this->post('/login', [
+        'email' => 'NEWUSER@EXAMPLE.COM',
+        'password' => 'password123',
+    ]);
 
-    // Registration should auto-login and redirect
     $response->assertRedirect('/home');
-    $this->assertAuthenticated();
+    $this->assertAuthenticatedAs($user);
 });
 
 test('user cannot be authenticated with empty credentials', function () {

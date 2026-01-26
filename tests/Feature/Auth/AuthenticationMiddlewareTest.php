@@ -40,7 +40,6 @@ test('authenticated user can access protected routes', function () {
 test('guest can access public routes', function () {
     $publicRoutes = [
         '/login',
-        '/register',
         '/forgot-password',
     ];
 
@@ -55,7 +54,6 @@ test('authenticated user is redirected from guest-only routes', function () {
 
     $guestRoutes = [
         '/login',
-        '/register',
         '/forgot-password',
     ];
 

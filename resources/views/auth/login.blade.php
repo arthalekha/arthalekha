@@ -66,22 +66,13 @@
                     <button type="submit" class="btn btn-primary w-full">Login</button>
                 </div>
 
-                <div class="divider">OR</div>
-
-                <div class="text-center space-y-2">
-                    @if (Route::has('password.request'))
+                @if (Route::has('password.request'))
+                    <div class="text-center mt-4">
                         <a href="{{ route('password.request') }}" class="link link-hover text-sm">
                             Forgot your password?
                         </a>
-                    @endif
-
-                    @if (Route::has('register'))
-                        <p class="text-sm">
-                            Don't have an account?
-                            <a href="{{ route('register') }}" class="link link-primary">Register</a>
-                        </p>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </form>
         </div>
     </div>

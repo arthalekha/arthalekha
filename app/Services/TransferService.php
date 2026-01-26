@@ -92,10 +92,6 @@ class TransferService
             $tags = $data['tags'] ?? [];
             unset($data['tags']);
 
-            $oldDebtorId = $transfer->debtor_id;
-            $oldCreditorId = $transfer->creditor_id;
-            $oldAmount = $transfer->amount;
-
             // Reverse the old transfer
             Account::where('id', $transfer->debtor_id)->increment('current_balance', $transfer->amount);
             Account::where('id', $transfer->creditor_id)->decrement('current_balance', $transfer->amount);

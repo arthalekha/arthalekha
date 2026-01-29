@@ -43,11 +43,11 @@ test('recorded_until casts to Carbon date', function () {
     expect($balance->recorded_until->format('Y-m-d'))->toBe('2024-12-31');
 });
 
-test('balance is deleted when account is deleted', function () {
+test('balance is deleted when account is force deleted', function () {
     $balance = Balance::factory()->forAccount($this->account)->create();
     $balanceId = $balance->id;
 
-    $this->account->delete();
+    $this->account->forceDelete();
 
     expect(Balance::find($balanceId))->toBeNull();
 });

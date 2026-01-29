@@ -11,22 +11,44 @@
         </a>
     </div>
 
+    @if ($account->trashed())
+        <div class="alert alert-error mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <div>
+                <span class="font-bold">This account was deleted on {{ $account->deleted_at->format('F d, Y \a\t H:i') }}</span>
+            </div>
+            <form action="{{ route('accounts.restore', $account) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-sm">Restore Account</button>
+            </form>
+        </div>
+    @endif
+
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
             <div class="flex justify-between items-start">
                 <div>
-                    <h2 class="card-title text-2xl font-bold">{{ $account->name }}</h2>
+                    <h2 class="card-title text-2xl font-bold">
+                        {{ $account->name }}
+                        @if ($account->trashed())
+                            <span class="badge badge-error">Deleted</span>
+                        @endif
+                    </h2>
                     <span class="badge badge-ghost mt-1">{{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }}</span>
                 </div>
-                <div class="flex gap-2">
-                    <a href="{{ route('accounts.edit', $account) }}" class="btn btn-ghost btn-sm">Edit</a>
-                    <form action="{{ route('accounts.destroy', $account) }}" method="POST" class="inline"
-                          onsubmit="return confirm('Are you sure you want to delete this account?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-ghost btn-sm text-error">Delete</button>
-                    </form>
-                </div>
+                @unless ($account->trashed())
+                    <div class="flex gap-2">
+                        <a href="{{ route('accounts.edit', $account) }}" class="btn btn-ghost btn-sm">Edit</a>
+                        <form action="{{ route('accounts.destroy', $account) }}" method="POST" class="inline"
+                              onsubmit="return confirm('Are you sure you want to delete this account?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-ghost btn-sm text-error">Delete</button>
+                        </form>
+                    </div>
+                @endunless
             </div>
 
             <div class="divider"></div>
@@ -71,28 +93,30 @@
                 </div>
             </div>
 
-            <div class="divider"></div>
+            @unless ($account->trashed())
+                <div class="divider"></div>
 
-            <div class="flex flex-wrap gap-2">
-                <a href="{{ route('accounts.transactions', $account) }}" class="btn btn-outline btn-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                    View Transactions
-                </a>
-                <a href="{{ route('accounts.balances', $account) }}" class="btn btn-outline btn-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    View Historical Balances
-                </a>
-                <a href="{{ route('accounts.projected-balance', $account) }}" class="btn btn-outline btn-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                    View Projected Balance
-                </a>
-            </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('accounts.transactions', $account) }}" class="btn btn-outline btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        View Transactions
+                    </a>
+                    <a href="{{ route('accounts.balances', $account) }}" class="btn btn-outline btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        View Historical Balances
+                    </a>
+                    <a href="{{ route('accounts.projected-balance', $account) }}" class="btn btn-outline btn-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        View Projected Balance
+                    </a>
+                </div>
+            @endunless
 
             @if ($account->account_type === \App\Enums\AccountType::Savings && $account->data)
                 <div class="divider">Savings Account Details</div>

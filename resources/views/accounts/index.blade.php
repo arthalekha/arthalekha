@@ -3,7 +3,14 @@
 @section('content')
 <div class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Accounts</h1>
+        <h1 class="text-2xl font-bold">
+            Accounts
+            @if (request('filter.trashed') === 'only')
+                <span class="text-base font-normal text-base-content/70">(Deleted)</span>
+            @elseif (request('filter.trashed') === 'with')
+                <span class="text-base font-normal text-base-content/70">(Including Deleted)</span>
+            @endif
+        </h1>
         <a href="{{ route('accounts.create') }}" class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -46,6 +53,17 @@
                     </select>
                 </div>
 
+                <div class="form-control">
+                    <label class="label py-1">
+                        <span class="label-text">Status</span>
+                    </label>
+                    <select name="filter[trashed]" class="select select-bordered select-sm w-48">
+                        <option value="">Active Only</option>
+                        <option value="with" @selected(request('filter.trashed') === 'with')>All (Including Deleted)</option>
+                        <option value="only" @selected(request('filter.trashed') === 'only')>Deleted Only</option>
+                    </select>
+                </div>
+
                 <div class="flex gap-2">
                     <button type="submit" class="btn btn-primary btn-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,14 +94,19 @@
                                 <th>Name</th>
                                 <th>Type</th>
                                 <th class="text-right">Current Balance</th>
-                                <th>Initial Date</th>
+                                <th>{{ request('filter.trashed') ? 'Deleted At' : 'Initial Date' }}</th>
                                 <th class="text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($accounts as $account)
-                                <tr>
-                                    <td class="font-medium">{{ $account->label }}</td>
+                                <tr @class(['bg-error/10' => $account->trashed()])>
+                                    <td class="font-medium">
+                                        {{ $account->label }}
+                                        @if ($account->trashed())
+                                            <span class="badge badge-error badge-sm ml-1">Deleted</span>
+                                        @endif
+                                    </td>
                                     <td>
                                         <span class="badge badge-ghost">{{ ucfirst(str_replace('_', ' ', $account->account_type->value)) }}</span>
                                     </td>
@@ -91,27 +114,43 @@
                                         {{ number_format($account->current_balance, 2) }}
                                     </td>
                                     <td class="text-sm text-base-content/70">
-                                        {{ $account->initial_date->format('M d, Y') }}
+                                        @if ($account->trashed())
+                                            {{ $account->deleted_at->format('M d, Y H:i') }}
+                                        @else
+                                            {{ $account->initial_date->format('M d, Y') }}
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">
-                                            <a href="{{ route('accounts.transactions', $account) }}" class="btn btn-ghost btn-sm">
-                                                Transactions
-                                            </a>
-                                            <a href="{{ route('accounts.show', $account) }}" class="btn btn-ghost btn-sm">
-                                                View
-                                            </a>
-                                            <a href="{{ route('accounts.edit', $account) }}" class="btn btn-ghost btn-sm">
-                                                Edit
-                                            </a>
-                                            <form action="{{ route('accounts.destroy', $account) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('Are you sure you want to delete this account?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-ghost btn-sm text-error">
-                                                    Delete
-                                                </button>
-                                            </form>
+                                            @if ($account->trashed())
+                                                <a href="{{ route('accounts.show', $account) }}" class="btn btn-ghost btn-sm">
+                                                    View
+                                                </a>
+                                                <form action="{{ route('accounts.restore', $account) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-ghost btn-sm text-success">
+                                                        Restore
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <a href="{{ route('accounts.transactions', $account) }}" class="btn btn-ghost btn-sm">
+                                                    Transactions
+                                                </a>
+                                                <a href="{{ route('accounts.show', $account) }}" class="btn btn-ghost btn-sm">
+                                                    View
+                                                </a>
+                                                <a href="{{ route('accounts.edit', $account) }}" class="btn btn-ghost btn-sm">
+                                                    Edit
+                                                </a>
+                                                <form action="{{ route('accounts.destroy', $account) }}" method="POST" class="inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this account?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-ghost btn-sm text-error">
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

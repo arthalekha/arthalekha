@@ -33,3 +33,17 @@ it('tests balance entry insertions', function (int $days, int $count) {
     'last month has 1 balance count' => [30, 1],
     'last 3 months has 3 balance count' => [90, 3],
 ]);
+
+it('restores a trashed account', function () {
+    $service = app(AccountService::class);
+
+    $account = Account::factory()->forUser($this->user)->create();
+    $account->delete();
+
+    expect(Account::find($account->id))->toBeNull();
+
+    $service->restoreAccount($account);
+
+    expect(Account::find($account->id))->not->toBeNull()
+        ->and(Account::find($account->id)->deleted_at)->toBeNull();
+});

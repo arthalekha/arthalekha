@@ -34,6 +34,17 @@ class AccountController extends Controller
     }
 
     /**
+     * Restore a trashed account.
+     */
+    public function restore(Account $account): RedirectResponse
+    {
+        $this->accountService->restoreAccount($account);
+
+        return redirect()->route('accounts.index', ['filter[trashed]' => 'with'])
+            ->with('success', 'Account restored successfully.');
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create(): View

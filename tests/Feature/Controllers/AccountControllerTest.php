@@ -223,7 +223,7 @@ test('authenticated user can delete their own account', function () {
         ->assertRedirect(route('accounts.index'))
         ->assertSessionHas('success');
 
-    $this->assertDatabaseMissing('accounts', ['id' => $account->id]);
+    $this->assertSoftDeleted('accounts', ['id' => $account->id]);
 });
 
 test('user cannot delete another users account', function () {
@@ -750,3 +750,174 @@ test('base account validation fails for all account types', function (AccountTyp
     'Savings missing initial_balance' => [AccountType::Savings, ['name' => 'Test'], 'initial_balance'],
     'CreditCard missing initial_balance' => [AccountType::CreditCard, ['name' => 'Test'], 'initial_balance'],
 ]);
+
+/*
+|--------------------------------------------------------------------------
+| Soft Delete Tests
+|--------------------------------------------------------------------------
+*/
+
+test('trashed filter shows only soft deleted accounts when set to only', function () {
+    $activeAccount = Account::factory()->forUser($this->user)->create(['name' => 'Active Account']);
+    $trashedAccount = Account::factory()->forUser($this->user)->create(['name' => 'Deleted Account']);
+    $trashedAccount->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index', ['filter[trashed]' => 'only']))
+        ->assertSuccessful()
+        ->assertSee('Deleted Account')
+        ->assertDontSee('Active Account');
+});
+
+test('trashed filter shows all accounts when set to with', function () {
+    $activeAccount = Account::factory()->forUser($this->user)->create(['name' => 'Active Account']);
+    $trashedAccount = Account::factory()->forUser($this->user)->create(['name' => 'Deleted Account']);
+    $trashedAccount->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index', ['filter[trashed]' => 'with']))
+        ->assertSuccessful()
+        ->assertSee('Deleted Account')
+        ->assertSee('Active Account');
+});
+
+test('user can only see their own trashed accounts with filter', function () {
+    $ownTrashedAccount = Account::factory()->forUser($this->user)->create(['name' => 'My Deleted Account']);
+    $ownTrashedAccount->delete();
+
+    $otherUser = User::factory()->create();
+    $otherTrashedAccount = Account::factory()->forUser($otherUser)->create(['name' => 'Other Deleted Account']);
+    $otherTrashedAccount->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index', ['filter[trashed]' => 'only']))
+        ->assertSuccessful()
+        ->assertSee('My Deleted Account')
+        ->assertDontSee('Other Deleted Account');
+});
+
+test('authenticated user can restore their own trashed account', function () {
+    $account = Account::factory()->forUser($this->user)->create();
+    $account->delete();
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.restore', $account))
+        ->assertRedirect(route('accounts.index', ['filter[trashed]' => 'with']))
+        ->assertSessionHas('success');
+
+    $this->assertDatabaseHas('accounts', [
+        'id' => $account->id,
+        'deleted_at' => null,
+    ]);
+});
+
+test('user cannot restore another users trashed account', function () {
+    $otherUser = User::factory()->create();
+    $account = Account::factory()->forUser($otherUser)->create();
+    $account->delete();
+
+    $this->actingAs($this->user)
+        ->post(route('accounts.restore', $account))
+        ->assertNotFound();
+
+    $this->assertSoftDeleted('accounts', ['id' => $account->id]);
+});
+
+test('soft deleted accounts are not shown in index without filter', function () {
+    $activeAccount = Account::factory()->forUser($this->user)->create(['name' => 'Active Account']);
+    $deletedAccount = Account::factory()->forUser($this->user)->create(['name' => 'Deleted Account']);
+    $deletedAccount->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index'))
+        ->assertSuccessful()
+        ->assertSee('Active Account')
+        ->assertDontSee('Deleted Account');
+});
+
+test('restored account appears in index again', function () {
+    $account = Account::factory()->forUser($this->user)->create(['name' => 'Restored Account']);
+    $account->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index'))
+        ->assertDontSee('Restored Account');
+
+    $account->restore();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index'))
+        ->assertSee('Restored Account');
+});
+
+test('index page shows deleted badge for trashed accounts when using with filter', function () {
+    $trashedAccount = Account::factory()->forUser($this->user)->create(['name' => 'Deleted Account']);
+    $trashedAccount->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index', ['filter[trashed]' => 'with']))
+        ->assertSuccessful()
+        ->assertSee('Deleted');
+});
+
+test('index page shows restore button for trashed accounts', function () {
+    $trashedAccount = Account::factory()->forUser($this->user)->create();
+    $trashedAccount->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.index', ['filter[trashed]' => 'only']))
+        ->assertSuccessful()
+        ->assertSee('Restore');
+});
+
+test('authenticated user can view show page for trashed account', function () {
+    $account = Account::factory()->forUser($this->user)->create(['name' => 'Deleted Account']);
+    $account->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Deleted Account')
+        ->assertSee('This account was deleted on');
+});
+
+test('show page for trashed account displays deleted badge', function () {
+    $account = Account::factory()->forUser($this->user)->create();
+    $account->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Deleted');
+});
+
+test('show page for trashed account hides edit and delete buttons', function () {
+    $account = Account::factory()->forUser($this->user)->create();
+    $account->delete();
+
+    $response = $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful();
+
+    $response->assertDontSee('href="'.route('accounts.edit', $account).'"', false);
+});
+
+test('show page for trashed account shows restore button', function () {
+    $account = Account::factory()->forUser($this->user)->create();
+    $account->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertSuccessful()
+        ->assertSee('Restore Account');
+});
+
+test('user cannot view show page for another users trashed account', function () {
+    $otherUser = User::factory()->create();
+    $account = Account::factory()->forUser($otherUser)->create();
+    $account->delete();
+
+    $this->actingAs($this->user)
+        ->get(route('accounts.show', $account))
+        ->assertNotFound();
+});

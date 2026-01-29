@@ -37,6 +37,7 @@ class AccountService
             ->allowedFilters([
                 AllowedFilter::exact('account_type'),
                 AllowedFilter::partial('name'),
+                AllowedFilter::trashed(),
             ])
             ->defaultSort('-created_at')
             ->paginate($perPage)
@@ -80,6 +81,14 @@ class AccountService
     public function deleteAccount(Account $account): bool
     {
         return $account->delete();
+    }
+
+    /**
+     * Restore a trashed account.
+     */
+    public function restoreAccount(Account $account): bool
+    {
+        return $account->restore();
     }
 
     /**

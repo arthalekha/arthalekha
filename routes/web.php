@@ -27,6 +27,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/projected-dashboard', ProjectedDashboardController::class)->name('projected-dashboard');
 
     Route::resource('accounts', AccountController::class);
+    Route::get('accounts/{account}', [AccountController::class, 'show'])->name('accounts.show')->withTrashed();
+    Route::post('accounts/{account}/restore', [AccountController::class, 'restore'])->name('accounts.restore')->withTrashed();
     Route::get('accounts/{account}/transactions', AccountTransactionController::class)->name('accounts.transactions');
     Route::get('accounts/{account}/balances', AccountBalanceController::class)->name('accounts.balances');
     Route::get('accounts/{account}/projected-balance', AccountProjectedBalanceController::class)->name('accounts.projected-balance');

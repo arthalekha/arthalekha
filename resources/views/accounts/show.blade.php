@@ -181,6 +181,13 @@
                             <p class="mt-1">{{ $account->data['repayment_of_bill_after_days'] }} days</p>
                         </div>
                     @endif
+
+                    @if (isset($account->data['credit_limit']))
+                        <div>
+                            <label class="text-sm font-medium text-base-content/70">Credit Limit</label>
+                            <p class="mt-1">{{ number_format($account->data['credit_limit'], 2) }}</p>
+                        </div>
+                    @endif
                 </div>
             @endif
         </div>

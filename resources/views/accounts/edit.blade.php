@@ -232,6 +232,21 @@
                                 </label>
                             @enderror
                         </div>
+
+                        <div class="form-control">
+                            <label class="label" for="data_credit_limit">
+                                <span class="label-text">Credit Limit</span>
+                            </label>
+                            <input type="number" name="data[credit_limit]" id="data_credit_limit"
+                                   value="{{ old('data.credit_limit', $account->data['credit_limit'] ?? '') }}"
+                                   class="input input-bordered @error('data.credit_limit') input-error @enderror"
+                                   step="0.01" min="0" placeholder="e.g., 100000.00">
+                            @error('data.credit_limit')
+                                <label class="label">
+                                    <span class="label-text-alt text-error">{{ $message }}</span>
+                                </label>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 

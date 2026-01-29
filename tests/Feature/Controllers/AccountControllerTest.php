@@ -329,6 +329,40 @@ test('authenticated user can update savings account with additional data', funct
     ]);
 });
 
+test('authenticated user can update credit card account with additional data', function () {
+    $account = Account::factory()
+        ->forUser($this->user)
+        ->ofType(AccountType::CreditCard)
+        ->create();
+
+    $updatedData = [
+        'name' => 'Updated Credit Card',
+        'initial_balance' => 0,
+        'initial_date' => '2025-02-01',
+        'data' => [
+            'rate_of_interest' => 36.0,
+            'interest_frequency' => Frequency::Monthly->value,
+            'bill_generated_on' => 10,
+            'repayment_of_bill_after_days' => 15,
+            'credit_limit' => 200000.00,
+        ],
+    ];
+
+    $this->actingAs($this->user)
+        ->put(route('accounts.update', $account), $updatedData)
+        ->assertRedirect(route('accounts.index'))
+        ->assertSessionHas('success');
+
+    $account->refresh();
+    expect($account->data)->toEqual([
+        'rate_of_interest' => 36.0,
+        'interest_frequency' => Frequency::Monthly->value,
+        'bill_generated_on' => 10,
+        'repayment_of_bill_after_days' => 15,
+        'credit_limit' => 200000.00,
+    ]);
+});
+
 test('savings account validation rejects invalid rate of interest', function () {
     $this->actingAs($this->user)
         ->post(route('accounts.store'), [
@@ -406,6 +440,7 @@ test('show page displays credit card account data', function () {
                 'interest_frequency' => Frequency::Monthly->value,
                 'bill_generated_on' => 15,
                 'repayment_of_bill_after_days' => 20,
+                'credit_limit' => 100000.00,
             ],
         ]);
 
@@ -415,7 +450,9 @@ test('show page displays credit card account data', function () {
         ->assertSee('Credit Card Details')
         ->assertSee('24%')
         ->assertSee('Day 15 of each month')
-        ->assertSee('20 days');
+        ->assertSee('20 days')
+        ->assertSee('Credit Limit')
+        ->assertSee('100,000.00');
 });
 
 test('show page displays monthly average balance for savings account when previous month balance exists', function () {

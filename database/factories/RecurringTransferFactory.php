@@ -58,4 +58,12 @@ class RecurringTransferFactory extends Factory
             'remaining_recurrences' => null,
         ]);
     }
+
+    public function withoutAccounts(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'creditor_id' => null,
+            'debtor_id' => null,
+        ]);
+    }
 }

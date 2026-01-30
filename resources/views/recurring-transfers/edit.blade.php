@@ -105,11 +105,11 @@
 
                 <div class="form-control mb-4">
                     <label class="label" for="debtor_id">
-                        <span class="label-text">From Account (Source) <span class="text-error">*</span></span>
+                        <span class="label-text">From Account (Source, Optional)</span>
                     </label>
                     <select name="debtor_id" id="debtor_id"
-                            class="select select-bordered @error('debtor_id') select-error @enderror" required>
-                        <option value="">Select source account</option>
+                            class="select select-bordered @error('debtor_id') select-error @enderror">
+                        <option value="" {{ old('debtor_id', $recurringTransfer->debtor_id) === null ? 'selected' : '' }}>No account (skip transaction)</option>
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}"
                                 {{ old('debtor_id', $recurringTransfer->debtor_id) == $account->id ? 'selected' : '' }}>
@@ -126,11 +126,11 @@
 
                 <div class="form-control mb-4">
                     <label class="label" for="creditor_id">
-                        <span class="label-text">To Account (Destination) <span class="text-error">*</span></span>
+                        <span class="label-text">To Account (Destination, Optional)</span>
                     </label>
                     <select name="creditor_id" id="creditor_id"
-                            class="select select-bordered @error('creditor_id') select-error @enderror" required>
-                        <option value="">Select destination account</option>
+                            class="select select-bordered @error('creditor_id') select-error @enderror">
+                        <option value="" {{ old('creditor_id', $recurringTransfer->creditor_id) === null ? 'selected' : '' }}>No account (skip transaction)</option>
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}"
                                 {{ old('creditor_id', $recurringTransfer->creditor_id) == $account->id ? 'selected' : '' }}>

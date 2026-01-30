@@ -28,16 +28,18 @@ class TransactRecurringTransferJob implements ShouldQueue
 
     private function processRecurringTransfer(RecurringTransfer $recurringTransfer): void
     {
-        $transfer = Transfer::create([
-            'user_id' => $recurringTransfer->user_id,
-            'creditor_id' => $recurringTransfer->creditor_id,
-            'debtor_id' => $recurringTransfer->debtor_id,
-            'description' => $recurringTransfer->description,
-            'amount' => $recurringTransfer->amount,
-            'transacted_at' => $recurringTransfer->next_transaction_at,
-        ]);
+        if ($recurringTransfer->creditor_id !== null && $recurringTransfer->debtor_id !== null) {
+            $transfer = Transfer::create([
+                'user_id' => $recurringTransfer->user_id,
+                'creditor_id' => $recurringTransfer->creditor_id,
+                'debtor_id' => $recurringTransfer->debtor_id,
+                'description' => $recurringTransfer->description,
+                'amount' => $recurringTransfer->amount,
+                'transacted_at' => $recurringTransfer->next_transaction_at,
+            ]);
 
-        $transfer->tags()->sync($recurringTransfer->tags->pluck('id'));
+            $transfer->tags()->sync($recurringTransfer->tags->pluck('id'));
+        }
 
         if ($recurringTransfer->remaining_recurrences !== null) {
             $recurringTransfer->remaining_recurrences--;

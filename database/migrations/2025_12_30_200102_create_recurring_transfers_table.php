@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('recurring_transfers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('creditor_id')->constrained('accounts')->cascadeOnDelete();
-            $table->foreignId('debtor_id')->constrained('accounts')->cascadeOnDelete();
+            $table->foreignId('creditor_id')->nullable()->constrained('accounts')->cascadeOnDelete();
+            $table->foreignId('debtor_id')->nullable()->constrained('accounts')->cascadeOnDelete();
             $table->string('description');
             $table->decimal('amount', 65, 2);
             $table->dateTime('next_transaction_at');

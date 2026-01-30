@@ -25,7 +25,7 @@ class StoreRecurringIncomeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'account_id' => ['required', 'exists:accounts,id,user_id,'.Auth::id()],
+            'account_id' => ['nullable', 'exists:accounts,id,user_id,'.Auth::id()],
             'person_id' => ['nullable', 'exists:people,id'],
             'description' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:999999999999'],

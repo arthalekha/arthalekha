@@ -59,4 +59,11 @@ class RecurringExpenseFactory extends Factory
             'remaining_recurrences' => null,
         ]);
     }
+
+    public function withoutAccount(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'account_id' => null,
+        ]);
+    }
 }

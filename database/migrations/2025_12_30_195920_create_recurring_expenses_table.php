@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('person_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('account_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('account_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('description');
             $table->decimal('amount', 65, 2);
             $table->dateTime('next_transaction_at');

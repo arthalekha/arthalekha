@@ -28,16 +28,18 @@ class TransactRecurringExpenseJob implements ShouldQueue
 
     private function processRecurringExpense(RecurringExpense $recurringExpense): void
     {
-        $expense = Expense::create([
-            'user_id' => $recurringExpense->user_id,
-            'person_id' => $recurringExpense->person_id,
-            'account_id' => $recurringExpense->account_id,
-            'description' => $recurringExpense->description,
-            'amount' => $recurringExpense->amount,
-            'transacted_at' => $recurringExpense->next_transaction_at,
-        ]);
+        if ($recurringExpense->account_id !== null) {
+            $expense = Expense::create([
+                'user_id' => $recurringExpense->user_id,
+                'person_id' => $recurringExpense->person_id,
+                'account_id' => $recurringExpense->account_id,
+                'description' => $recurringExpense->description,
+                'amount' => $recurringExpense->amount,
+                'transacted_at' => $recurringExpense->next_transaction_at,
+            ]);
 
-        $expense->tags()->sync($recurringExpense->tags->pluck('id'));
+            $expense->tags()->sync($recurringExpense->tags->pluck('id'));
+        }
 
         if ($recurringExpense->remaining_recurrences !== null) {
             $recurringExpense->remaining_recurrences--;

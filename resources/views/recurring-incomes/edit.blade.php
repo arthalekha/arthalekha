@@ -105,11 +105,11 @@
 
                 <div class="form-control mb-4">
                     <label class="label" for="account_id">
-                        <span class="label-text">Account <span class="text-error">*</span></span>
+                        <span class="label-text">Account (Optional)</span>
                     </label>
                     <select name="account_id" id="account_id"
-                            class="select select-bordered @error('account_id') select-error @enderror" required>
-                        <option value="">Select account</option>
+                            class="select select-bordered @error('account_id') select-error @enderror">
+                        <option value="">No account (skip transaction)</option>
                         @foreach ($accounts as $account)
                             <option value="{{ $account->id }}"
                                 {{ old('account_id', $recurringIncome->account_id) == $account->id ? 'selected' : '' }}>

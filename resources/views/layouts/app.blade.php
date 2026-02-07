@@ -30,7 +30,10 @@
                     </ul>
                 </div>
             @endauth
-            <a href="{{ url('/') }}" class="btn btn-ghost text-xl">{{ config('app.name', 'Laravel') }}</a>
+            <a href="{{ url('/') }}" class="btn btn-ghost text-xl">
+                <x-logo />
+                {{ config('app.name', 'Laravel') }}
+            </a>
         </div>
         <div class="navbar-center hidden lg:flex">
             @auth

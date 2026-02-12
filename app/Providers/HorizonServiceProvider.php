@@ -29,6 +29,6 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     {
         Gate::define('viewHorizon', function ($user = null) {
             return $user?->id === 1;
-        });
+        })->denyAsNotFound();
     }
 }

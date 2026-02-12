@@ -7,6 +7,12 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#1a5c2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+
     <script>
         (function() {
             const theme = localStorage.getItem('theme') || 'forest-light';
@@ -133,6 +139,12 @@
                 localStorage.setItem('theme', theme);
             });
         })();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{{ asset('service-worker.js') }}');
+        }
     </script>
 
     @stack('scripts')

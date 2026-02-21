@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 class="text-2xl font-bold">Dashboard - {{ $monthName }}</h1>
@@ -134,4 +132,4 @@
         document.addEventListener('chartjs:ready', initCharts);
     }
 </script>
-@endsection
+</x-layouts.app>

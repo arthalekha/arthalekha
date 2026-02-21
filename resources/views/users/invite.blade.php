@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
 <div class="max-w-2xl mx-auto">
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
@@ -60,4 +58,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.app>

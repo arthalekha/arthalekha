@@ -1,5 +1,1 @@
-@extends('errors.layout')
-
-@section('code', '401')
-@section('title', 'Unauthorized')
-@section('message', 'You need to be authenticated to access this page.')
+<x-layouts.error code="401" title="Unauthorized" message="You need to be authenticated to access this page." />

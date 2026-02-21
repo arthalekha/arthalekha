@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
 <div class="flex items-center justify-center min-h-[60vh]">
     <div class="card bg-base-100 shadow-xl w-full max-w-md">
         <div class="card-body">
@@ -40,4 +38,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.app>

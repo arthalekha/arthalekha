@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
 <div class="max-w-2xl mx-auto">
     <div class="mb-6">
         <a href="{{ route('tags.index') }}" class="btn btn-ghost btn-sm">
@@ -49,5 +47,4 @@
         </div>
     </div>
 </div>
-@endsection
-
+</x-layouts.app>

@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
 <div class="hero min-h-[60vh]">
     <div class="hero-content text-center">
         <div class="max-w-md">
@@ -12,4 +10,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-layouts.app>

@@ -1,5 +1,1 @@
-@extends('errors.layout')
-
-@section('code', '500')
-@section('title', 'Server Error')
-@section('message', 'Something went wrong on our end. Please try again later.')
+<x-layouts.error code="500" title="Server Error" message="Something went wrong on our end. Please try again later." />

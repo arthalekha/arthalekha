@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
 <div class="max-w-2xl mx-auto">
     <div class="mb-6">
         <a href="{{ route('accounts.index') }}" class="btn btn-ghost btn-sm">
@@ -265,9 +263,8 @@
         </div>
     </div>
 </div>
-@endsection
 
-@push('scripts')
+<x-slot:scripts>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const accountType = '{{ $account->account_type->value }}';
@@ -284,5 +281,5 @@
         }
     });
 </script>
-@endpush
-
+</x-slot:scripts>
+</x-layouts.app>

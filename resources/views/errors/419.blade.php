@@ -1,5 +1,1 @@
-@extends('errors.layout')
-
-@section('code', '419')
-@section('title', 'Page Expired')
-@section('message', 'Your session has expired. Please refresh and try again.')
+<x-layouts.error code="419" title="Page Expired" message="Your session has expired. Please refresh and try again." />

@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-layouts.app>
 <div class="space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 class="text-2xl font-bold">Projected Dashboard - Next 12 Months</h1>
@@ -166,4 +164,4 @@
         document.addEventListener('chartjs:ready', initProjectedCharts);
     }
 </script>
-@endsection
+</x-layouts.app>

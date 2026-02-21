@@ -117,7 +117,7 @@
     </div>
 
     <main class="container mx-auto px-4 py-8">
-        @yield('content')
+        {{ $slot }}
     </main>
 
     <footer class="footer footer-center p-4 bg-base-100 text-base-content mt-auto">
@@ -147,6 +147,6 @@
         }
     </script>
 
-    @stack('scripts')
+    {{ $scripts ?? '' }}
 </body>
 </html>

@@ -396,12 +396,12 @@ test('family mode shows correct total count of records', function () {
     // Regular route should show 3
     $response = $this->actingAs($this->user)->get(route('accounts.index'));
     $regularAccounts = $response->viewData('accounts');
-    expect($regularAccounts->total())->toBe(3);
+    expect($regularAccounts->count())->toBe(3);
 
     // Family route should show 5
     $response = $this->actingAs($this->user)->get(route('family.accounts.index'));
     $familyAccounts = $response->viewData('accounts');
-    expect($familyAccounts->total())->toBe(5);
+    expect($familyAccounts->count())->toBe(5);
 });
 
 test('family mode shows all users accounts in dropdown selections', function () {

@@ -11,7 +11,7 @@ beforeEach(function () {
 
 test('guest cannot access protected routes', function () {
     $protectedRoutes = [
-        '/home',
+        '/',
         '/accounts',
         '/expenses',
         '/incomes',
@@ -33,7 +33,7 @@ test('guest cannot access protected routes', function () {
 test('authenticated user can access protected routes', function () {
     $this->actingAs($this->user);
 
-    $response = $this->get('/home');
+    $response = $this->get('/');
     $response->assertOk();
 });
 
@@ -59,12 +59,12 @@ test('authenticated user is redirected from guest-only routes', function () {
 
     foreach ($guestRoutes as $route) {
         $response = $this->get($route);
-        $response->assertRedirect('/home');
+        $response->assertRedirect('/');
     }
 });
 
 test('guest attempting to access protected route is redirected to login', function () {
-    $response = $this->get('/home');
+    $response = $this->get('/');
 
     $response->assertRedirect('/login');
 });
@@ -81,7 +81,7 @@ test('guest attempting to POST to protected route is redirected to login', funct
 test('authentication persists across requests', function () {
     $this->actingAs($this->user);
 
-    $this->get('/home')->assertOk();
+    $this->get('/')->assertOk();
     $this->get('/accounts')->assertOk();
     $this->get('/expenses')->assertOk();
 
@@ -119,7 +119,7 @@ test('accessing protected route with expired session redirects to login', functi
     // Simulate expired session by not being authenticated
     $this->assertGuest();
 
-    $response = $this->get('/home');
+    $response = $this->get('/');
 
     $response->assertRedirect('/login');
 });

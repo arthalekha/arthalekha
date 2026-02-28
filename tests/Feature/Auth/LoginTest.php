@@ -23,7 +23,7 @@ test('user can view login page', function () {
 test('authenticated user cannot view login page', function () {
     $response = $this->actingAs($this->user)->get('/login');
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
 });
 
 test('user can login with valid credentials', function () {
@@ -32,7 +32,7 @@ test('user can login with valid credentials', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticatedAs($this->user);
 });
 
@@ -92,7 +92,7 @@ test('login is case insensitive for email', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticated();
 });
 
@@ -127,7 +127,7 @@ test('remember me functionality works', function () {
         'remember' => true,
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticatedAs($this->user);
 
     // Check that remember token is set
@@ -142,6 +142,6 @@ test('user can login without remember me', function () {
         'remember' => false,
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticatedAs($this->user);
 });

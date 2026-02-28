@@ -48,7 +48,7 @@ test('user cannot access protected routes after logout', function () {
 
     $this->post('/logout');
 
-    $response = $this->get('/home');
+    $response = $this->get('/');
     $response->assertRedirect('/login');
 });
 

@@ -26,7 +26,7 @@ test('user can view forgot password page', function () {
 test('authenticated user cannot view forgot password page', function () {
     $response = $this->actingAs($this->user)->get('/forgot-password');
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
 });
 
 test('user can request password reset link', function () {
@@ -114,7 +114,7 @@ test('user can login with new password after reset', function () {
         'password' => 'newpassword123',
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticated();
 });
 
@@ -254,7 +254,7 @@ test('user can login with new password after password reset', function () {
         'password' => 'newpassword123',
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticated();
 });
 

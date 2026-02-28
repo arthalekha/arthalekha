@@ -21,7 +21,7 @@ test('login with CSRF protection works', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticated();
 });
 
@@ -98,7 +98,7 @@ test('successful login resets throttle counter', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
 });
 
 test('remember token is set on login with remember me', function () {
@@ -127,7 +127,7 @@ test('email is case insensitive for login', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertRedirect('/home');
+    $response->assertRedirect('/');
     $this->assertAuthenticatedAs($user);
 });
 

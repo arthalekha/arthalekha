@@ -20,11 +20,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', function () {
-        return view('welcome');
-    });
-
-    Route::get('/home', HomeController::class)->name('home');
+    Route::get('/', HomeController::class)->name('home');
     Route::get('/projected-dashboard', ProjectedDashboardController::class)->name('projected-dashboard');
 
     Route::resource('accounts', AccountController::class);

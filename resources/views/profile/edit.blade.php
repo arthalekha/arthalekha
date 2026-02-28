@@ -1,10 +1,59 @@
 <x-layouts.app>
-<div class="max-w-2xl mx-auto">
+<div class="max-w-2xl mx-auto space-y-6">
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-            <h2 class="card-title text-2xl font-bold mb-4">Profile Settings</h2>
+            <h2 class="card-title text-2xl font-bold mb-4">Profile Information</h2>
 
-            @if (session('status'))
+            @if (session('status') === 'profile-information-updated')
+                <div class="alert alert-success mb-4">
+                    <span>Profile information updated.</span>
+                </div>
+            @endif
+
+            <form action="{{ route('user-profile-information.update') }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="form-control mb-4">
+                    <label class="label" for="name">
+                        <span class="label-text">Name <span class="text-error">*</span></span>
+                    </label>
+                    <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
+                           class="input input-bordered @error('name', 'updateProfileInformation') input-error @enderror"
+                           required>
+                    @error('name', 'updateProfileInformation')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label" for="email">
+                        <span class="label-text">Email <span class="text-error">*</span></span>
+                    </label>
+                    <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
+                           class="input input-bordered @error('email', 'updateProfileInformation') input-error @enderror"
+                           required>
+                    @error('email', 'updateProfileInformation')
+                        <label class="label">
+                            <span class="label-text-alt text-error">{{ $message }}</span>
+                        </label>
+                    @enderror
+                </div>
+
+                <div class="flex justify-end mt-6">
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title text-2xl font-bold mb-4">Preferences</h2>
+
+            @if (session('status') === 'Profile updated.')
                 <div class="alert alert-success mb-4">
                     <span>{{ session('status') }}</span>
                 </div>
@@ -42,3 +91,4 @@
     </div>
 </div>
 </x-layouts.app>
+

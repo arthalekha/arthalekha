@@ -13,13 +13,41 @@ test('profile page is displayed', function () {
     $this->actingAs($user)
         ->get(route('profile.edit'))
         ->assertSuccessful()
-        ->assertSee('Profile Settings')
+        ->assertSee('Profile Information')
         ->assertSee('Daily Transaction Reminder');
+});
+
+test('profile page shows user name and email', function () {
+    $user = User::factory()->create([
+        'name' => 'John Doe',
+        'email' => 'john@example.com',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertSuccessful()
+        ->assertSee('John Doe')
+        ->assertSee('john@example.com');
 });
 
 test('guest cannot access profile page', function () {
     $this->get(route('profile.edit'))
         ->assertRedirect(route('login'));
+});
+
+test('user can update profile information', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('profile.edit'))
+        ->put(route('user-profile-information.update'), [
+            'name' => 'Updated Name',
+            'email' => $user->email,
+        ])
+        ->assertRedirect(route('profile.edit'));
+
+    $user->refresh();
+    expect($user->name)->toBe('Updated Name');
 });
 
 test('user can enable daily transaction reminder', function () {

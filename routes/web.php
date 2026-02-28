@@ -9,6 +9,7 @@ use App\Http\Controllers\FamilyModeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\InviteUserController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectedDashboardController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringIncomeController;
@@ -46,6 +47,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/invite', [InviteUserController::class, 'create'])->name('users.invite');
     Route::post('users/invite', [InviteUserController::class, 'store'])->name('users.invite.store');
+
+    Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::post('mode/toggle', FamilyModeController::class)->name('mode.toggle');
 

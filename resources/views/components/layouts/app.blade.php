@@ -85,6 +85,12 @@
                     </div>
                     <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow">
                         <li>
+                            <a href="{{ route('profile.edit') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">
+                                <x-icons.user />
+                                Profile
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.index') ? 'active' : '' }}">
                                 <x-icons.user-group />
                                 Manage Users

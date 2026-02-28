@@ -29,8 +29,9 @@ class AccountController extends Controller
     {
         $accounts = $this->accountService->getAccounts();
         $accountTypes = AccountType::cases();
+        $totalBalance = Account::query()->sum('current_balance');
 
-        return view('accounts.index', compact('accounts', 'accountTypes'));
+        return view('accounts.index', compact('accounts', 'accountTypes', 'totalBalance'));
     }
 
     /**

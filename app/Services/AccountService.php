@@ -6,7 +6,6 @@ use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Income;
 use App\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -29,9 +28,11 @@ class AccountService
     }
 
     /**
-     * Get paginated accounts.
+     * Get filtered accounts.
+     *
+     * @return Collection<int, Account>
      */
-    public function getAccounts(int $perPage = 10): LengthAwarePaginator
+    public function getAccounts(): Collection
     {
         return QueryBuilder::for(Account::class)
             ->allowedFilters([
@@ -40,8 +41,7 @@ class AccountService
                 AllowedFilter::trashed(),
             ])
             ->defaultSort('-created_at')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->get();
     }
 
     /**

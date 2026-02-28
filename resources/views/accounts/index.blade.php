@@ -9,12 +9,20 @@
                 <span class="text-base font-normal text-base-content/70">(Including Deleted)</span>
             @endif
         </h1>
-        <a href="{{ route('accounts.create') }}" class="btn btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Add Account
-        </a>
+        <div class="flex items-center gap-4">
+            <div class="text-right">
+                <span class="text-sm text-base-content/70">Total Balance</span>
+                <div class="text-2xl font-bold font-mono {{ $totalBalance >= 0 ? 'text-success' : 'text-error' }}">
+                    {{ number_format($totalBalance, 2) }}
+                </div>
+            </div>
+            <a href="{{ route('accounts.create') }}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Account
+            </a>
+        </div>
     </div>
 
     @if (session('success'))
@@ -155,10 +163,6 @@
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-
-                <div class="mt-4">
-                    {{ $accounts->links() }}
                 </div>
             @endif
         </div>

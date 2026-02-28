@@ -124,7 +124,7 @@
                                     </td>
                                     <td class="font-medium">{{ $recurringIncome->description }}</td>
                                     <td>
-                                        <span class="badge badge-ghost">{{ $recurringIncome->account->name }}</span>
+                                        <span class="badge badge-ghost">{{ $recurringIncome->account?->name ?? '-' }}</span>
                                     </td>
                                     <td>
                                         <span class="badge badge-outline">{{ ucfirst($recurringIncome->frequency->value) }}</span>

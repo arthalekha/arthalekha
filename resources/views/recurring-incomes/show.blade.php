@@ -50,10 +50,12 @@
                 <div>
                     <label class="text-sm font-medium text-base-content/70">Account</label>
                     <div class="mt-1">
-                        <span class="badge badge-ghost">{{ $recurringIncome->account->name }}</span>
-                        <span class="text-sm text-base-content/70 ml-2">
-                            ({{ ucfirst(str_replace('_', ' ', $recurringIncome->account->account_type->value)) }})
-                        </span>
+                        <span class="badge badge-ghost">{{ $recurringIncome->account?->name ?? '-' }}</span>
+                        @if ($recurringIncome->account)
+                            <span class="text-sm text-base-content/70 ml-2">
+                                ({{ ucfirst(str_replace('_', ' ', $recurringIncome->account->account_type->value)) }})
+                            </span>
+                        @endif
                     </div>
                 </div>
 

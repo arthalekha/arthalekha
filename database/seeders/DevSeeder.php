@@ -69,7 +69,5 @@ class DevSeeder extends Seeder
                     'user_id' => $account->user_id,
                 ]);
         });
-
-        Artisan::call('accounts:backfill-balances');
     }
 }

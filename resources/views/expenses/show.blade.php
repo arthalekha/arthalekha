@@ -56,6 +56,13 @@
                         </p>
                     </div>
                 @endif
+
+                <div>
+                    <label class="text-sm font-medium text-base-content/70">Tags</label>
+                    <div class="mt-1">
+                        <x-tag-display :tags="$expense->tags" />
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -85,7 +85,7 @@ class IncomeController extends Controller
      */
     public function show(Income $income): View|RedirectResponse
     {
-        $income->load(['account', 'person']);
+        $income->load(['account', 'person', 'tags']);
 
         return view('incomes.show', compact('income'));
     }

@@ -81,7 +81,7 @@ class TransferController extends Controller
      */
     public function show(Transfer $transfer): View|RedirectResponse
     {
-        $transfer->load(['creditor', 'debtor']);
+        $transfer->load(['creditor', 'debtor', 'tags']);
 
         return view('transfers.show', compact('transfer'));
     }

@@ -85,7 +85,7 @@ class ExpenseController extends Controller
      */
     public function show(Expense $expense): View|RedirectResponse
     {
-        $expense->load(['account', 'person']);
+        $expense->load(['account', 'person', 'tags']);
 
         return view('expenses.show', compact('expense'));
     }

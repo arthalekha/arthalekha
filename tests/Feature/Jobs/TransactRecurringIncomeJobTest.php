@@ -49,7 +49,7 @@ test('recurring income skips income entry when account is null', function () {
     expect(Income::where('user_id', $this->user->id)->count())->toBe(0);
 });
 
-test('recurring income updates next transaction date when account is null', function () {
+test('recurring income does not advance next transaction date when account is null', function () {
     $originalNextDate = now()->subDay();
 
     $recurringIncome = RecurringIncome::factory()
@@ -66,10 +66,10 @@ test('recurring income updates next transaction date when account is null', func
     $recurringIncome->refresh();
 
     expect($recurringIncome->next_transaction_at->format('Y-m-d'))
-        ->toBe($originalNextDate->addMonth()->format('Y-m-d'));
+        ->toBe($originalNextDate->format('Y-m-d'));
 });
 
-test('recurring income decrements remaining recurrences when account is null', function () {
+test('recurring income does not decrement remaining recurrences when account is null', function () {
     $recurringIncome = RecurringIncome::factory()
         ->forUser($this->user)
         ->withoutAccount()
@@ -83,11 +83,11 @@ test('recurring income decrements remaining recurrences when account is null', f
 
     $recurringIncome->refresh();
 
-    expect($recurringIncome->remaining_recurrences)->toBe(4);
+    expect($recurringIncome->remaining_recurrences)->toBe(5);
     expect(Income::where('user_id', $this->user->id)->count())->toBe(0);
 });
 
-test('recurring income is deleted when remaining recurrences reaches zero with null account', function () {
+test('recurring income is not deleted when remaining recurrences is one with null account', function () {
     $recurringIncome = RecurringIncome::factory()
         ->forUser($this->user)
         ->withoutAccount()
@@ -99,6 +99,6 @@ test('recurring income is deleted when remaining recurrences reaches zero with n
 
     TransactRecurringIncomeJob::dispatch();
 
-    expect(RecurringIncome::find($recurringIncome->id))->toBeNull();
+    expect(RecurringIncome::find($recurringIncome->id))->not->toBeNull();
     expect(Income::where('user_id', $this->user->id)->count())->toBe(0);
 });

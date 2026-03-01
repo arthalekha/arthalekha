@@ -49,7 +49,7 @@ test('recurring expense skips expense entry when account is null', function () {
     expect(Expense::where('user_id', $this->user->id)->count())->toBe(0);
 });
 
-test('recurring expense updates next transaction date when account is null', function () {
+test('recurring expense does not advance next transaction date when account is null', function () {
     $originalNextDate = now()->subDay();
 
     $recurringExpense = RecurringExpense::factory()
@@ -66,10 +66,10 @@ test('recurring expense updates next transaction date when account is null', fun
     $recurringExpense->refresh();
 
     expect($recurringExpense->next_transaction_at->format('Y-m-d'))
-        ->toBe($originalNextDate->addMonth()->format('Y-m-d'));
+        ->toBe($originalNextDate->format('Y-m-d'));
 });
 
-test('recurring expense decrements remaining recurrences when account is null', function () {
+test('recurring expense does not decrement remaining recurrences when account is null', function () {
     $recurringExpense = RecurringExpense::factory()
         ->forUser($this->user)
         ->withoutAccount()
@@ -83,11 +83,11 @@ test('recurring expense decrements remaining recurrences when account is null', 
 
     $recurringExpense->refresh();
 
-    expect($recurringExpense->remaining_recurrences)->toBe(4);
+    expect($recurringExpense->remaining_recurrences)->toBe(5);
     expect(Expense::where('user_id', $this->user->id)->count())->toBe(0);
 });
 
-test('recurring expense is deleted when remaining recurrences reaches zero with null account', function () {
+test('recurring expense is not deleted when remaining recurrences is one with null account', function () {
     $recurringExpense = RecurringExpense::factory()
         ->forUser($this->user)
         ->withoutAccount()
@@ -99,6 +99,6 @@ test('recurring expense is deleted when remaining recurrences reaches zero with 
 
     TransactRecurringExpenseJob::dispatch();
 
-    expect(RecurringExpense::find($recurringExpense->id))->toBeNull();
+    expect(RecurringExpense::find($recurringExpense->id))->not->toBeNull();
     expect(Expense::where('user_id', $this->user->id)->count())->toBe(0);
 });

@@ -11,9 +11,12 @@ use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\InviteUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectedDashboardController;
+use App\Http\Controllers\RecordRecurringTransactionController;
 use App\Http\Controllers\RecurringExpenseController;
 use App\Http\Controllers\RecurringIncomeController;
+use App\Http\Controllers\RecurringTransactionDashboardController;
 use App\Http\Controllers\RecurringTransferController;
+use App\Http\Controllers\SkipRecurringTransactionController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\UserController;
@@ -36,6 +39,17 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('recurring-incomes', RecurringIncomeController::class);
     Route::resource('recurring-expenses', RecurringExpenseController::class);
     Route::resource('recurring-transfers', RecurringTransferController::class);
+
+    Route::get('recurring-transactions', RecurringTransactionDashboardController::class)
+        ->name('recurring-transactions.dashboard');
+    Route::post('recurring-incomes/{recurring_income}/record', [RecordRecurringTransactionController::class, 'recordIncome'])
+        ->name('recurring-incomes.record');
+    Route::post('recurring-expenses/{recurring_expense}/record', [RecordRecurringTransactionController::class, 'recordExpense'])
+        ->name('recurring-expenses.record');
+    Route::post('recurring-incomes/{recurring_income}/skip', [SkipRecurringTransactionController::class, 'skipIncome'])
+        ->name('recurring-incomes.skip');
+    Route::post('recurring-expenses/{recurring_expense}/skip', [SkipRecurringTransactionController::class, 'skipExpense'])
+        ->name('recurring-expenses.skip');
     Route::resource('transfers', TransferController::class);
     Route::post('transfers/export/csv', [TransferController::class, 'export'])->name('transfers.export');
     Route::resource('tags', TagController::class);

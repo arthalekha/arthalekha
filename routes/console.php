@@ -2,6 +2,7 @@
 
 use App\Jobs\RecordMonthlyBalancesJob;
 use App\Jobs\SendDailyTransactionRemindersJob;
+use App\Jobs\SendRecurringTransactionRemindersJob;
 use App\Jobs\TransactRecurringExpenseJob;
 use App\Jobs\TransactRecurringIncomeJob;
 use App\Jobs\TransactRecurringTransferJob;
@@ -18,3 +19,4 @@ Schedule::job(new TransactRecurringExpenseJob)->daily();
 Schedule::job(new TransactRecurringTransferJob)->daily();
 Schedule::job(new RecordMonthlyBalancesJob)->monthlyOn(1, '00:00');
 Schedule::job(new SendDailyTransactionRemindersJob)->dailyAt(config('reminder.daily_time'));
+Schedule::job(new SendRecurringTransactionRemindersJob)->daily();

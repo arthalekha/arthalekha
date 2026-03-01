@@ -28,18 +28,20 @@ class TransactRecurringIncomeJob implements ShouldQueue
 
     private function processRecurringIncome(RecurringIncome $recurringIncome): void
     {
-        if ($recurringIncome->account_id !== null) {
-            $income = Income::create([
-                'user_id' => $recurringIncome->user_id,
-                'person_id' => $recurringIncome->person_id,
-                'account_id' => $recurringIncome->account_id,
-                'description' => $recurringIncome->description,
-                'amount' => $recurringIncome->amount,
-                'transacted_at' => $recurringIncome->next_transaction_at,
-            ]);
-
-            $income->tags()->sync($recurringIncome->tags->pluck('id'));
+        if ($recurringIncome->account_id === null) {
+            return;
         }
+
+        $income = Income::create([
+            'user_id' => $recurringIncome->user_id,
+            'person_id' => $recurringIncome->person_id,
+            'account_id' => $recurringIncome->account_id,
+            'description' => $recurringIncome->description,
+            'amount' => $recurringIncome->amount,
+            'transacted_at' => $recurringIncome->next_transaction_at,
+        ]);
+
+        $income->tags()->sync($recurringIncome->tags->pluck('id'));
 
         if ($recurringIncome->remaining_recurrences !== null) {
             $recurringIncome->remaining_recurrences--;

@@ -59,6 +59,12 @@
                     Transfers
                 </a>
             </li>
+            <li>
+                <a href="{{ route('recurring-transactions.dashboard') }}" @class(['active' => request()->routeIs('recurring-transactions.*')])>
+                    <x-icons.arrow-path />
+                    Pending
+                </a>
+            </li>
         </ul>
     </details>
 </li>

@@ -83,7 +83,7 @@
                         <label class="label" for="initial_date">
                             <span class="label-text">Initial Date <span class="text-error">*</span></span>
                         </label>
-                        <input type="date" name="initial_date" id="initial_date" value="{{ old('initial_date') }}"
+                        <input type="date" name="initial_date" id="initial_date" value="{{ old('initial_date', today()->format('Y-m-d')) }}"
                                class="input input-bordered @error('initial_date') input-error @enderror" required>
                         @error('initial_date')
                             <label class="label">

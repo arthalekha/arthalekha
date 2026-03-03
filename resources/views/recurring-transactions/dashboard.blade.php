@@ -27,7 +27,6 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Type</th>
                                 <th>Due Date</th>
                                 <th>Description</th>
                                 <th>Person</th>
@@ -42,7 +41,6 @@
                         <tbody>
                             @foreach ($recurringIncomes as $recurringIncome)
                                 <tr>
-                                    <td><span class="badge badge-success">Income</span></td>
                                     <td class="text-sm">{{ $recurringIncome->next_transaction_at->format('M d, Y') }}</td>
                                     <td class="font-medium">{{ $recurringIncome->description }}</td>
                                     <td>{{ $recurringIncome->person?->name ?? '-' }}</td>
@@ -67,7 +65,7 @@
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">
-                                            <button type="submit" form="record-income-{{ $recurringIncome->id }}" class="btn btn-primary btn-sm">Record</button>
+                                            <button type="submit" form="record-income-{{ $recurringIncome->id }}" class="btn btn-success btn-sm leading-tight text-center">Record<br>Income</button>
                                             <form action="{{ route('recurring-incomes.skip', $recurringIncome) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-ghost btn-sm">Skip</button>
@@ -78,7 +76,6 @@
                             @endforeach
                             @foreach ($recurringExpenses as $recurringExpense)
                                 <tr>
-                                    <td><span class="badge badge-error">Expense</span></td>
                                     <td class="text-sm">{{ $recurringExpense->next_transaction_at->format('M d, Y') }}</td>
                                     <td class="font-medium">{{ $recurringExpense->description }}</td>
                                     <td>{{ $recurringExpense->person?->name ?? '-' }}</td>
@@ -103,7 +100,7 @@
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">
-                                            <button type="submit" form="record-expense-{{ $recurringExpense->id }}" class="btn btn-primary btn-sm">Record</button>
+                                            <button type="submit" form="record-expense-{{ $recurringExpense->id }}" class="btn btn-error btn-sm leading-tight text-center">Record<br>Expense</button>
                                             <form action="{{ route('recurring-expenses.skip', $recurringExpense) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-ghost btn-sm">Skip</button>

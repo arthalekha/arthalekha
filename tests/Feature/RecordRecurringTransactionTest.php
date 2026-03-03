@@ -28,8 +28,11 @@ test('record income creates an income with selected account', function () {
             'remaining_recurrences' => null,
         ]);
 
+    $transactedAt = now()->format('Y-m-d\TH:i');
+
     $response = $this->post(route('recurring-incomes.record', $recurringIncome), [
         'account_id' => $this->account->id,
+        'transacted_at' => $transactedAt,
     ]);
 
     $response->assertRedirect(route('recurring-transactions.dashboard'));
@@ -41,6 +44,7 @@ test('record income creates an income with selected account', function () {
     expect($income->account_id)->toBe($this->account->id);
     expect($income->description)->toBe($recurringIncome->description);
     expect($income->amount)->toBe($recurringIncome->amount);
+    expect($income->transacted_at->format('Y-m-d H:i'))->toBe(now()->format('Y-m-d H:i'));
 });
 
 test('record income syncs tags', function () {
@@ -58,6 +62,7 @@ test('record income syncs tags', function () {
 
     $this->post(route('recurring-incomes.record', $recurringIncome), [
         'account_id' => $this->account->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
     ]);
 
     $income = Income::where('user_id', $this->user->id)->first();
@@ -79,6 +84,7 @@ test('record income advances next_transaction_at', function () {
 
     $this->post(route('recurring-incomes.record', $recurringIncome), [
         'account_id' => $this->account->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
     ]);
 
     $recurringIncome->refresh();
@@ -99,6 +105,7 @@ test('record income deletes recurring when recurrences exhausted', function () {
 
     $this->post(route('recurring-incomes.record', $recurringIncome), [
         'account_id' => $this->account->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
     ]);
 
     expect(RecurringIncome::find($recurringIncome->id))->toBeNull();
@@ -114,9 +121,28 @@ test('record income requires account_id', function () {
             'frequency' => Frequency::Monthly,
         ]);
 
-    $response = $this->post(route('recurring-incomes.record', $recurringIncome), []);
+    $response = $this->post(route('recurring-incomes.record', $recurringIncome), [
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
+    ]);
 
     $response->assertSessionHasErrors('account_id');
+    expect(Income::where('user_id', $this->user->id)->count())->toBe(0);
+});
+
+test('record income requires transacted_at', function () {
+    $recurringIncome = RecurringIncome::factory()
+        ->forUser($this->user)
+        ->withoutAccount()
+        ->create([
+            'next_transaction_at' => now()->subDay(),
+            'frequency' => Frequency::Monthly,
+        ]);
+
+    $response = $this->post(route('recurring-incomes.record', $recurringIncome), [
+        'account_id' => $this->account->id,
+    ]);
+
+    $response->assertSessionHasErrors('transacted_at');
     expect(Income::where('user_id', $this->user->id)->count())->toBe(0);
 });
 
@@ -134,6 +160,7 @@ test('record income rejects account from another user', function () {
 
     $response = $this->post(route('recurring-incomes.record', $recurringIncome), [
         'account_id' => $otherAccount->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
     ]);
 
     $response->assertSessionHasErrors('account_id');
@@ -150,8 +177,11 @@ test('record expense creates an expense with selected account', function () {
             'remaining_recurrences' => null,
         ]);
 
+    $transactedAt = now()->format('Y-m-d\TH:i');
+
     $response = $this->post(route('recurring-expenses.record', $recurringExpense), [
         'account_id' => $this->account->id,
+        'transacted_at' => $transactedAt,
     ]);
 
     $response->assertRedirect(route('recurring-transactions.dashboard'));
@@ -162,6 +192,7 @@ test('record expense creates an expense with selected account', function () {
     $expense = Expense::where('user_id', $this->user->id)->first();
     expect($expense->account_id)->toBe($this->account->id);
     expect($expense->description)->toBe($recurringExpense->description);
+    expect($expense->transacted_at->format('Y-m-d H:i'))->toBe(now()->format('Y-m-d H:i'));
 });
 
 test('record expense advances next_transaction_at', function () {
@@ -178,6 +209,7 @@ test('record expense advances next_transaction_at', function () {
 
     $this->post(route('recurring-expenses.record', $recurringExpense), [
         'account_id' => $this->account->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
     ]);
 
     $recurringExpense->refresh();
@@ -198,6 +230,7 @@ test('record expense deletes recurring when recurrences exhausted', function () 
 
     $this->post(route('recurring-expenses.record', $recurringExpense), [
         'account_id' => $this->account->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
     ]);
 
     expect(RecurringExpense::find($recurringExpense->id))->toBeNull();

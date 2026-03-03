@@ -24,6 +24,7 @@ class RecordRecurringTransactionRequest extends FormRequest
     {
         return [
             'account_id' => ['required', 'exists:accounts,id,user_id,'.Auth::id()],
+            'transacted_at' => ['required', 'date'],
         ];
     }
 

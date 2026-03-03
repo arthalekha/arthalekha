@@ -24,7 +24,7 @@ class RecordRecurringTransactionController extends Controller
                 'account_id' => $request->validated('account_id'),
                 'description' => $recurringIncome->description,
                 'amount' => $recurringIncome->amount,
-                'transacted_at' => $recurringIncome->next_transaction_at,
+                'transacted_at' => $request->validated('transacted_at'),
             ]);
 
             $income->tags()->sync($recurringIncome->tags->pluck('id'));
@@ -48,7 +48,7 @@ class RecordRecurringTransactionController extends Controller
                 'account_id' => $request->validated('account_id'),
                 'description' => $recurringExpense->description,
                 'amount' => $recurringExpense->amount,
-                'transacted_at' => $recurringExpense->next_transaction_at,
+                'transacted_at' => $request->validated('transacted_at'),
             ]);
 
             $expense->tags()->sync($recurringExpense->tags->pluck('id'));

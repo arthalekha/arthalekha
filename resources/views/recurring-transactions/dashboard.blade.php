@@ -34,6 +34,7 @@
                                 <th>Frequency</th>
                                 <th>Tags</th>
                                 <th class="text-right">Amount</th>
+                                <th>Transaction Date</th>
                                 <th>Account</th>
                                 <th class="text-right">Actions</th>
                             </tr>
@@ -48,6 +49,11 @@
                                     <td><span class="badge badge-outline">{{ ucfirst($recurringIncome->frequency->value) }}</span></td>
                                     <td><x-tag-display :tags="$recurringIncome->tags" /></td>
                                     <td class="text-right font-mono text-success">+{{ number_format($recurringIncome->amount, 2) }}</td>
+                                    <td>
+                                        <input type="datetime-local" name="transacted_at" form="record-income-{{ $recurringIncome->id }}"
+                                               value="{{ now()->format('Y-m-d\TH:i') }}"
+                                               class="input input-bordered input-sm w-44" required>
+                                    </td>
                                     <td>
                                         <form action="{{ route('recurring-incomes.record', $recurringIncome) }}" method="POST" class="flex gap-2 items-center" id="record-income-{{ $recurringIncome->id }}">
                                             @csrf
@@ -79,6 +85,11 @@
                                     <td><span class="badge badge-outline">{{ ucfirst($recurringExpense->frequency->value) }}</span></td>
                                     <td><x-tag-display :tags="$recurringExpense->tags" /></td>
                                     <td class="text-right font-mono text-error">-{{ number_format($recurringExpense->amount, 2) }}</td>
+                                    <td>
+                                        <input type="datetime-local" name="transacted_at" form="record-expense-{{ $recurringExpense->id }}"
+                                               value="{{ now()->format('Y-m-d\TH:i') }}"
+                                               class="input input-bordered input-sm w-44" required>
+                                    </td>
                                     <td>
                                         <form action="{{ route('recurring-expenses.record', $recurringExpense) }}" method="POST" class="flex gap-2 items-center" id="record-expense-{{ $recurringExpense->id }}">
                                             @csrf

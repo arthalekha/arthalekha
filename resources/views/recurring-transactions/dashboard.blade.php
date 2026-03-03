@@ -33,8 +33,6 @@
                                 <th>Frequency</th>
                                 <th>Tags</th>
                                 <th class="text-right">Amount</th>
-                                <th>Transaction Date</th>
-                                <th>Account</th>
                                 <th class="text-right">Actions</th>
                             </tr>
                         </thead>
@@ -48,24 +46,8 @@
                                     <td><x-tag-display :tags="$recurringIncome->tags" /></td>
                                     <td class="text-right font-mono text-success">+{{ number_format($recurringIncome->amount, 2) }}</td>
                                     <td>
-                                        <input type="datetime-local" name="transacted_at" form="record-income-{{ $recurringIncome->id }}"
-                                               value="{{ now()->format('Y-m-d\TH:i') }}"
-                                               class="input input-bordered input-sm w-44" required>
-                                    </td>
-                                    <td>
-                                        <form action="{{ route('recurring-incomes.record', $recurringIncome) }}" method="POST" class="flex gap-2 items-center" id="record-income-{{ $recurringIncome->id }}">
-                                            @csrf
-                                            <select name="account_id" class="select select-bordered select-sm w-40" required>
-                                                <option value="">Select Account</option>
-                                                @foreach ($accounts as $account)
-                                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </form>
-                                    </td>
-                                    <td>
                                         <div class="flex justify-end gap-2">
-                                            <button type="submit" form="record-income-{{ $recurringIncome->id }}" class="btn btn-success btn-sm leading-tight text-center">Record<br>Income</button>
+                                            <button class="btn btn-success btn-sm" onclick="document.getElementById('modal-income-{{ $recurringIncome->id }}').showModal()">Record Income</button>
                                             <form action="{{ route('recurring-incomes.skip', $recurringIncome) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-ghost btn-sm">Skip</button>
@@ -83,24 +65,8 @@
                                     <td><x-tag-display :tags="$recurringExpense->tags" /></td>
                                     <td class="text-right font-mono text-error">-{{ number_format($recurringExpense->amount, 2) }}</td>
                                     <td>
-                                        <input type="datetime-local" name="transacted_at" form="record-expense-{{ $recurringExpense->id }}"
-                                               value="{{ now()->format('Y-m-d\TH:i') }}"
-                                               class="input input-bordered input-sm w-44" required>
-                                    </td>
-                                    <td>
-                                        <form action="{{ route('recurring-expenses.record', $recurringExpense) }}" method="POST" class="flex gap-2 items-center" id="record-expense-{{ $recurringExpense->id }}">
-                                            @csrf
-                                            <select name="account_id" class="select select-bordered select-sm w-40" required>
-                                                <option value="">Select Account</option>
-                                                @foreach ($accounts as $account)
-                                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </form>
-                                    </td>
-                                    <td>
                                         <div class="flex justify-end gap-2">
-                                            <button type="submit" form="record-expense-{{ $recurringExpense->id }}" class="btn btn-error btn-sm leading-tight text-center">Record<br>Expense</button>
+                                            <button class="btn btn-error btn-sm" onclick="document.getElementById('modal-expense-{{ $recurringExpense->id }}').showModal()">Record Expense</button>
                                             <form action="{{ route('recurring-expenses.skip', $recurringExpense) }}" method="POST" class="inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-ghost btn-sm">Skip</button>
@@ -114,6 +80,82 @@
                 </div>
             </div>
         </div>
+
+        @foreach ($recurringIncomes as $recurringIncome)
+            <dialog id="modal-income-{{ $recurringIncome->id }}" class="modal">
+                <div class="modal-box">
+                    <h3 class="text-lg font-bold">Record Income</h3>
+                    <p class="text-sm text-base-content/70 mt-1">{{ $recurringIncome->description }} &mdash; <span class="text-success font-mono">+{{ number_format($recurringIncome->amount, 2) }}</span></p>
+                    <form action="{{ route('recurring-incomes.record', $recurringIncome) }}" method="POST" class="mt-4 flex flex-col gap-4">
+                        @csrf
+                        <div class="form-control">
+                            <label class="label" for="income-transacted-at-{{ $recurringIncome->id }}">
+                                <span class="label-text">Transaction Date <span class="text-error">*</span></span>
+                            </label>
+                            <input type="datetime-local" name="transacted_at" id="income-transacted-at-{{ $recurringIncome->id }}"
+                                   value="{{ now()->format('Y-m-d\TH:i') }}"
+                                   class="input input-bordered" required>
+                        </div>
+                        <div class="form-control">
+                            <label class="label" for="income-account-{{ $recurringIncome->id }}">
+                                <span class="label-text">Account <span class="text-error">*</span></span>
+                            </label>
+                            <select name="account_id" id="income-account-{{ $recurringIncome->id }}" class="select select-bordered" required>
+                                <option value="">Select Account</option>
+                                @foreach ($accounts as $account)
+                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="modal-action">
+                            <button type="button" class="btn btn-ghost" onclick="this.closest('dialog').close()">Cancel</button>
+                            <button type="submit" class="btn btn-success">Record Income</button>
+                        </div>
+                    </form>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+        @endforeach
+
+        @foreach ($recurringExpenses as $recurringExpense)
+            <dialog id="modal-expense-{{ $recurringExpense->id }}" class="modal">
+                <div class="modal-box">
+                    <h3 class="text-lg font-bold">Record Expense</h3>
+                    <p class="text-sm text-base-content/70 mt-1">{{ $recurringExpense->description }} &mdash; <span class="text-error font-mono">-{{ number_format($recurringExpense->amount, 2) }}</span></p>
+                    <form action="{{ route('recurring-expenses.record', $recurringExpense) }}" method="POST" class="mt-4 flex flex-col gap-4">
+                        @csrf
+                        <div class="form-control">
+                            <label class="label" for="expense-transacted-at-{{ $recurringExpense->id }}">
+                                <span class="label-text">Transaction Date <span class="text-error">*</span></span>
+                            </label>
+                            <input type="datetime-local" name="transacted_at" id="expense-transacted-at-{{ $recurringExpense->id }}"
+                                   value="{{ now()->format('Y-m-d\TH:i') }}"
+                                   class="input input-bordered" required>
+                        </div>
+                        <div class="form-control">
+                            <label class="label" for="expense-account-{{ $recurringExpense->id }}">
+                                <span class="label-text">Account <span class="text-error">*</span></span>
+                            </label>
+                            <select name="account_id" id="expense-account-{{ $recurringExpense->id }}" class="select select-bordered" required>
+                                <option value="">Select Account</option>
+                                @foreach ($accounts as $account)
+                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="modal-action">
+                            <button type="button" class="btn btn-ghost" onclick="this.closest('dialog').close()">Cancel</button>
+                            <button type="submit" class="btn btn-error">Record Expense</button>
+                        </div>
+                    </form>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+        @endforeach
     @endif
 </div>
 </x-layouts.app>

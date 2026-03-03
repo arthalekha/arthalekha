@@ -18,6 +18,16 @@ class User extends Authenticatable
         return $this->hasMany(Account::class);
     }
 
+    public function recurringIncomes(): HasMany
+    {
+        return $this->hasMany(RecurringIncome::class);
+    }
+
+    public function recurringExpenses(): HasMany
+    {
+        return $this->hasMany(RecurringExpense::class);
+    }
+
     /**
      * The attributes that are mass assignable.
      *

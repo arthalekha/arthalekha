@@ -68,7 +68,7 @@
                             class="select select-bordered @error('account_id') select-error @enderror" required>
                         <option value="">Select account</option>
                         @foreach ($accounts as $account)
-                            <option value="{{ $account->id }}" {{ old('account_id') == $account->id ? 'selected' : '' }}>
+                            <option value="{{ $account->id }}" {{ old('account_id', request('account_id')) == $account->id ? 'selected' : '' }}>
                                 {{ $account->label }}
                             </option>
                         @endforeach

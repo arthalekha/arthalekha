@@ -11,12 +11,20 @@
             </div>
             <h1 class="text-2xl font-bold">{{ $account->name }} - Transactions</h1>
         </div>
-        <a href="{{ route('accounts.show', $account) }}" class="btn btn-ghost">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Account
-        </a>
+        <div class="flex gap-2">
+            <a href="{{ route('incomes.create', ['account_id' => $account->id]) }}" class="btn btn-success btn-sm">
+                + Add Income
+            </a>
+            <a href="{{ route('expenses.create', ['account_id' => $account->id]) }}" class="btn btn-error btn-sm">
+                + Add Expense
+            </a>
+            <a href="{{ route('accounts.show', $account) }}" class="btn btn-ghost btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Account
+            </a>
+        </div>
     </div>
 
     <div class="card bg-base-100 shadow-xl mb-6">

@@ -146,7 +146,7 @@ test('creating a recurring transfer requires a valid frequency', function () {
         ->assertSessionHasErrors('frequency');
 });
 
-test('creating a recurring transfer requires users own accounts', function () {
+test('creating a recurring transfer allows other users accounts', function () {
     $otherAccount = Account::factory()->create();
 
     $recurringTransferData = [
@@ -160,7 +160,8 @@ test('creating a recurring transfer requires users own accounts', function () {
 
     $this->actingAs($this->user)
         ->post(route('recurring-transfers.store'), $recurringTransferData)
-        ->assertSessionHasErrors('debtor_id');
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('recurring-transfers.index'));
 });
 
 test('creating a recurring transfer requires different source and destination accounts', function () {

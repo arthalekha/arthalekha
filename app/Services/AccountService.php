@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\Scopes\FamilyUserScope;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,16 @@ class AccountService
     public function getAll(): Collection
     {
         return Account::all();
+    }
+
+    /**
+     * Get all accounts across all users.
+     *
+     * @return Collection<int, Account>
+     */
+    public function getAllAcrossUsers(): Collection
+    {
+        return Account::withoutGlobalScope(FamilyUserScope::class)->get();
     }
 
     /**

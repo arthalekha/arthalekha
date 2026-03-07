@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Enums\Frequency;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class StoreRecurringTransferRequest extends FormRequest
@@ -25,8 +24,8 @@ class StoreRecurringTransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'creditor_id' => ['nullable', 'exists:accounts,id,user_id,'.Auth::id(), 'required_with:debtor_id', 'different:debtor_id'],
-            'debtor_id' => ['nullable', 'exists:accounts,id,user_id,'.Auth::id(), 'required_with:creditor_id', 'different:creditor_id'],
+            'creditor_id' => ['nullable', 'exists:accounts,id', 'required_with:debtor_id', 'different:debtor_id'],
+            'debtor_id' => ['nullable', 'exists:accounts,id', 'required_with:creditor_id', 'different:creditor_id'],
             'description' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:999999999999'],
             'next_transaction_at' => ['required', 'date'],
@@ -43,8 +42,8 @@ class StoreRecurringTransferRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'creditor_id.exists' => 'The selected destination account is invalid or does not belong to you.',
-            'debtor_id.exists' => 'The selected source account is invalid or does not belong to you.',
+            'creditor_id.exists' => 'The selected destination account is invalid.',
+            'debtor_id.exists' => 'The selected source account is invalid.',
             'creditor_id.different' => 'The destination account must be different from the source account.',
             'debtor_id.different' => 'The source account must be different from the destination account.',
             'creditor_id.required_with' => 'The destination account is required when source account is provided.',

@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 
 class UpdateTransferRequest extends FormRequest
 {
@@ -23,8 +22,8 @@ class UpdateTransferRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'creditor_id' => ['required', 'exists:accounts,id,user_id,'.Auth::id(), 'different:debtor_id'],
-            'debtor_id' => ['required', 'exists:accounts,id,user_id,'.Auth::id(), 'different:creditor_id'],
+            'creditor_id' => ['required', 'exists:accounts,id', 'different:debtor_id'],
+            'debtor_id' => ['required', 'exists:accounts,id', 'different:creditor_id'],
             'description' => ['required', 'string', 'max:255'],
             'transacted_at' => ['required', 'date'],
             'amount' => ['required', 'numeric', 'min:0.01', 'max:999999999999'],
@@ -41,8 +40,8 @@ class UpdateTransferRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'creditor_id.exists' => 'The selected destination account is invalid or does not belong to you.',
-            'debtor_id.exists' => 'The selected source account is invalid or does not belong to you.',
+            'creditor_id.exists' => 'The selected destination account is invalid.',
+            'debtor_id.exists' => 'The selected source account is invalid.',
             'creditor_id.different' => 'The destination account must be different from the source account.',
             'debtor_id.different' => 'The source account must be different from the destination account.',
             'amount.min' => 'The amount must be greater than zero.',

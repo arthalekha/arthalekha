@@ -48,7 +48,7 @@ class TransferController extends Controller
         ]);
 
         $transfers = $this->transferService->getTransfers();
-        $accounts = $this->accountService->getAll();
+        $accounts = $this->accountService->getAllAcrossUsers();
         $tags = $this->tagService->getAll();
 
         return view('transfers.index', compact('transfers', 'accounts', 'tags', 'filters'));
@@ -59,7 +59,7 @@ class TransferController extends Controller
      */
     public function create(): View
     {
-        $accounts = $this->accountService->getAll();
+        $accounts = $this->accountService->getAllAcrossUsers();
         $tags = $this->tagService->getAll();
 
         return view('transfers.create', compact('accounts', 'tags'));
@@ -91,7 +91,7 @@ class TransferController extends Controller
      */
     public function edit(Transfer $transfer): View|RedirectResponse
     {
-        $accounts = $this->accountService->getAll();
+        $accounts = $this->accountService->getAllAcrossUsers();
         $tags = $this->tagService->getAll();
         $transfer->load('tags');
 

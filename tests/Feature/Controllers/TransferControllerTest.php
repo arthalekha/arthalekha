@@ -116,7 +116,7 @@ test('creating a transfer requires a valid amount', function () {
         ->assertSessionHasErrors('amount');
 });
 
-test('creating a transfer requires users own accounts', function () {
+test('creating a transfer allows other users accounts', function () {
     $otherAccount = Account::factory()->create();
 
     $this->actingAs($this->user)
@@ -127,7 +127,8 @@ test('creating a transfer requires users own accounts', function () {
             'transacted_at' => now()->format('Y-m-d H:i:s'),
             'amount' => 100,
         ])
-        ->assertSessionHasErrors('creditor_id');
+        ->assertSessionHasNoErrors()
+        ->assertRedirect(route('transfers.index'));
 });
 
 test('authenticated user can view their own transfer', function () {

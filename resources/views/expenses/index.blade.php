@@ -162,7 +162,7 @@
                                     </td>
                                     <td class="font-medium">{{ $expense->description }}</td>
                                     <td>
-                                        <span class="badge badge-ghost">{{ $expense->account->name }}</span>
+                                        <a href="{{ route('accounts.show', $expense->account) }}" class="badge badge-ghost hover:badge-primary">{{ $expense->account->name }}</a>
                                     </td>
                                     <td class="text-sm text-base-content/70">
                                         {{ $expense->person?->name ?? '-' }}

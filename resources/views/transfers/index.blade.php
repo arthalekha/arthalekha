@@ -162,10 +162,10 @@
                                     </td>
                                     <td class="font-medium">{{ $transfer->description }}</td>
                                     <td>
-                                        <span class="badge badge-error badge-outline">{{ $transfer->debtor->name }}</span>
+                                        <a href="{{ route('accounts.show', $transfer->debtor) }}" class="badge badge-error badge-outline hover:badge-error">{{ $transfer->debtor->name }}</a>
                                     </td>
                                     <td>
-                                        <span class="badge badge-success badge-outline">{{ $transfer->creditor->name }}</span>
+                                        <a href="{{ route('accounts.show', $transfer->creditor) }}" class="badge badge-success badge-outline hover:badge-success">{{ $transfer->creditor->name }}</a>
                                     </td>
                                     <td class="text-right font-mono text-info">
                                         {{ number_format($transfer->amount, 2) }}

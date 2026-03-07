@@ -9,7 +9,7 @@ use App\Models\Transfer;
 
 class AccountReconcileService
 {
-    public function reconcile(Account $account)
+    public function reconcile(Account $account): void
     {
         $expenses = Expense::query()
             ->where('account_id', $account->id)

@@ -40,28 +40,26 @@
                         <label class="label">
                             <span class="label-text">From Account</span>
                         </label>
-                        <select name="filter[debtor_id]" class="select select-bordered select-sm">
-                            <option value="">All Accounts</option>
-                            @foreach ($accounts as $account)
-                                <option value="{{ $account->id }}" {{ $filters['debtor_id'] == $account->id ? 'selected' : '' }}>
-                                    {{ $account->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select
+                            name="filter[debtor_id]"
+                            :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->name])->toArray()"
+                            :selected="$filters['debtor_id']"
+                            placeholder="All Accounts"
+                            size="sm"
+                        />
                     </div>
 
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text">To Account</span>
                         </label>
-                        <select name="filter[creditor_id]" class="select select-bordered select-sm">
-                            <option value="">All Accounts</option>
-                            @foreach ($accounts as $account)
-                                <option value="{{ $account->id }}" {{ $filters['creditor_id'] == $account->id ? 'selected' : '' }}>
-                                    {{ $account->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select
+                            name="filter[creditor_id]"
+                            :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->name])->toArray()"
+                            :selected="$filters['creditor_id']"
+                            placeholder="All Accounts"
+                            size="sm"
+                        />
                     </div>
 
                     <div class="form-control">

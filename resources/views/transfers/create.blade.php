@@ -64,15 +64,14 @@
                     <label class="label" for="debtor_id">
                         <span class="label-text">From Account (Source) <span class="text-error">*</span></span>
                     </label>
-                    <select name="debtor_id" id="debtor_id"
-                            class="select select-bordered @error('debtor_id') select-error @enderror" required>
-                        <option value="">Select source account</option>
-                        @foreach ($accounts as $account)
-                            <option value="{{ $account->id }}" {{ old('debtor_id') == $account->id ? 'selected' : '' }}>
-                                {{ $account->label }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select
+                        name="debtor_id"
+                        :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->label])->toArray()"
+                        :selected="old('debtor_id')"
+                        placeholder="Select source account"
+                        :required="true"
+                        :has-error="$errors->has('debtor_id')"
+                    />
                     @error('debtor_id')
                         <label class="label">
                             <span class="label-text-alt text-error">{{ $message }}</span>
@@ -90,15 +89,14 @@
                     <label class="label" for="creditor_id">
                         <span class="label-text">To Account (Destination) <span class="text-error">*</span></span>
                     </label>
-                    <select name="creditor_id" id="creditor_id"
-                            class="select select-bordered @error('creditor_id') select-error @enderror" required>
-                        <option value="">Select destination account</option>
-                        @foreach ($accounts as $account)
-                            <option value="{{ $account->id }}" {{ old('creditor_id') == $account->id ? 'selected' : '' }}>
-                                {{ $account->label }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select
+                        name="creditor_id"
+                        :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->label])->toArray()"
+                        :selected="old('creditor_id')"
+                        placeholder="Select destination account"
+                        :required="true"
+                        :has-error="$errors->has('creditor_id')"
+                    />
                     @error('creditor_id')
                         <label class="label">
                             <span class="label-text-alt text-error">{{ $message }}</span>

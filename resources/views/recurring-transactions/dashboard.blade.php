@@ -100,12 +100,12 @@
                             <label class="label" for="income-account-{{ $recurringIncome->id }}">
                                 <span class="label-text">Account <span class="text-error">*</span></span>
                             </label>
-                            <select name="account_id" id="income-account-{{ $recurringIncome->id }}" class="select select-bordered" required>
-                                <option value="">Select Account</option>
-                                @foreach ($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
-                                @endforeach
-                            </select>
+                            <x-searchable-select
+                                name="account_id"
+                                :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->name])->toArray()"
+                                placeholder="Select Account"
+                                :required="true"
+                            />
                         </div>
                         <div class="modal-action">
                             <button type="button" class="btn btn-ghost" onclick="this.closest('dialog').close()">Cancel</button>
@@ -138,12 +138,12 @@
                             <label class="label" for="expense-account-{{ $recurringExpense->id }}">
                                 <span class="label-text">Account <span class="text-error">*</span></span>
                             </label>
-                            <select name="account_id" id="expense-account-{{ $recurringExpense->id }}" class="select select-bordered" required>
-                                <option value="">Select Account</option>
-                                @foreach ($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
-                                @endforeach
-                            </select>
+                            <x-searchable-select
+                                name="account_id"
+                                :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->name])->toArray()"
+                                placeholder="Select Account"
+                                :required="true"
+                            />
                         </div>
                         <div class="modal-action">
                             <button type="button" class="btn btn-ghost" onclick="this.closest('dialog').close()">Cancel</button>

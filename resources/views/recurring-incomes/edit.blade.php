@@ -105,16 +105,13 @@
                     <label class="label" for="account_id">
                         <span class="label-text">Account (Optional)</span>
                     </label>
-                    <select name="account_id" id="account_id"
-                            class="select select-bordered @error('account_id') select-error @enderror">
-                        <option value="">No account (skip transaction)</option>
-                        @foreach ($accounts as $account)
-                            <option value="{{ $account->id }}"
-                                {{ old('account_id', $recurringIncome->account_id) == $account->id ? 'selected' : '' }}>
-                                {{ $account->label }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select
+                        name="account_id"
+                        :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->label])->toArray()"
+                        :selected="old('account_id', $recurringIncome->account_id)"
+                        placeholder="No account (skip transaction)"
+                        :has-error="$errors->has('account_id')"
+                    />
                     @error('account_id')
                         <label class="label">
                             <span class="label-text-alt text-error">{{ $message }}</span>

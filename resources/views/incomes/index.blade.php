@@ -80,14 +80,13 @@
                         <label class="label">
                             <span class="label-text">Account</span>
                         </label>
-                        <select name="filter[account_id]" class="select select-bordered select-sm">
-                            <option value="">All Accounts</option>
-                            @foreach ($accounts as $account)
-                                <option value="{{ $account->id }}" {{ $filters['account_id'] == $account->id ? 'selected' : '' }}>
-                                    {{ $account->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <x-searchable-select
+                            name="filter[account_id]"
+                            :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->name])->toArray()"
+                            :selected="$filters['account_id']"
+                            placeholder="All Accounts"
+                            size="sm"
+                        />
                     </div>
 
                     <div class="form-control">

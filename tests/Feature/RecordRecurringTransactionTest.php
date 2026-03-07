@@ -218,6 +218,50 @@ test('record expense advances next_transaction_at', function () {
         ->toBe($originalDate->copy()->addMonth()->format('Y-m-d'));
 });
 
+test('record income increments account balance', function () {
+    $account = Account::factory()->forUser($this->user)->ofSameBalances(1000)->create();
+
+    $recurringIncome = RecurringIncome::factory()
+        ->forUser($this->user)
+        ->withoutAccount()
+        ->create([
+            'next_transaction_at' => now()->subDay(),
+            'frequency' => Frequency::Monthly,
+            'remaining_recurrences' => null,
+            'amount' => 500,
+        ]);
+
+    $this->post(route('recurring-incomes.record', $recurringIncome), [
+        'account_id' => $account->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
+    ]);
+
+    $account->refresh();
+    expect((float) $account->current_balance)->toBe(1500.0);
+});
+
+test('record expense decrements account balance', function () {
+    $account = Account::factory()->forUser($this->user)->ofSameBalances(1000)->create();
+
+    $recurringExpense = RecurringExpense::factory()
+        ->forUser($this->user)
+        ->withoutAccount()
+        ->create([
+            'next_transaction_at' => now()->subDay(),
+            'frequency' => Frequency::Monthly,
+            'remaining_recurrences' => null,
+            'amount' => 300,
+        ]);
+
+    $this->post(route('recurring-expenses.record', $recurringExpense), [
+        'account_id' => $account->id,
+        'transacted_at' => now()->format('Y-m-d\TH:i'),
+    ]);
+
+    $account->refresh();
+    expect((float) $account->current_balance)->toBe(700.0);
+});
+
 test('record expense deletes recurring when recurrences exhausted', function () {
     $recurringExpense = RecurringExpense::factory()
         ->forUser($this->user)

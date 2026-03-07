@@ -102,7 +102,7 @@
                             </label>
                             <x-searchable-select
                                 name="account_id"
-                                :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->name])->toArray()"
+                                :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->label])->toArray()"
                                 placeholder="Select Account"
                                 :required="true"
                             />
@@ -140,7 +140,7 @@
                             </label>
                             <x-searchable-select
                                 name="account_id"
-                                :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->name])->toArray()"
+                                :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->label])->toArray()"
                                 placeholder="Select Account"
                                 :required="true"
                             />

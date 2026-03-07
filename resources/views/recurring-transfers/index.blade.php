@@ -125,10 +125,10 @@
                                     </td>
                                     <td class="font-medium">{{ $recurringTransfer->description }}</td>
                                     <td>
-                                        <span class="badge badge-ghost">{{ $recurringTransfer->debtor->name }}</span>
+                                        <a href="{{ route('accounts.show', $recurringTransfer->debtor) }}" class="badge badge-ghost hover:badge-primary">{{ $recurringTransfer->debtor->name }}</a>
                                     </td>
                                     <td>
-                                        <span class="badge badge-ghost">{{ $recurringTransfer->creditor->name }}</span>
+                                        <a href="{{ route('accounts.show', $recurringTransfer->creditor) }}" class="badge badge-ghost hover:badge-primary">{{ $recurringTransfer->creditor->name }}</a>
                                     </td>
                                     <td>
                                         <span class="badge badge-outline">{{ ucfirst($recurringTransfer->frequency->value) }}</span>

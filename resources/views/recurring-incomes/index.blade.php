@@ -124,7 +124,11 @@
                                     </td>
                                     <td class="font-medium">{{ $recurringIncome->description }}</td>
                                     <td>
-                                        <span class="badge badge-ghost">{{ $recurringIncome->account?->name ?? '-' }}</span>
+                                        @if($recurringIncome->account)
+                                            <a href="{{ route('accounts.show', $recurringIncome->account) }}" class="badge badge-ghost hover:badge-primary">{{ $recurringIncome->account->name }}</a>
+                                        @else
+                                            <span class="badge badge-ghost">-</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="badge badge-outline">{{ ucfirst($recurringIncome->frequency->value) }}</span>

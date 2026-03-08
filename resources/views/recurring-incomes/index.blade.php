@@ -153,8 +153,8 @@
                                                   onsubmit="return confirm('Are you sure you want to delete this recurring income?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-ghost btn-sm text-error">
-                                                    Delete
+                                                <button type="submit" class="btn btn-ghost btn-sm text-error tooltip" data-tip="Delete">
+                                                    <x-icons.trash class="size-4" />
                                                 </button>
                                             </form>
                                         </div>

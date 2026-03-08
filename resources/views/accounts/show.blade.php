@@ -1,12 +1,24 @@
 <x-layouts.app>
 <div class="max-w-2xl mx-auto">
-    <div class="mb-6">
+    <div class="flex justify-between items-center mb-6">
         <a href="{{ route('accounts.index') }}" class="btn btn-ghost btn-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Accounts
         </a>
+        @unless ($account->trashed())
+            <div class="flex gap-2">
+                <a href="{{ route('incomes.create', ['account_id' => $account->id]) }}" class="btn btn-outline btn-success btn-sm">
+                    <x-icons.plus class="size-4 mr-1" />
+                    Add Income
+                </a>
+                <a href="{{ route('expenses.create', ['account_id' => $account->id]) }}" class="btn btn-outline btn-error btn-sm">
+                    <x-icons.minus class="size-4 mr-1" />
+                    Add Expense
+                </a>
+            </div>
+        @endunless
     </div>
 
     @if ($account->trashed())

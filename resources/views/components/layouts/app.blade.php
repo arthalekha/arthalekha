@@ -31,8 +31,7 @@
                         <x-icons.bars-3 />
                     </div>
                     <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-56 p-2 shadow">
-                        @includeUnless(request()->routeIs('family.*'), 'layouts.individual-nav')
-                        @includeWhen(request()->routeIs('family.*'), 'layouts.family-nav')
+                        <x-navigation />
                     </ul>
                 </div>
             @endauth
@@ -44,8 +43,7 @@
         <div class="navbar-center hidden lg:flex">
             @auth
                 <ul class="menu menu-horizontal px-1">
-                    @includeUnless(request()->routeIs('family.*'), 'layouts.individual-nav')
-                    @includeWhen(request()->routeIs('family.*'), 'layouts.family-nav')
+                    <x-navigation />
                 </ul>
             @endauth
         </div>

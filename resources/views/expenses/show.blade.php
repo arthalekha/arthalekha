@@ -18,12 +18,9 @@
                 </div>
                 <div class="flex gap-2">
                     <a href="{{ route('expenses.edit', $expense) }}" class="btn btn-ghost btn-sm">Edit</a>
-                    <form action="{{ route('expenses.destroy', $expense) }}" method="POST" class="inline"
-                          onsubmit="return confirm('Are you sure you want to delete this expense?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-ghost btn-sm text-error">Delete</button>
-                    </form>
+                    <x-confirm-delete :action="route('expenses.destroy', $expense)" message="Are you sure you want to delete this expense?" class="btn btn-ghost btn-sm text-error">
+                        Delete
+                    </x-confirm-delete>
                 </div>
             </div>
 

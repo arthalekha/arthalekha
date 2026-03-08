@@ -15,12 +15,9 @@
                 <h2 class="card-title text-2xl font-bold">{{ $tag->name }}</h2>
                 <div class="flex gap-2">
                     <a href="{{ route('tags.edit', $tag) }}" class="btn btn-ghost btn-sm">Edit</a>
-                    <form action="{{ route('tags.destroy', $tag) }}" method="POST" class="inline"
-                          onsubmit="return confirm('Are you sure you want to delete this tag?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-ghost btn-sm text-error">Delete</button>
-                    </form>
+                    <x-confirm-delete :action="route('tags.destroy', $tag)" message="Are you sure you want to delete this tag?" class="btn btn-ghost btn-sm text-error">
+                        Delete
+                    </x-confirm-delete>
                 </div>
             </div>
 

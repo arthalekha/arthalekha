@@ -51,14 +51,9 @@
                 @unless ($account->trashed())
                     <div class="flex gap-2">
                         <a href="{{ route('accounts.edit', $account) }}" class="btn btn-ghost btn-sm">Edit</a>
-                        <form action="{{ route('accounts.destroy', $account) }}" method="POST" class="inline"
-                              onsubmit="return confirm('Are you sure you want to delete this account?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-ghost btn-sm text-error tooltip" data-tip="Delete">
-                                <x-icons.trash class="size-4" />
-                            </button>
-                        </form>
+                        <x-confirm-delete :action="route('accounts.destroy', $account)" message="Are you sure you want to delete this account?" class="btn btn-ghost btn-sm text-error tooltip" data-tip="Delete">
+                            <x-icons.trash class="size-4" />
+                        </x-confirm-delete>
                     </div>
                 @endunless
             </div>

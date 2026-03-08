@@ -18,12 +18,9 @@
                 </div>
                 <div class="flex gap-2">
                     <a href="{{ route('recurring-expenses.edit', $recurringExpense) }}" class="btn btn-ghost btn-sm">Edit</a>
-                    <form action="{{ route('recurring-expenses.destroy', $recurringExpense) }}" method="POST" class="inline"
-                          onsubmit="return confirm('Are you sure you want to delete this recurring expense?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-ghost btn-sm text-error">Delete</button>
-                    </form>
+                    <x-confirm-delete :action="route('recurring-expenses.destroy', $recurringExpense)" message="Are you sure you want to delete this recurring expense?" class="btn btn-ghost btn-sm text-error">
+                        Delete
+                    </x-confirm-delete>
                 </div>
             </div>
 

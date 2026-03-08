@@ -149,14 +149,9 @@
                                             <a href="{{ route('recurring-expenses.edit', $recurringExpense) }}" class="btn btn-ghost btn-sm tooltip" data-tip="Edit">
                                                 <x-icons.pencil-square class="size-4" />
                                             </a>
-                                            <form action="{{ route('recurring-expenses.destroy', $recurringExpense) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('Are you sure you want to delete this recurring expense?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-ghost btn-sm text-error tooltip" data-tip="Delete">
-                                                    <x-icons.trash class="size-4" />
-                                                </button>
-                                            </form>
+                                            <x-confirm-delete :action="route('recurring-expenses.destroy', $recurringExpense)" message="Are you sure you want to delete this recurring expense?" class="btn btn-ghost btn-sm text-error tooltip" data-tip="Delete">
+                                                <x-icons.trash class="size-4" />
+                                            </x-confirm-delete>
                                         </div>
                                     </td>
                                 </tr>

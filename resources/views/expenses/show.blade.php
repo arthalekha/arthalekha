@@ -17,10 +17,14 @@
                     <p class="text-error font-mono text-xl mt-1">-{{ number_format($expense->amount, 2) }}</p>
                 </div>
                 <div class="flex gap-2">
-                    <a href="{{ route('expenses.create', ['description' => $expense->description, 'amount' => $expense->amount, 'account_id' => $expense->account_id, 'person_id' => $expense->person_id, 'tags' => $expense->tags->pluck('id')->toArray()]) }}" class="btn btn-ghost btn-sm">Copy</a>
-                    <a href="{{ route('expenses.edit', $expense) }}" class="btn btn-ghost btn-sm">Edit</a>
+                    <a href="{{ route('expenses.create', ['description' => $expense->description, 'amount' => $expense->amount, 'account_id' => $expense->account_id, 'person_id' => $expense->person_id, 'tags' => $expense->tags->pluck('id')->toArray()]) }}" class="btn btn-ghost btn-sm">
+                        <x-icons.document-duplicate class="size-4" />
+                    </a>
+                    <a href="{{ route('expenses.edit', $expense) }}" class="btn btn-ghost btn-sm">
+                        <x-icons.pencil-square class="size-4" />
+                    </a>
                     <x-confirm-delete :action="route('expenses.destroy', $expense)" message="Are you sure you want to delete this expense?" class="btn btn-ghost btn-sm text-error">
-                        Delete
+                        <x-icons.trash class="size-4" />
                     </x-confirm-delete>
                 </div>
             </div>

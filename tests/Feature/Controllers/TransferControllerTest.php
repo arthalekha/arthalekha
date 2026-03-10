@@ -428,6 +428,34 @@ test('tag filter is passed to transfer view', function () {
         });
 });
 
+// Copy tests
+
+test('create form prefills fields when copying a transfer', function () {
+    $tags = TagFactory::new()->count(2)->create();
+
+    $transfer = Transfer::factory()->forUser($this->user)->create([
+        'description' => 'Original Transfer',
+        'amount' => 1500.50,
+        'debtor_id' => $this->sourceAccount->id,
+        'creditor_id' => $this->destinationAccount->id,
+        'transacted_at' => now()->subWeek(),
+    ]);
+    $transfer->tags()->attach($tags);
+
+    $this->actingAs($this->user)
+        ->get(route('transfers.create', [
+            'description' => $transfer->description,
+            'amount' => $transfer->amount,
+            'debtor_id' => $transfer->debtor_id,
+            'creditor_id' => $transfer->creditor_id,
+            'tags' => $tags->pluck('id')->toArray(),
+        ]))
+        ->assertSuccessful()
+        ->assertViewIs('transfers.create')
+        ->assertSee('Original Transfer')
+        ->assertSee('1500.50');
+});
+
 // Account balance tests
 
 test('creating a transfer adjusts both account balances', function () {

@@ -17,9 +17,14 @@
                     <p class="text-info font-mono text-xl mt-1">{{ number_format($transfer->amount, 2) }}</p>
                 </div>
                 <div class="flex gap-2">
-                    <a href="{{ route('transfers.edit', $transfer) }}" class="btn btn-ghost btn-sm">Edit</a>
+                    <a href="{{ route('transfers.create', ['description' => $transfer->description, 'amount' => $transfer->amount, 'debtor_id' => $transfer->debtor_id, 'creditor_id' => $transfer->creditor_id, 'tags' => $transfer->tags->pluck('id')->toArray()]) }}" class="btn btn-ghost btn-sm">
+                        <x-icons.document-duplicate class="size-4" />
+                    </a>
+                    <a href="{{ route('transfers.edit', $transfer) }}" class="btn btn-ghost btn-sm">
+                        <x-icons.pencil-square class="size-4" />
+                    </a>
                     <x-confirm-delete :action="route('transfers.destroy', $transfer)" message="Are you sure you want to delete this transfer?" class="btn btn-ghost btn-sm text-error">
-                        Delete
+                        <x-icons.trash class="size-4" />
                     </x-confirm-delete>
                 </div>
             </div>

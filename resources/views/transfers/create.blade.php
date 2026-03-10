@@ -20,7 +20,7 @@
                     <label class="label" for="description">
                         <span class="label-text">Description <span class="text-error">*</span></span>
                     </label>
-                    <input type="text" name="description" id="description" value="{{ old('description') }}"
+                    <input type="text" name="description" id="description" value="{{ old('description', request('description')) }}"
                            class="input input-bordered @error('description') input-error @enderror"
                            placeholder="e.g., Transfer to savings" required>
                     @error('description')
@@ -35,7 +35,7 @@
                         <label class="label" for="amount">
                             <span class="label-text">Amount <span class="text-error">*</span></span>
                         </label>
-                        <input type="number" name="amount" id="amount" value="{{ old('amount') }}"
+                        <input type="number" name="amount" id="amount" value="{{ old('amount', request('amount')) }}"
                                class="input input-bordered @error('amount') input-error @enderror"
                                step="0.01" min="0.01" placeholder="0.00" required>
                         @error('amount')
@@ -67,7 +67,7 @@
                     <x-searchable-select
                         name="debtor_id"
                         :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->label])->toArray()"
-                        :selected="old('debtor_id')"
+                        :selected="old('debtor_id', request('debtor_id'))"
                         placeholder="Select source account"
                         :required="true"
                         :has-error="$errors->has('debtor_id')"
@@ -92,7 +92,7 @@
                     <x-searchable-select
                         name="creditor_id"
                         :options="$accounts->map(fn($account) => ['value' => $account->id, 'label' => $account->label])->toArray()"
-                        :selected="old('creditor_id')"
+                        :selected="old('creditor_id', request('creditor_id'))"
                         placeholder="Select destination account"
                         :required="true"
                         :has-error="$errors->has('creditor_id')"
@@ -104,7 +104,7 @@
                     @enderror
                 </div>
 
-                <x-tag-selector :tags="$tags" />
+                <x-tag-selector :tags="$tags" :selected="array_map('intval', request('tags', []))" />
 
                 <div class="flex justify-end gap-2 mt-6">
                     <a href="{{ route('transfers.index') }}" class="btn btn-ghost">Cancel</a>

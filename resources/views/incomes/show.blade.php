@@ -17,6 +17,7 @@
                     <p class="text-success font-mono text-xl mt-1">+{{ number_format($income->amount, 2) }}</p>
                 </div>
                 <div class="flex gap-2">
+                    <a href="{{ route('incomes.create', ['description' => $income->description, 'amount' => $income->amount, 'account_id' => $income->account_id, 'person_id' => $income->person_id, 'tags' => $income->tags->pluck('id')->toArray()]) }}" class="btn btn-ghost btn-sm">Copy</a>
                     <a href="{{ route('incomes.edit', $income) }}" class="btn btn-ghost btn-sm">Edit</a>
                     <x-confirm-delete :action="route('incomes.destroy', $income)" message="Are you sure you want to delete this income?" class="btn btn-ghost btn-sm text-error">
                         Delete

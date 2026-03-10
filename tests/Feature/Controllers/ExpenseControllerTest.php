@@ -569,6 +569,34 @@ test('tag filter is passed to expense view', function () {
         });
 });
 
+// Copy tests
+
+test('create form prefills fields when copying an expense', function () {
+    $person = Person::factory()->create();
+    $tags = TagFactory::new()->count(2)->create();
+
+    $expense = Expense::factory()->forUser($this->user)->forAccount($this->account)->create([
+        'description' => 'Original Expense',
+        'amount' => 1500.50,
+        'person_id' => $person->id,
+        'transacted_at' => now()->subWeek(),
+    ]);
+    $expense->tags()->attach($tags);
+
+    $this->actingAs($this->user)
+        ->get(route('expenses.create', [
+            'description' => $expense->description,
+            'amount' => $expense->amount,
+            'account_id' => $expense->account_id,
+            'person_id' => $expense->person_id,
+            'tags' => $tags->pluck('id')->toArray(),
+        ]))
+        ->assertSuccessful()
+        ->assertViewIs('expenses.create')
+        ->assertSee('Original Expense')
+        ->assertSee('1500.50');
+});
+
 // Account balance tests
 
 test('creating an expense decrements account balance', function () {

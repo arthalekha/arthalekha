@@ -569,6 +569,34 @@ test('tag filter is passed to income view', function () {
         });
 });
 
+// Copy tests
+
+test('create form prefills fields when copying an income', function () {
+    $person = Person::factory()->create();
+    $tags = TagFactory::new()->count(2)->create();
+
+    $income = Income::factory()->forUser($this->user)->forAccount($this->account)->create([
+        'description' => 'Original Income',
+        'amount' => 1500.50,
+        'person_id' => $person->id,
+        'transacted_at' => now()->subWeek(),
+    ]);
+    $income->tags()->attach($tags);
+
+    $this->actingAs($this->user)
+        ->get(route('incomes.create', [
+            'description' => $income->description,
+            'amount' => $income->amount,
+            'account_id' => $income->account_id,
+            'person_id' => $income->person_id,
+            'tags' => $tags->pluck('id')->toArray(),
+        ]))
+        ->assertSuccessful()
+        ->assertViewIs('incomes.create')
+        ->assertSee('Original Income')
+        ->assertSee('1500.50');
+});
+
 // Account balance tests
 
 test('creating an income increments account balance', function () {

@@ -3,12 +3,13 @@
 namespace Database\Factories;
 
 use App\Models\Account;
+use App\Models\Expense;
 use App\Models\Person;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Expense>
+ * @extends Factory<Expense>
  */
 class ExpenseFactory extends Factory
 {

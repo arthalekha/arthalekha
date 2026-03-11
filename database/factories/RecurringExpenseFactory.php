@@ -5,11 +5,12 @@ namespace Database\Factories;
 use App\Enums\Frequency;
 use App\Models\Account;
 use App\Models\Person;
+use App\Models\RecurringExpense;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RecurringExpense>
+ * @extends Factory<RecurringExpense>
  */
 class RecurringExpenseFactory extends Factory
 {

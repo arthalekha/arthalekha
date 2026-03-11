@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Income;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -32,7 +33,7 @@ class IncomesExport implements FromQuery, WithHeadings, WithMapping
     }
 
     /**
-     * @param  \App\Models\Income  $income
+     * @param  Income  $income
      */
     public function map($income): array
     {

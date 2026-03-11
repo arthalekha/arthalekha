@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Transfer;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -32,7 +33,7 @@ class TransfersExport implements FromQuery, WithHeadings, WithMapping
     }
 
     /**
-     * @param  \App\Models\Transfer  $transfer
+     * @param  Transfer  $transfer
      */
     public function map($transfer): array
     {

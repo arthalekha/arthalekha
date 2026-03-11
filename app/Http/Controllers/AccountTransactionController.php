@@ -8,6 +8,8 @@ use App\Models\Income;
 use App\Models\Transfer;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -167,7 +169,7 @@ class AccountTransactionController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  array<string, mixed>  $filters
      */
     private function applyDateFilters($query, array $filters): void
@@ -182,7 +184,7 @@ class AccountTransactionController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<\Illuminate\Database\Eloquent\Model>  $query
+     * @param  Builder<Model>  $query
      * @param  array<string, mixed>  $filters
      */
     private function applySearchFilter($query, array $filters): void

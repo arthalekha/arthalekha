@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\FamilyUserScope;
+use Database\Factories\ExpenseFactory;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use SourcedOpen\Tags\Traits\HasTags;
 #[ScopedBy(FamilyUserScope::class)]
 class Expense extends Model
 {
-    /** @use HasFactory<\Database\Factories\ExpenseFactory> */
+    /** @use HasFactory<ExpenseFactory> */
     use HasFactory;
 
     use HasTags;

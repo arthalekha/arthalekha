@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Expense;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -32,7 +33,7 @@ class ExpensesExport implements FromQuery, WithHeadings, WithMapping
     }
 
     /**
-     * @param  \App\Models\Expense  $expense
+     * @param  Expense  $expense
      */
     public function map($expense): array
     {

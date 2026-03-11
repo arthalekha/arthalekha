@@ -3,6 +3,7 @@
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 uses(RefreshDatabase::class);
 
@@ -184,7 +185,7 @@ test('password reset tokens expire', function () {
     $user = User::factory()->create();
 
     // Create a token
-    $token = \Illuminate\Support\Facades\Password::createToken($user);
+    $token = Password::createToken($user);
 
     // Travel to future (default expiration is 1 hour)
     $this->travel(2)->hours();

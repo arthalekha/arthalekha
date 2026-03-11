@@ -5,6 +5,7 @@ use App\Models\Account;
 use App\Models\Balance;
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -91,7 +92,7 @@ test('initial_date casts to Carbon date', function () {
         'initial_date' => '2024-01-15',
     ]);
 
-    expect($account->initial_date)->toBeInstanceOf(\Carbon\CarbonInterface::class);
+    expect($account->initial_date)->toBeInstanceOf(CarbonInterface::class);
     expect($account->initial_date->format('Y-m-d'))->toBe('2024-01-15');
 });
 
@@ -99,7 +100,7 @@ test('initial_date is required', function () {
     $account = Account::factory()->forUser($this->user)->create();
 
     expect($account->initial_date)->not->toBeNull();
-    expect($account->initial_date)->toBeInstanceOf(\Carbon\CarbonInterface::class);
+    expect($account->initial_date)->toBeInstanceOf(CarbonInterface::class);
 });
 
 test('data casts to array', function () {

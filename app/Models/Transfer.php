@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scopes\FamilyUserScope;
+use Database\Factories\TransferFactory;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use SourcedOpen\Tags\Traits\HasTags;
 #[ScopedBy(FamilyUserScope::class)]
 class Transfer extends Model
 {
-    /** @use HasFactory<\Database\Factories\TransferFactory> */
+    /** @use HasFactory<TransferFactory> */
     use HasFactory;
 
     use HasTags;

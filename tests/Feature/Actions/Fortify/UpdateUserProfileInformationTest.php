@@ -2,6 +2,7 @@
 
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -135,7 +136,7 @@ it('resets email verification and sends notification when email changes for Must
     expect($verifiableUser->email)->toBe('newemail@example.com');
     expect($verifiableUser->email_verified_at)->toBeNull();
 
-    Notification::assertSentTo($verifiableUser, Illuminate\Auth\Notifications\VerifyEmail::class);
+    Notification::assertSentTo($verifiableUser, VerifyEmail::class);
 });
 
 it('does not reset email verification when email stays the same for MustVerifyEmail user', function () {

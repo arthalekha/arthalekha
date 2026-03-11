@@ -7,6 +7,7 @@ use App\Models\RecurringExpense;
 use App\Models\RecurringIncome;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -62,8 +63,8 @@ class ProjectedDashboardController extends Controller
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Collection<int, RecurringIncome>  $recurringIncomes
-     * @param  \Illuminate\Database\Eloquent\Collection<int, RecurringExpense>  $recurringExpenses
+     * @param  Collection<int, RecurringIncome>  $recurringIncomes
+     * @param  Collection<int, RecurringExpense>  $recurringExpenses
      * @return array<string, array{income: float, expense: float}>
      */
     private function calculateMonthlyProjections(

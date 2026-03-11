@@ -3,6 +3,8 @@
 use App\Models\Account;
 use App\Models\Balance;
 use App\Models\User;
+use Carbon\CarbonInterface;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -39,7 +41,7 @@ test('recorded_until casts to Carbon date', function () {
         'recorded_until' => '2024-12-31',
     ]);
 
-    expect($balance->recorded_until)->toBeInstanceOf(\Carbon\CarbonInterface::class);
+    expect($balance->recorded_until)->toBeInstanceOf(CarbonInterface::class);
     expect($balance->recorded_until->format('Y-m-d'))->toBe('2024-12-31');
 });
 
@@ -74,7 +76,7 @@ test('unique constraint prevents duplicate balance for same account and date', f
 
     expect(fn () => Balance::factory()->forAccount($this->account)->create([
         'recorded_until' => '2024-12-31',
-    ]))->toThrow(\Illuminate\Database\QueryException::class);
+    ]))->toThrow(QueryException::class);
 });
 
 test('same date can be used for different accounts', function () {

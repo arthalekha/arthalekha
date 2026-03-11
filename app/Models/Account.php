@@ -7,6 +7,7 @@ use App\Data\AccountData\CreditCardAccountData;
 use App\Data\AccountData\SavingsAccountData;
 use App\Enums\AccountType;
 use App\Models\Scopes\FamilyUserScope;
+use Database\Factories\AccountFactory;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Date;
 #[ScopedBy(FamilyUserScope::class)]
 class Account extends Model
 {
-    /** @use HasFactory<\Database\Factories\AccountFactory> */
+    /** @use HasFactory<AccountFactory> */
     use HasFactory;
 
     use SoftDeletes;

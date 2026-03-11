@@ -1,7 +1,10 @@
 <?php
 
+use App\Enums\AccountType;
 use App\Models\Account;
 use App\Models\User;
+use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,7 +22,7 @@ test('creating user has empty accounts collection', function () {
     $user = User::factory()->create();
 
     expect($user->accounts)->toBeEmpty();
-    expect($user->accounts)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
+    expect($user->accounts)->toBeInstanceOf(Collection::class);
 });
 
 test('can create accounts through relationship', function () {
@@ -28,7 +31,7 @@ test('can create accounts through relationship', function () {
     $account = $user->accounts()->create([
         'name' => 'Checking',
         'identifier' => '1234',
-        'account_type' => \App\Enums\AccountType::Savings,
+        'account_type' => AccountType::Savings,
         'initial_balance' => 1000.00,
         'initial_date' => now(),
     ]);
@@ -42,7 +45,7 @@ test('email_verified_at casts to Carbon datetime', function () {
         'email_verified_at' => '2024-01-01 10:00:00',
     ]);
 
-    expect($user->email_verified_at)->toBeInstanceOf(\Carbon\CarbonInterface::class);
+    expect($user->email_verified_at)->toBeInstanceOf(CarbonInterface::class);
     expect($user->email_verified_at->format('Y-m-d H:i:s'))->toBe('2024-01-01 10:00:00');
 });
 

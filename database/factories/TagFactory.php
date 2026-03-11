@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use SourcedOpen\Tags\Models\Tag;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\SourcedOpen\Tags\Models\Tag>
+ * @extends Factory<Tag>
  */
 class TagFactory extends Factory
 {

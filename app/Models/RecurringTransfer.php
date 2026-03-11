@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Frequency;
 use App\Models\Scopes\FamilyUserScope;
+use Database\Factories\RecurringTransferFactory;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use SourcedOpen\Tags\Traits\HasTags;
 #[ScopedBy(FamilyUserScope::class)]
 class RecurringTransfer extends Model
 {
-    /** @use HasFactory<\Database\Factories\RecurringTransferFactory> */
+    /** @use HasFactory<RecurringTransferFactory> */
     use HasFactory;
 
     use HasTags;

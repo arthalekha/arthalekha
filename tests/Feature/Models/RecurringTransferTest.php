@@ -4,6 +4,7 @@ use App\Enums\Frequency;
 use App\Models\Account;
 use App\Models\RecurringTransfer;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use SourcedOpen\Tags\Models\Tag;
@@ -79,7 +80,7 @@ test('next_transaction_at casts to Carbon datetime', function () {
         'next_transaction_at' => '2024-02-01 10:00:00',
     ]);
 
-    expect($recurringTransfer->next_transaction_at)->toBeInstanceOf(\Carbon\CarbonInterface::class);
+    expect($recurringTransfer->next_transaction_at)->toBeInstanceOf(CarbonInterface::class);
     expect($recurringTransfer->next_transaction_at->format('Y-m-d H:i:s'))->toBe('2024-02-01 10:00:00');
 });
 

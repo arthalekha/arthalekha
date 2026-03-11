@@ -5,6 +5,7 @@ use App\Models\Income;
 use App\Models\Transfer;
 use App\Services\TagService;
 use Database\Factories\TagFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use SourcedOpen\Tags\Models\Tag;
 
@@ -211,7 +212,7 @@ test('tag relationships return collections', function () {
     Expense::factory()->create()->tags()->attach($tag);
     Transfer::factory()->create()->tags()->attach($tag);
 
-    expect($tag->taggables(Income::class)->get())->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
-    expect($tag->taggables(Expense::class)->get())->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
-    expect($tag->taggables(Transfer::class)->get())->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
+    expect($tag->taggables(Income::class)->get())->toBeInstanceOf(Collection::class);
+    expect($tag->taggables(Expense::class)->get())->toBeInstanceOf(Collection::class);
+    expect($tag->taggables(Transfer::class)->get())->toBeInstanceOf(Collection::class);
 });

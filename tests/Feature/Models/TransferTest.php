@@ -3,6 +3,7 @@
 use App\Models\Account;
 use App\Models\Transfer;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Database\Factories\TagFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use SourcedOpen\Tags\Models\Tag;
@@ -91,7 +92,7 @@ test('transacted_at casts to Carbon datetime', function () {
         'transacted_at' => '2024-01-15 14:30:00',
     ]);
 
-    expect($transfer->transacted_at)->toBeInstanceOf(\Carbon\CarbonInterface::class);
+    expect($transfer->transacted_at)->toBeInstanceOf(CarbonInterface::class);
     expect($transfer->transacted_at->format('Y-m-d H:i:s'))->toBe('2024-01-15 14:30:00');
 });
 

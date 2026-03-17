@@ -11,6 +11,10 @@
 /.junie
 /.cursor
 /.ai
+# ---------- AI Agent Skills ----------
+/.agents/skills
+/.claude/skills
+/.github/skills
 .mcp.json
 boost.json
 /.nova

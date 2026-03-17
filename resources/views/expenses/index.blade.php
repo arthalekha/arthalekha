@@ -171,6 +171,9 @@
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">
+                                            <a href="{{ route('expenses.create', ['description' => $expense->description, 'amount' => $expense->amount, 'account_id' => $expense->account_id, 'person_id' => $expense->person_id, 'tags' => $expense->tags->pluck('id')->toArray()]) }}" class="btn btn-ghost btn-sm tooltip" data-tip="Copy">
+                                                <x-icons.document-duplicate class="size-4" />
+                                            </a>
                                             <a href="{{ route('expenses.show', $expense) }}" class="btn btn-ghost btn-sm tooltip" data-tip="View">
                                                 <x-icons.eye class="size-4" />
                                             </a>

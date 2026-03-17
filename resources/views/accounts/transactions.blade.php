@@ -155,25 +155,30 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if ($transaction['type'] === 'income')
-                                            <a href="{{ route('incomes.edit', $transaction['id']) }}" class="btn btn-ghost btn-xs">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                                </svg>
-                                            </a>
-                                        @elseif ($transaction['type'] === 'expense')
-                                            <a href="{{ route('expenses.edit', $transaction['id']) }}" class="btn btn-ghost btn-xs">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                                </svg>
-                                            </a>
-                                        @elseif (in_array($transaction['type'], ['transfer_in', 'transfer_out']))
-                                            <a href="{{ route('transfers.edit', $transaction['id']) }}" class="btn btn-ghost btn-xs">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                                </svg>
-                                            </a>
-                                        @endif
+                                        <div class="flex justify-end gap-1">
+                                            @if ($transaction['type'] === 'income')
+                                                <a href="{{ route('incomes.create', ['description' => $transaction['description'], 'amount' => $transaction['amount'], 'account_id' => $transaction['account_id'], 'person_id' => $transaction['person_id'], 'tags' => $transaction['tags']]) }}" class="btn btn-ghost btn-xs tooltip" data-tip="Copy">
+                                                    <x-icons.document-duplicate class="size-4" />
+                                                </a>
+                                                <a href="{{ route('incomes.edit', $transaction['id']) }}" class="btn btn-ghost btn-xs tooltip" data-tip="Edit">
+                                                    <x-icons.pencil-square class="size-4" />
+                                                </a>
+                                            @elseif ($transaction['type'] === 'expense')
+                                                <a href="{{ route('expenses.create', ['description' => $transaction['description'], 'amount' => $transaction['amount'], 'account_id' => $transaction['account_id'], 'person_id' => $transaction['person_id'], 'tags' => $transaction['tags']]) }}" class="btn btn-ghost btn-xs tooltip" data-tip="Copy">
+                                                    <x-icons.document-duplicate class="size-4" />
+                                                </a>
+                                                <a href="{{ route('expenses.edit', $transaction['id']) }}" class="btn btn-ghost btn-xs tooltip" data-tip="Edit">
+                                                    <x-icons.pencil-square class="size-4" />
+                                                </a>
+                                            @elseif (in_array($transaction['type'], ['transfer_in', 'transfer_out']))
+                                                <a href="{{ route('transfers.create', ['description' => $transaction['description'], 'amount' => $transaction['amount'], 'debtor_id' => $transaction['debtor_id'], 'creditor_id' => $transaction['creditor_id'], 'tags' => $transaction['tags']]) }}" class="btn btn-ghost btn-xs tooltip" data-tip="Copy">
+                                                    <x-icons.document-duplicate class="size-4" />
+                                                </a>
+                                                <a href="{{ route('transfers.edit', $transaction['id']) }}" class="btn btn-ghost btn-xs tooltip" data-tip="Edit">
+                                                    <x-icons.pencil-square class="size-4" />
+                                                </a>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

@@ -25,7 +25,7 @@ class IncomeService
     public function getIncomes(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Income::class)
-            ->with(['account', 'person'])
+            ->with(['account', 'person', 'tags'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
                 AllowedFilter::custom('to_date', new ToDateFilter),

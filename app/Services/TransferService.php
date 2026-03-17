@@ -24,7 +24,7 @@ class TransferService
     public function getTransfers(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Transfer::class)
-            ->with(['creditor', 'debtor'])
+            ->with(['creditor', 'debtor', 'tags'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
                 AllowedFilter::custom('to_date', new ToDateFilter),

@@ -170,6 +170,9 @@
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-2">
+                                            <a href="{{ route('transfers.create', ['description' => $transfer->description, 'amount' => $transfer->amount, 'debtor_id' => $transfer->debtor_id, 'creditor_id' => $transfer->creditor_id, 'tags' => $transfer->tags->pluck('id')->toArray()]) }}" class="btn btn-ghost btn-sm tooltip" data-tip="Copy">
+                                                <x-icons.document-duplicate class="size-4" />
+                                            </a>
                                             <a href="{{ route('transfers.show', $transfer) }}" class="btn btn-ghost btn-sm tooltip" data-tip="View">
                                                 <x-icons.eye class="size-4" />
                                             </a>

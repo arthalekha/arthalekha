@@ -77,7 +77,7 @@ class AccountTransactionController extends Controller
 
         $query = Income::query()
             ->where('account_id', $account->id)
-            ->with('person');
+            ->with(['person', 'tags']);
 
         $this->applyDateFilters($query, $filters);
         $this->applySearchFilter($query, $filters);
@@ -90,6 +90,9 @@ class AccountTransactionController extends Controller
             'transacted_at' => $income->transacted_at,
             'person' => $income->person,
             'related_account' => null,
+            'account_id' => $income->account_id,
+            'person_id' => $income->person_id,
+            'tags' => $income->tags->pluck('id')->toArray(),
         ]);
     }
 
@@ -104,7 +107,7 @@ class AccountTransactionController extends Controller
 
         $query = Expense::query()
             ->where('account_id', $account->id)
-            ->with('person');
+            ->with(['person', 'tags']);
 
         $this->applyDateFilters($query, $filters);
         $this->applySearchFilter($query, $filters);
@@ -117,6 +120,9 @@ class AccountTransactionController extends Controller
             'transacted_at' => $expense->transacted_at,
             'person' => $expense->person,
             'related_account' => null,
+            'account_id' => $expense->account_id,
+            'person_id' => $expense->person_id,
+            'tags' => $expense->tags->pluck('id')->toArray(),
         ]);
     }
 
@@ -132,7 +138,7 @@ class AccountTransactionController extends Controller
         // Transfers where this account is creditor (receiving money)
         $creditorQuery = Transfer::query()
             ->where('creditor_id', $account->id)
-            ->with('debtor');
+            ->with(['debtor', 'tags']);
 
         $this->applyDateFilters($creditorQuery, $filters);
         $this->applySearchFilter($creditorQuery, $filters);
@@ -145,12 +151,15 @@ class AccountTransactionController extends Controller
             'transacted_at' => $transfer->transacted_at,
             'person' => null,
             'related_account' => $transfer->debtor,
+            'debtor_id' => $transfer->debtor_id,
+            'creditor_id' => $transfer->creditor_id,
+            'tags' => $transfer->tags->pluck('id')->toArray(),
         ]);
 
         // Transfers where this account is debtor (sending money)
         $debtorQuery = Transfer::query()
             ->where('debtor_id', $account->id)
-            ->with('creditor');
+            ->with(['creditor', 'tags']);
 
         $this->applyDateFilters($debtorQuery, $filters);
         $this->applySearchFilter($debtorQuery, $filters);
@@ -163,6 +172,9 @@ class AccountTransactionController extends Controller
             'transacted_at' => $transfer->transacted_at,
             'person' => null,
             'related_account' => $transfer->creditor,
+            'debtor_id' => $transfer->debtor_id,
+            'creditor_id' => $transfer->creditor_id,
+            'tags' => $transfer->tags->pluck('id')->toArray(),
         ]);
 
         return $creditorTransfers->concat($debtorTransfers);

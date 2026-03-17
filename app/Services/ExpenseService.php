@@ -25,7 +25,7 @@ class ExpenseService
     public function getExpenses(int $perPage = 10): LengthAwarePaginator
     {
         return QueryBuilder::for(Expense::class)
-            ->with(['account', 'person'])
+            ->with(['account', 'person', 'tags'])
             ->allowedFilters([
                 AllowedFilter::custom('from_date', new FromDateFilter),
                 AllowedFilter::custom('to_date', new ToDateFilter),

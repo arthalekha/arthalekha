@@ -3,6 +3,7 @@
 use App\Enums\AccountType;
 use App\Models\Account;
 use App\Models\Balance;
+use App\Models\Transfer;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -222,4 +223,48 @@ test('previousMonthBalance works correctly at month boundaries', function () {
 
     expect($account->previousMonthBalance)->not->toBeNull();
     expect($account->previousMonthBalance->id)->toBe($balance->id);
+});
+
+test('creditTransfers returns transfers where account is the creditor', function () {
+    $account = Account::factory()->forUser($this->user)->create();
+    $otherAccount = Account::factory()->forUser($this->user)->create();
+
+    $creditTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->toAccount($account)
+        ->fromAccount($otherAccount)
+        ->create();
+
+    Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($account)
+        ->toAccount($otherAccount)
+        ->create();
+
+    $this->actingAs($this->user);
+
+    expect($account->creditTransfers)->toHaveCount(1);
+    expect($account->creditTransfers->first()->id)->toBe($creditTransfer->id);
+});
+
+test('debitTransfers returns transfers where account is the debtor', function () {
+    $account = Account::factory()->forUser($this->user)->create();
+    $otherAccount = Account::factory()->forUser($this->user)->create();
+
+    $debitTransfer = Transfer::factory()
+        ->forUser($this->user)
+        ->fromAccount($account)
+        ->toAccount($otherAccount)
+        ->create();
+
+    Transfer::factory()
+        ->forUser($this->user)
+        ->toAccount($account)
+        ->fromAccount($otherAccount)
+        ->create();
+
+    $this->actingAs($this->user);
+
+    expect($account->debitTransfers)->toHaveCount(1);
+    expect($account->debitTransfers->first()->id)->toBe($debitTransfer->id);
 });

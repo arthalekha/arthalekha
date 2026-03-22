@@ -89,4 +89,14 @@ class Account extends Model
     {
         $this->data = $accountData->toArray();
     }
+
+    public function creditTransfers(): HasMany
+    {
+        return $this->hasMany(Transfer::class, 'creditor_id');
+    }
+
+    public function debitTransfers(): HasMany
+    {
+        return $this->hasMany(Transfer::class, 'debtor_id');
+    }
 }

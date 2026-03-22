@@ -48,7 +48,7 @@ class Transfer extends Model
      */
     public function creditor(): BelongsTo
     {
-        return $this->belongsTo(Account::class, 'creditor_id');
+        return $this->belongsTo(Account::class, 'creditor_id')->withoutGlobalScope(FamilyUserScope::class);
     }
 
     /**
@@ -56,6 +56,6 @@ class Transfer extends Model
      */
     public function debtor(): BelongsTo
     {
-        return $this->belongsTo(Account::class, 'debtor_id');
+        return $this->belongsTo(Account::class, 'debtor_id')->withoutGlobalScope(FamilyUserScope::class);
     }
 }

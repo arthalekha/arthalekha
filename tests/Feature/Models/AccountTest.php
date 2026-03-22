@@ -18,15 +18,15 @@ beforeEach(function () {
 test('account belongs to user', function () {
     $account = Account::factory()->forUser($this->user)->create();
 
-    expect($account->user)->toBeInstanceOf(User::class);
-    expect($account->user->id)->toBe($this->user->id);
+    expect($account->user)->toBeInstanceOf(User::class)
+        ->and($account->user->id)->toBe($this->user->id);
 });
 
 test('account belongs to exactly one user', function () {
     $account = Account::factory()->forUser($this->user)->create();
 
-    expect($account->user_id)->toBe($this->user->id);
-    expect($account->user)->not->toBeNull();
+    expect($account->user_id)->toBe($this->user->id)
+        ->and($account->user)->not->toBeNull();
 });
 
 test('label accessor returns formatted string', function () {
@@ -36,9 +36,9 @@ test('label accessor returns formatted string', function () {
         'account_type' => AccountType::Savings,
     ]);
 
-    expect($account->label)->toContain('Checking Account');
-    expect($account->label)->toContain('1234');
-    expect($account->label)->toContain('SB');
+    expect($account->label)->toContain('Checking Account')
+        ->and($account->label)->toContain('1234')
+        ->and($account->label)->toContain('SB');
 });
 
 test('label accessor handles null identifier gracefully', function () {
@@ -48,8 +48,8 @@ test('label accessor handles null identifier gracefully', function () {
         'account_type' => AccountType::Cash,
     ]);
 
-    expect($account->label)->toContain('Cash');
-    expect($account->label)->toContain('CA');
+    expect($account->label)->toContain('Cash')
+        ->and($account->label)->toContain('CA');
 });
 
 test('label accessor includes AccountType shortCode', function () {
@@ -59,8 +59,8 @@ test('label accessor includes AccountType shortCode', function () {
         'account_type' => AccountType::CreditCard,
     ]);
 
-    expect($account->label)->toStartWith('CC');
-    expect($account->label)->toContain('Credit Card');
+    expect($account->label)->toStartWith('CC')
+        ->and($account->label)->toContain('Credit Card');
 });
 
 test('account_type casts to AccountType enum', function () {
@@ -68,8 +68,8 @@ test('account_type casts to AccountType enum', function () {
         'account_type' => AccountType::Savings,
     ]);
 
-    expect($account->account_type)->toBeInstanceOf(AccountType::class);
-    expect($account->account_type)->toBe(AccountType::Savings);
+    expect($account->account_type)->toBeInstanceOf(AccountType::class)
+        ->and($account->account_type)->toBe(AccountType::Savings);
 });
 
 test('current_balance casts to decimal with 2 places', function () {
@@ -93,15 +93,15 @@ test('initial_date casts to Carbon date', function () {
         'initial_date' => '2024-01-15',
     ]);
 
-    expect($account->initial_date)->toBeInstanceOf(CarbonInterface::class);
-    expect($account->initial_date->format('Y-m-d'))->toBe('2024-01-15');
+    expect($account->initial_date)->toBeInstanceOf(CarbonInterface::class)
+        ->and($account->initial_date->format('Y-m-d'))->toBe('2024-01-15');
 });
 
 test('initial_date is required', function () {
     $account = Account::factory()->forUser($this->user)->create();
 
-    expect($account->initial_date)->not->toBeNull();
-    expect($account->initial_date)->toBeInstanceOf(CarbonInterface::class);
+    expect($account->initial_date)->not->toBeNull()
+        ->and($account->initial_date)->toBeInstanceOf(CarbonInterface::class);
 });
 
 test('data casts to array', function () {
@@ -111,8 +111,8 @@ test('data casts to array', function () {
         'data' => $testData,
     ]);
 
-    expect($account->data)->toBeArray();
-    expect($account->data)->toBe($testData);
+    expect($account->data)->toBeArray()
+        ->and($account->data)->toBe($testData);
 });
 
 test('data can be null', function () {
@@ -126,8 +126,8 @@ test('data can be null', function () {
 test('forUser factory state works correctly', function () {
     $account = Account::factory()->forUser($this->user)->create();
 
-    expect($account->user_id)->toBe($this->user->id);
-    expect($account->user)->toBeInstanceOf(User::class);
+    expect($account->user_id)->toBe($this->user->id)
+        ->and($account->user)->toBeInstanceOf(User::class);
 });
 
 test('ofType factory state works correctly', function () {
@@ -166,8 +166,8 @@ test('decimal precision is maintained for balances', function () {
         'initial_balance' => '5555555.55',
     ]);
 
-    expect($account->current_balance)->toBe('9999999.99');
-    expect($account->initial_balance)->toBe('5555555.55');
+    expect($account->current_balance)->toBe('9999999.99')
+        ->and($account->initial_balance)->toBe('5555555.55');
 });
 
 test('previousMonthBalance returns balance for previous month', function () {
@@ -180,9 +180,9 @@ test('previousMonthBalance returns balance for previous month', function () {
         'recorded_until' => '2024-01-31',
     ]);
 
-    expect($account->previousMonthBalance)->not->toBeNull();
-    expect($account->previousMonthBalance->id)->toBe($balance->id);
-    expect($account->previousMonthBalance->balance)->toBe('1500.00');
+    expect($account->previousMonthBalance)->not->toBeNull()
+        ->and($account->previousMonthBalance->id)->toBe($balance->id)
+        ->and($account->previousMonthBalance->balance)->toBe('1500.00');
 });
 
 test('previousMonthBalance returns null when no balance exists for previous month', function () {
@@ -221,8 +221,8 @@ test('previousMonthBalance works correctly at month boundaries', function () {
         'recorded_until' => '2024-02-29',
     ]);
 
-    expect($account->previousMonthBalance)->not->toBeNull();
-    expect($account->previousMonthBalance->id)->toBe($balance->id);
+    expect($account->previousMonthBalance)->not->toBeNull()
+        ->and($account->previousMonthBalance->id)->toBe($balance->id);
 });
 
 test('creditTransfers returns transfers where account is the creditor', function () {
@@ -243,8 +243,8 @@ test('creditTransfers returns transfers where account is the creditor', function
 
     $this->actingAs($this->user);
 
-    expect($account->creditTransfers)->toHaveCount(1);
-    expect($account->creditTransfers->first()->id)->toBe($creditTransfer->id);
+    expect($account->creditTransfers)->toHaveCount(1)
+        ->and($account->creditTransfers->first()->id)->toBe($creditTransfer->id);
 });
 
 test('debitTransfers returns transfers where account is the debtor', function () {
@@ -265,6 +265,6 @@ test('debitTransfers returns transfers where account is the debtor', function ()
 
     $this->actingAs($this->user);
 
-    expect($account->debitTransfers)->toHaveCount(1);
-    expect($account->debitTransfers->first()->id)->toBe($debitTransfer->id);
+    expect($account->debitTransfers)->toHaveCount(1)
+        ->and($account->debitTransfers->first()->id)->toBe($debitTransfer->id);
 });

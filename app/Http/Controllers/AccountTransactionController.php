@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Income;
-use App\Models\Transfer;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -136,8 +135,7 @@ class AccountTransactionController extends Controller
         }
 
         // Transfers where this account is creditor (receiving money)
-        $creditorQuery = Transfer::query()
-            ->where('creditor_id', $account->id)
+        $creditorQuery = $account->creditTransfers()
             ->with(['debtor', 'tags']);
 
         $this->applyDateFilters($creditorQuery, $filters);
@@ -157,8 +155,7 @@ class AccountTransactionController extends Controller
         ]);
 
         // Transfers where this account is debtor (sending money)
-        $debtorQuery = Transfer::query()
-            ->where('debtor_id', $account->id)
+        $debtorQuery = $account->debitTransfers()
             ->with(['creditor', 'tags']);
 
         $this->applyDateFilters($debtorQuery, $filters);

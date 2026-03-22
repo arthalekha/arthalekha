@@ -8,7 +8,6 @@ use App\Models\Income;
 use App\Models\RecurringExpense;
 use App\Models\RecurringIncome;
 use App\Models\RecurringTransfer;
-use App\Models\Transfer;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -108,7 +107,7 @@ class AccountProjectedBalanceService
 
     protected function addActualCreditTransfers(Account $account, Carbon $startDate, Carbon $endDate): void
     {
-        $transfers = Transfer::query()
+        $transfers = $account->creditTransfers()
             ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
             ->where('creditor_id', $account->id)
             ->whereBetween('transacted_at', [$startDate, $endDate])
@@ -120,7 +119,7 @@ class AccountProjectedBalanceService
 
     protected function addActualDebitTransfers(Account $account, Carbon $startDate, Carbon $endDate): void
     {
-        $transfers = Transfer::query()
+        $transfers = $account->debitTransfers()
             ->selectRaw('DATE(transacted_at) as day, SUM(amount) as total_amount')
             ->where('debtor_id', $account->id)
             ->whereBetween('transacted_at', [$startDate, $endDate])
